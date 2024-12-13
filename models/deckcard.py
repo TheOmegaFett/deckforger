@@ -8,5 +8,6 @@ class DeckCard(db.Model):
     card_id = db.Column(db.Integer, db.ForeignKey('cards.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
-    deck = db.relationship("Deck", back_populates="cards")
+    # Relationships
+    deck = db.relationship("Deck", back_populates="deck_cards")
     card = db.relationship("Card", back_populates="decks")
