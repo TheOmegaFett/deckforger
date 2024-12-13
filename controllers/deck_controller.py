@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from marshmallow import ValidationError, validates
 from init import db
 from models.deck import Deck
 from schemas.deck_schema import DeckSchema
@@ -11,6 +12,20 @@ deck_controller = Blueprint('deck_controller', __name__)
 deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
 card_schema = CardSchema()
+
+@validates('name')
+def validate_name(self, value):
+    if len(value) < 1:
+        raise ValidationError('Deck name must not be empty')
+    if len(value) > 100:
+        raise ValidationError('Deck name must be less than 100 characters')
+
+@validates('format')
+def validate_format(self, value):
+    valid_formats = ['standard', 'expanded', 'unlimited']
+    if value.lower() not in valid_formats:
+        raise ValidationError('Invalid format. Must be one of: ' + ', '.join(valid_formats))
+
 
 # Deck Validation Rules
 STANDARD_SETS = {"1", "2", "3", "4", "5"}  # Example Standard-legal sets

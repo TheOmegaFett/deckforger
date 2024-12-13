@@ -23,6 +23,9 @@ def seed_tables():
 
     return jsonify({"message": "Database seeded successfully!"})
 
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "API is running!"}), 200
 
 @cli_controller.cli.command("create")
 def create_tables():

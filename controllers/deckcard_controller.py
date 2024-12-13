@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from marshmallow import ValidationError, validates
 from init import db
 from models.deckcard import DeckCard
 from schemas.deckcard_schema import DeckCardSchema
@@ -9,6 +10,14 @@ from models.card import Card
 deckcard_controller = Blueprint("deckcard_controller", __name__)
 deckcard_schema = DeckCardSchema()
 deckcards_schema = DeckCardSchema(many=True)
+
+@validates('quantity')
+def validate_quantity(self, value):
+    if value < 1:
+        raise ValidationError('Quantity must be at least 1')
+    if value > 4:
+        raise ValidationError('Maximum 4 copies of a card allowed per deck')
+
 
 # Add Cards to a Deck
 @deckcard_controller.route("/decks/<int:deck_id>/cards", methods=["POST"])

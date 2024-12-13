@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from marshmallow import ValidationError, validates
 from init import db
 from models.deckbox import DeckBox
 from schemas.deckbox_schema import DeckBoxSchema
@@ -11,6 +12,13 @@ deckbox_schema = DeckBoxSchema()
 deckboxes_schema = DeckBoxSchema(many=True)
 deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
+
+@validates('name')
+def validate_name(self, value):
+    if len(value) < 1:
+        raise ValidationError('Deckbox name must not be empty')
+    if len(value) > 50:
+        raise ValidationError('Deckbox name must be less than 50 characters')
 
 # Create a DeckBox
 @deckbox_controller.route('/deckboxes', methods=['POST'])

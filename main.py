@@ -42,16 +42,3 @@ def create_app():
 
 
     return app
-
-
-
-# if __name__ == "__main__":
-#     print("Creating the Flask app...")
-#     app = create_app()
-
-#     print("Listing all registered routes:")
-#     for rule in app.url_map.iter_rules():
-#         print(f"{rule.endpoint}: {rule.methods} -> {rule}")
-    
-#     print("Starting Flask app...")
-#     app.run(debug=True, host="0.0.0.0", port=8080)

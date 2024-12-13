@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from marshmallow import ValidationError, validates
 from init import db
 from models.rating import Rating
 from models.deck import Deck
@@ -7,6 +8,17 @@ from schemas.rating_schema import RatingSchema
 rating_controller = Blueprint('rating_controller', __name__)
 rating_schema = RatingSchema()
 ratings_schema = RatingSchema(many=True)
+
+
+@validates('score')
+def validate_score(self, value):
+    if not 1 <= value <= 5:
+        raise ValidationError('Score must be between 1 and 5')
+
+@validates('comment')
+def validate_comment(self, value):
+    if value and len(value) > 500:
+        raise ValidationError('Comment must be less than 500 characters')
 
 # Add a Rating to a Deck
 @rating_controller.route('/decks/<int:deck_id>/ratings', methods=['POST'])
