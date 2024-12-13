@@ -1,153 +1,105 @@
 from flask import Blueprint, request, jsonify
-from marshmallow import ValidationError, validates
 from init import db
 from models.deck import Deck
-from schemas.deck_schema import DeckSchema
-from models.card import Card
-from schemas.card_schema import CardSchema
 from models.deckcard import DeckCard
+from models.card import Card
+from models.cardset import CardSet
+from schemas.deck_schema import DeckSchema
+from marshmallow import ValidationError
+from datetime import datetime
+import re
 
-# Blueprint and Schemas
 deck_controller = Blueprint('deck_controller', __name__)
 deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
-card_schema = CardSchema()
 
-@validates('name')
-def validate_name(self, value):
-    if len(value) < 1:
-        raise ValidationError('Deck name must not be empty')
-    if len(value) > 100:
-        raise ValidationError('Deck name must be less than 100 characters')
+def validate_deck(deck_id, format_id):
+    """Validate deck rules: 60 cards, max 4 copies per card except Basic Energy cards."""
+    deck_cards = DeckCard.query.filter_by(deck_id=deck_id).all()
+    card_count = 0
+    card_quantities = {}
 
-@validates('format')
-def validate_format(self, value):
-    valid_formats = ['standard', 'expanded', 'unlimited']
-    if value.lower() not in valid_formats:
-        raise ValidationError('Invalid format. Must be one of: ' + ', '.join(valid_formats))
+    # Regex pattern for Basic Energy cards (e.g., "Basic Fire Energy", "Basic Water Energy")
+    basic_energy_pattern = re.compile(r'^Basic \w+ Energy$', re.IGNORECASE)
 
+    # Format boundaries
+    standard_date = datetime(2022, 7, 1)
+    expanded_date = datetime(2011, 9, 1)
 
-# Deck Validation Rules
-STANDARD_SETS = {"1", "2", "3", "4", "5"}  # Example Standard-legal sets
+    for deck_card in deck_cards:
+        card = Card.query.get(deck_card.card_id)
+        card_set = CardSet.query.get(card.set_id)
+
+        if not card or not card_set:
+            raise ValidationError(f"Card or card set not found for deck card ID {deck_card.id}")
+
+        # Increment card count
+        quantity = deck_card.quantity
+        card_count += quantity
+
+        # Check for Basic Energy cards using regex
+        if not basic_energy_pattern.match(card.name):
+            # Track card quantities for non-Basic Energy cards
+            card_quantities[card.id] = card_quantities.get(card.id, 0) + quantity
+            if card_quantities[card.id] > 4:
+                raise ValidationError(f"Card '{card.name}' has more than 4 copies in the deck.")
+
+        # Format validation
+        if format_id == 1 and card_set.release_date < standard_date:
+            raise ValidationError(
+                f"Card '{card.name}' from set '{card_set.name}' is not legal in Standard format."
+            )
+        elif format_id == 2 and card_set.release_date < expanded_date:
+            raise ValidationError(
+                f"Card '{card.name}' from set '{card_set.name}' is not legal in Expanded format."
+            )
+
+    # Enforce 60 card deck rule
+    if card_count != 60:
+        raise ValidationError(f"Deck must contain exactly 60 cards. Current count: {card_count}")
 
 # Create a Deck
-@deck_controller.route('/', methods=['POST'])
+@deck_controller.route('/decks', methods=['POST'])
 def create_deck():
-    data = request.json
-    deck = Deck(
+    data = request.get_json()
+    
+    # Create a new Deck
+    new_deck = Deck(
         name=data['name'],
         description=data.get('description', ''),
-        format=data.get('format', 'Standard')  # Default to Standard format
+        format_id=data['format_id']
     )
-    db.session.add(deck)
+    db.session.add(new_deck)
     db.session.commit()
-    return deck_schema.jsonify(deck), 201
 
-# Read All Decks
-@deck_controller.route('/', methods=['GET'])
-def read_all_decks():
-    decks = Deck.query.all()
-    return decks_schema.jsonify(decks)
+    # Validate deck rules
+    try:
+        validate_deck(new_deck.id, new_deck.format_id)
+    except ValidationError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
 
-# Read One Deck
-@deck_controller.route('/<int:deck_id>', methods=['GET'])
-def read_one_deck(deck_id):
-    deck = Deck.query.get(deck_id)
-    if not deck:
-        return jsonify({"error": "Deck not found"}), 404
-    return deck_schema.jsonify(deck)
+    return deck_schema.jsonify(new_deck), 201
 
 # Update a Deck
-@deck_controller.route('/<int:deck_id>', methods=['PUT'])
+@deck_controller.route('/decks/<int:deck_id>', methods=['PUT'])
 def update_deck(deck_id):
-    data = request.json
     deck = Deck.query.get(deck_id)
     if not deck:
         return jsonify({"error": "Deck not found"}), 404
 
+    data = request.get_json()
     deck.name = data.get('name', deck.name)
     deck.description = data.get('description', deck.description)
-    deck.format = data.get('format', deck.format)
-    db.session.commit()
-    return deck_schema.jsonify(deck)
-
-# Delete a Deck
-@deck_controller.route('/<int:deck_id>', methods=['DELETE'])
-def delete_deck(deck_id):
-    deck = Deck.query.get(deck_id)
-    if not deck:
-        return jsonify({"error": "Deck not found"}), 404
-
-    db.session.delete(deck)
-    db.session.commit()
-    return jsonify({"message": "Deck deleted successfully!"})
-
-# Add Cards to a Deck
-@deck_controller.route('/<int:deck_id>/cards', methods=['POST'])
-def add_cards_to_deck(deck_id):
-    deck = Deck.query.get(deck_id)
-    if not deck:
-        return jsonify({"error": "Deck not found"}), 404
-
-    data = request.json  # List of {"card_id": x, "quantity": y}
-    for card_data in data:
-        card_id = card_data.get('card_id')
-        quantity = card_data.get('quantity', 1)
-
-        card = Card.query.get(card_id)
-        if not card:
-            return jsonify({"error": f"Card with ID {card_id} not found"}), 404
-
-        # Add or update DeckCard entry
-        deck_card = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()
-        if deck_card:
-            deck_card.quantity += quantity  # Increment quantity
-        else:
-            new_deck_card = DeckCard(deck_id=deck_id, card_id=card_id, quantity=quantity)
-            db.session.add(new_deck_card)
+    deck.format_id = data.get('format_id', deck.format_id)
 
     db.session.commit()
-    return jsonify({"message": "Cards added to deck successfully!"}), 200
 
-# Remove a Card from a Deck
-@deck_controller.route('/<int:deck_id>/cards/<int:card_id>', methods=['DELETE'])
-def remove_card_from_deck(deck_id, card_id):
-    deck_card = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()
-    if not deck_card:
-        return jsonify({"error": "Card not found in the deck"}), 404
+    # Validate deck rules
+    try:
+        validate_deck(deck.id, deck.format_id)
+    except ValidationError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
 
-    db.session.delete(deck_card)
-    db.session.commit()
-    return jsonify({"message": "Card removed from deck successfully!"}), 200
-
-# Validate a Deck
-@deck_controller.route('/<int:deck_id>/validate', methods=['GET'])
-def validate_deck(deck_id):
-    deck = Deck.query.get(deck_id)
-    if not deck:
-        return jsonify({"error": "Deck not found"}), 404
-
-    errors = []
-    total_cards = 0
-
-    # Validation Rules
-    for deck_card in deck.cards:  # 'cards' is a relationship in Deck
-        card = deck_card.card
-        total_cards += deck_card.quantity
-
-        # Rule: No more than 4 copies of a card
-        if deck_card.quantity > 4:
-            errors.append(f"Card '{card.name}' exceeds the 4-copy limit.")
-
-        # Rule: Validate Standard Format
-        if deck.format.lower() == "standard" and card.set_id not in STANDARD_SETS:
-            errors.append(f"Card '{card.name}' from set '{card.set_id}' is not Standard legal.")
-
-    # Rule: Deck size must be 60 cards
-    if total_cards != 60:
-        errors.append("Deck must contain exactly 60 cards.")
-
-    if errors:
-        return jsonify({"valid": False, "errors": errors}), 400
-
-    return jsonify({"valid": True, "message": f"Deck is valid for {deck.format} format."}), 200
+    return deck_schema.jsonify(deck), 200
