@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from init import db
+from init import db, app
 from models.deck import Deck
 from models.deckcard import DeckCard
 from models.card import Card

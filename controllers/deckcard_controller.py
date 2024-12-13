@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
-from init import db
+from init import db, app
 from models.deckcard import DeckCard
 from schemas.deckcard_schema import DeckCardSchema
 from models.deck import Deck

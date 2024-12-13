@@ -1,7 +1,8 @@
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
-from init import db
+from init import db, app
+from models.card import Card
 from models.cardset import CardSet
 from models.format import Format
 from schemas.cardset_schema import set_schema, sets_schema
@@ -78,19 +79,3 @@ def delete_set(set_id):
     db.session.commit()
     return jsonify({"message": "Set deleted successfully!"})
 
-formats = [
-    Format(
-        name="Standard",
-        description="Most recent card sets, typically past 2 years"
-    ),
-    Format(
-        name="Expanded",
-        description="Cards from Black & White onwards"
-    ),
-    Format(
-        name="Unlimited",
-        description="All Pokemon cards ever printed"
-    )
-]
-db.session.add_all(formats)
-db.session.commit()

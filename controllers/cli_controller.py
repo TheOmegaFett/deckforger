@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import jsonify
 from flask import Blueprint
-from init import db
+from init import db, app
 from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format
 
@@ -89,8 +89,9 @@ def health_check():
 
 @cli_controller.cli.command("create")
 def create_tables():
-    db.create_all()
-    print("Tables created!")
+    with app.app_context():
+        db.create_all()
+        print("Tables created!")
     
 @cli_controller.cli.command("drop")
 def drop_tables():
@@ -99,93 +100,93 @@ def drop_tables():
 
 @cli_controller.cli.command("seed")
 def seed_tables():
-    
-    # Seed Sets first
-    sets = [
-        CardSet(
-            name="Shrouded Fable",
-            release_date="2023-01-01",
-            description="A mysterious set featuring dark creatures"
-        ),
-        CardSet(
-            name="Eclipse Shadow",
-            release_date="2023-06-01",
-            description="Ghost and psychic focused expansion"
-        )
-    ]
-    db.session.add_all(sets)
-    db.session.commit()
+    with app.app_context():
+        # Seed Sets first
+        sets = [
+            CardSet(
+                name="Shrouded Fable",
+                release_date="2023-01-01",
+                description="A mysterious set featuring dark creatures"
+            ),
+            CardSet(
+                name="Eclipse Shadow",
+                release_date="2023-06-01",
+                description="Ghost and psychic focused expansion"
+            )
+        ]
+        db.session.add_all(sets)
+        db.session.commit()
 
-    # Seed DeckBoxes
-    deckboxes = [
-        DeckBox(
-            name="Competitive Decks",
-            description="A collection of top-tier competitive decks."
-        ),
-        DeckBox(
-            name="Casual Decks",
-            description="Fun and experimental decks for casual play."
-        )
-    ]
-    db.session.add_all(deckboxes)
-    db.session.commit()
+        # Seed DeckBoxes
+        deckboxes = [
+            DeckBox(
+                name="Competitive Decks",
+                description="A collection of top-tier competitive decks."
+            ),
+            DeckBox(
+                name="Casual Decks",
+                description="Fun and experimental decks for casual play."
+            )
+        ]
+        db.session.add_all(deckboxes)
+        db.session.commit()
 
-    # Seed Decks
-    decks = [
-        Deck(
-            name="Dark Moon EX",
-            description="A strong dark-themed deck.",
-            format="Standard",
-            deckbox_id=deckboxes[0].id
-        ),
-        Deck(
-            name="Ghost Control",
-            description="A ghost-themed deck for control strategies.",
-            format="Extended",
-            deckbox_id=deckboxes[0].id
-        ),
-        Deck(
-            name="Fun Energy Deck",
-            description="A casual deck with quirky combos.",
-            format="Casual",
-            deckbox_id=deckboxes[1].id
-        )
-    ]
-    db.session.add_all(decks)
-    db.session.commit()
+        # Seed Decks
+        decks = [
+            Deck(
+                name="Dark Moon EX",
+                description="A strong dark-themed deck.",
+                format="Standard",
+                deckbox_id=deckboxes[0].id
+            ),
+            Deck(
+                name="Ghost Control",
+                description="A ghost-themed deck for control strategies.",
+                format="Extended",
+                deckbox_id=deckboxes[0].id
+            ),
+            Deck(
+                name="Fun Energy Deck",
+                description="A casual deck with quirky combos.",
+                format="Casual",
+                deckbox_id=deckboxes[1].id
+            )
+        ]
+        db.session.add_all(decks)
+        db.session.commit()
 
-    # Seed Cards with set_id
-    cards = [
-        Card(
-            name="Fezandipiti EX",
-            type="Dark",
-            set_id=sets[0].id  # Reference to Shrouded Fable
-        ),
-        Card(
-            name="Dark Patch",
-            type="Item",
-            set_id=sets[0].id  # Reference to Shrouded Fable
-        ),
-        Card(
-            name="Gengar EX",
-            type="Ghost",
-            set_id=sets[1].id  # Reference to Eclipse Shadow
-        )
-    ]
-    db.session.add_all(cards)
-    db.session.commit()
+        # Seed Cards with set_id
+        cards = [
+            Card(
+                name="Fezandipiti EX",
+                type="Dark",
+                set_id=sets[0].id  # Reference to Shrouded Fable
+            ),
+            Card(
+                name="Dark Patch",
+                type="Item",
+                set_id=sets[0].id  # Reference to Shrouded Fable
+            ),
+            Card(
+                name="Gengar EX",
+                type="Ghost",
+                set_id=sets[1].id  # Reference to Eclipse Shadow
+            )
+        ]
+        db.session.add_all(cards)
+        db.session.commit()
 
-    # Seed DeckCards
-    deckcards = [
-        DeckCard(deck_id=decks[0].id, card_id=cards[0].id, quantity=4),
-        DeckCard(deck_id=decks[0].id, card_id=cards[1].id, quantity=2),
-        DeckCard(deck_id=decks[1].id, card_id=cards[2].id, quantity=3),
-        DeckCard(deck_id=decks[2].id, card_id=cards[1].id, quantity=1)
-    ]
-    db.session.add_all(deckcards)
-    db.session.commit()
+        # Seed DeckCards
+        deckcards = [
+            DeckCard(deck_id=decks[0].id, card_id=cards[0].id, quantity=4),
+            DeckCard(deck_id=decks[0].id, card_id=cards[1].id, quantity=2),
+            DeckCard(deck_id=decks[1].id, card_id=cards[2].id, quantity=3),
+            DeckCard(deck_id=decks[2].id, card_id=cards[1].id, quantity=1)
+        ]
+        db.session.add_all(deckcards)
+        db.session.commit()
 
-    print("Tables seeded with Sets, DeckBoxes, Decks, Cards, and DeckCard relationships.")
+        print("Tables seeded with Sets, DeckBoxes, Decks, Cards, and DeckCard relationships.")
 
 @cli_controller.route("/run/cleanup", methods=["POST"])
 def cleanup_database():

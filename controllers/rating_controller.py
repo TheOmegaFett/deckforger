@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
-from init import db
+from init import db, app
 from models.rating import Rating
 from models.deck import Deck
 from schemas.rating_schema import RatingSchema
