@@ -7,4 +7,4 @@ class DeckBox(db.Model):
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
     
-    decks = db.relationship('Deck', backref='deckbox', lazy=True)
+    decks = db.relationship('Deck')
