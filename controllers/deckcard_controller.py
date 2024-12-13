@@ -86,7 +86,7 @@ def remove_card_from_deck(deck_id, card_id):
     db.session.commit()
     return jsonify({"message": "Card removed from deck successfully!"}), 200
 
-@deckcard_controller.route("/deck/<int:deck_id>", methods=["PUT"])
+@deckcard_controller.route("/<int:deck_id>", methods=["PUT"])
 def update_deck_cards(deck_id):
     data = request.get_json()
     

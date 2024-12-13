@@ -66,7 +66,7 @@ def validate_deck(deck_id, format_id):
         raise ValidationError(f"Deck must contain exactly 60 cards. Current count: {card_count}")
 
 # Create a Deck
-@deck_controller.route('/decks', methods=['POST'])
+@deck_controller.route('/', methods=['POST'])
 def create_deck():
     data = request.get_json()
     
@@ -89,7 +89,7 @@ def create_deck():
     return deck_schema.jsonify(new_deck), 201
 
 # Update a Deck
-@deck_controller.route('/decks/<int:deck_id>', methods=['PUT'])
+@deck_controller.route('/<int:deck_id>', methods=['PUT'])
 def update_deck(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
