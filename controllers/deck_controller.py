@@ -107,7 +107,9 @@ def update_deck(deck_id):
 @deck_controller.route('/validate/<int:deck_id>', methods=['GET'])
 def validate_deck_rules(deck_id):
     try:
-        deck = Deck.query.get(deck_id)
+        stmt = db.select(Deck).filter_by(id=deck_id)
+        deck = db.session.scalar(stmt)
+        
         if not deck:
             return jsonify({"error": "Deck not found"}), 404
             
@@ -116,11 +118,13 @@ def validate_deck_rules(deck_id):
         return jsonify({
             "message": "Deck is valid!",
             "deck_name": deck.name,
-            "format": deck.format_id
+            "format": deck.format_id,
+            "card_count": sum(dc.quantity for dc in deck.deck_cards)
         }), 200
             
-    except ValidationError as e:
+    except Exception as e:
         return jsonify({
-            "message": "Deck validation failed",
-            "error": str(e)
-        }), 400
+            "message": "Validation check failed",
+            "error": str(e),
+            "deck_id": deck_id
+        }), 500
