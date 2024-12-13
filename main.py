@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 def create_app():
     app = Flask(__name__)
-    app.app_context().push()
+   
     load_dotenv()  
     
     # Load environment variables from .env
