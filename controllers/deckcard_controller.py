@@ -1,23 +1,19 @@
 from flask import Blueprint, request, jsonify
-from marshmallow import ValidationError, validates
+from marshmallow import ValidationError
 from init import db
 from models.deckcard import DeckCard
 from schemas.deckcard_schema import DeckCardSchema
 from models.deck import Deck
 from models.card import Card
+import re
 
 # Blueprint and Schema
 deckcard_controller = Blueprint("deckcard_controller", __name__)
 deckcard_schema = DeckCardSchema()
 deckcards_schema = DeckCardSchema(many=True)
 
-@validates('quantity')
-def validate_quantity(self, value):
-    if value < 1:
-        raise ValidationError('Quantity must be at least 1')
-    if value > 4:
-        raise ValidationError('Maximum 4 copies of a card allowed per deck')
-
+# Regex pattern to match Basic {Type} Energy cards
+BASIC_ENERGY_PATTERN = re.compile(r"^Basic \w+ Energy$", re.IGNORECASE)
 
 # Add Cards to a Deck
 @deckcard_controller.route("/<int:deck_id>/cards", methods=["POST"])
@@ -43,13 +39,28 @@ def add_cards_to_deck(deck_id):
         if not card:
             return jsonify({"error": f"Card with ID {card_id} not found"}), 404
 
-        # Create or update the DeckCard entry
-        deckcard = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()
-        if deckcard:
-            deckcard.quantity += quantity
+        # Quantity Validation
+        if quantity < 1:
+            return jsonify({"error": "Quantity must be at least 1"}), 400
+
+        # Check if the card is a Basic Energy
+        is_basic_energy = BASIC_ENERGY_PATTERN.match(card.name)
+
+        # Count total copies of the card in the deck
+        existing_deckcard = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()
+        current_quantity = existing_deckcard.quantity if existing_deckcard else 0
+
+        if not is_basic_energy and (current_quantity + quantity) > 4:
+            return jsonify({
+                "error": f"Card '{card.name}' exceeds the maximum of 4 copies allowed in the deck."
+            }), 400
+
+        # Add or update the DeckCard entry
+        if existing_deckcard:
+            existing_deckcard.quantity += quantity
         else:
-            deckcard = DeckCard(deck_id=deck_id, card_id=card_id, quantity=quantity)
-            db.session.add(deckcard)
+            new_deckcard = DeckCard(deck_id=deck_id, card_id=card_id, quantity=quantity)
+            db.session.add(new_deckcard)
 
     db.session.commit()
     return jsonify({"message": "Cards added successfully!"}), 201
