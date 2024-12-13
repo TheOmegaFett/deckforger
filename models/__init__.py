@@ -5,5 +5,6 @@ from .deckbox import DeckBox
 from .deckcard import DeckCard
 from .rating import Rating
 from .cardset import CardSet
+from .format import Format
 
-__all__ = ["Card", "Deck", "DeckBox", "DeckCard", "Rating", "CardSet"]
+__all__ = ["Card", "Deck", "DeckBox", "DeckCard", "Rating", "CardSet", "Format"]
