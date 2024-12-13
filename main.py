@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 def create_app():
     app = Flask(__name__)
-    
+    app.app_context().push()
     load_dotenv()  
     
     # Load environment variables from .env
@@ -39,8 +39,8 @@ def create_app():
     app.register_blueprint(cardset_controller, url_prefix="/api/cardsets")
     app.register_blueprint(format_controller,url_prefix="/api/formats" )
     
-    with app.app_context():
-        db.create_all()
+    
+        
     
     return app
 
