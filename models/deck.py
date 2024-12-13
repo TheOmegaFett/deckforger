@@ -1,6 +1,4 @@
 from init import db
-from models.format import Format
-from models.deckbox import DeckBox
 
 class Deck(db.Model):
     __tablename__ = 'decks'
@@ -13,5 +11,5 @@ class Deck(db.Model):
     
     format = db.relationship('Format')
     deckbox = db.relationship('DeckBox')
-    cards = db.relationship("DeckCard", back_populates="deck", lazy="dynamic")
+    cards = db.relationship('Card', secondary='deck_card', lazy='dynamic')
     ratings = db.relationship("Rating", back_populates="deck", lazy="dynamic")
