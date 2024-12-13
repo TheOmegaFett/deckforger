@@ -12,6 +12,11 @@ def create_tables():
     db.create_all()
     return jsonify({"message": "Tables created successfully!"})
 
+@cli_controller.route("/run/drop", methods=["POST"])
+def drop_tables():
+    db.drop_all()
+    return jsonify({"message": "Tables dropped successfully!"})
+
 @cli_controller.route("/run/seed", methods=["POST"])
 def seed_tables():
     try:
@@ -159,9 +164,9 @@ def health_check():
 
 @cli_controller.cli.command("create")
 def create_tables():
-    with app.app_context():
-        db.create_all()
-        print("Tables created!")
+    
+    db.create_all()
+    print("Tables created!")
     
 @cli_controller.cli.command("drop")
 def drop_tables():
@@ -342,4 +347,5 @@ def cleanup_database():
         "sets_removed": sets_deleted,
         "decks_validated": decks_updated
     }), 200
+
 
