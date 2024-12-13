@@ -190,10 +190,12 @@ def seed_tables():
 @cli_controller.route("/run/cleanup", methods=["POST"])
 def cleanup_database():
     # Clean up duplicate cards
-    duplicate_cards = db.session.query(Card.name, Card.set_id, db.func.count('*'))\
-        .group_by(Card.name, Card.set_id)\
-        .having(db.func.count('*') > 1)\
-        .all()
+    stmt = (
+        db.select(Card.name, Card.set_id, db.func.count('*'))
+        .group_by(Card.name, Card.set_id)
+        .having(db.func.count('*') > 1)
+    )
+    duplicate_cards = db.session.execute(stmt).all()
     
     cards_deleted = 0
     for name, set_id, count in duplicate_cards:

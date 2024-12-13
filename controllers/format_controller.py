@@ -11,16 +11,20 @@ format_controller = Blueprint('formats', __name__)
 
 @validates('format_id')
 def validate_deck_format(self, format_id):
-    # Get all cards in the deck through DeckCards
-    deck_cards = DeckCard.query.filter_by(deck_id=self.id).all()
+    # Replace complex nested queries with
+    stmt = (
+        db.select(DeckCard, Card, CardSet)
+        .join(Card)
+        .join(CardSet)
+        .filter(DeckCard.deck_id == self.id)
+    )
+    results = db.session.execute(stmt).all()
     
     # Define format date boundaries
     standard_date = datetime(2022, 7, 1)  # Sword & Shield forward
     expanded_date = datetime(2011, 9, 1)  # Black & White forward
     
-    for deck_card in deck_cards:
-        card = Card.query.get(deck_card.card_id)
-        card_set = CardSet.query.get(card.set_id)
+    for deck_card, card, card_set in results:
         
         if format_id == 1:  # Standard
             if card_set.release_date < standard_date:
@@ -93,3 +97,24 @@ def delete_format(format_id):
     db.session.commit()
     return jsonify({'message': 'Format deleted successfully'}), 200
 
+
+# Replace
+deck = Deck.query.get(deck_id)
+
+# With
+stmt = db.select(Deck).filter_by(id=deck_id)
+deck = db.session.scalar(stmt)
+
+# Replace
+deckboxes = DeckBox.query.all()
+
+# With
+stmt = db.select(DeckBox)
+deckboxes = db.session.scalars(stmt).all()
+
+# Replace
+existing_card = Card.query.filter_by(name=data["name"], set_id=data["set_id"]).first()
+
+# With
+stmt = db.select(Card).filter_by(name=data["name"], set_id=data["set_id"])
+existing_card = db.session.scalar(stmt)
