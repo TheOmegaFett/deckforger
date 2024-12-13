@@ -1,8 +1,28 @@
+from flask import jsonify
 from flask import Blueprint
 from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
 
 cli_controller = Blueprint("cli", __name__)
+
+@cli_controller.route("/run/create", methods=["POST"])
+def create_tables():
+    db.create_all()
+    return jsonify({"message": "Tables created successfully!"})
+
+@cli_controller.route("/run/seed", methods=["POST"])
+def seed_tables():
+    # Example data for seeding
+    deckbox = DeckBox(name="Competitive Decks", description="Top tier decks.")
+    db.session.add(deckbox)
+    db.session.commit()
+
+    card = Card(name="Fezandipiti EX", type="Dark", set_id=None)
+    db.session.add(card)
+    db.session.commit()
+
+    return jsonify({"message": "Database seeded successfully!"})
+
 
 @cli_controller.cli.command("create")
 def create_tables():
