@@ -20,7 +20,7 @@ def validate_quantity(self, value):
 
 
 # Add Cards to a Deck
-@deckcard_controller.route("/decks/<int:deck_id>/cards", methods=["POST"])
+@deckcard_controller.route("/<int:deck_id>/cards", methods=["POST"])
 def add_cards_to_deck(deck_id):
     data = request.json
 
@@ -55,7 +55,7 @@ def add_cards_to_deck(deck_id):
     return jsonify({"message": "Cards added successfully!"}), 201
 
 # View All Cards in a Deck
-@deckcard_controller.route("/decks/<int:deck_id>/cards", methods=["GET"])
+@deckcard_controller.route("/<int:deck_id>/cards", methods=["GET"])
 def view_cards_in_deck(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
@@ -65,7 +65,7 @@ def view_cards_in_deck(deck_id):
     return deckcards_schema.jsonify(deckcards), 200
 
 # Remove a Card from a Deck
-@deckcard_controller.route("/decks/<int:deck_id>/cards/<int:card_id>", methods=["DELETE"])
+@deckcard_controller.route("/<int:deck_id>/cards/<int:card_id>", methods=["DELETE"])
 def remove_card_from_deck(deck_id, card_id):
     # Find the DeckCard entry
     deckcard = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()

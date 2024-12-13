@@ -47,13 +47,13 @@ def create_card():
     return card_schema.jsonify(card), 201
 
 # Read All Cards
-@card_controller.route('/cards', methods=['GET'])
+@card_controller.route('/', methods=['GET'])
 def get_all_cards():
     cards = Card.query.all()
     return cards_schema.jsonify(cards), 200
 
 # Read One Card
-@card_controller.route('/cards/<int:card_id>', methods=['GET'])
+@card_controller.route('/<int:card_id>', methods=['GET'])
 def get_one_card(card_id):
     card = Card.query.get(card_id)
     if not card:
@@ -61,7 +61,7 @@ def get_one_card(card_id):
     return card_schema.jsonify(card), 200
 
 # Update a Card
-@card_controller.route('/cards/<int:card_id>', methods=['PUT'])
+@card_controller.route('/<int:card_id>', methods=['PUT'])
 def update_card(card_id):
     card = Card.query.get(card_id)
     if not card:
@@ -76,7 +76,7 @@ def update_card(card_id):
     return card_schema.jsonify(card), 200
 
 # Delete a Card
-@card_controller.route('/cards/<int:card_id>', methods=['DELETE'])
+@card_controller.route('/<int:card_id>', methods=['DELETE'])
 def delete_card(card_id):
     card = Card.query.get(card_id)
     if not card:

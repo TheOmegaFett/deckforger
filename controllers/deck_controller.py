@@ -31,7 +31,7 @@ def validate_format(self, value):
 STANDARD_SETS = {"1", "2", "3", "4", "5"}  # Example Standard-legal sets
 
 # Create a Deck
-@deck_controller.route('/decks', methods=['POST'])
+@deck_controller.route('/', methods=['POST'])
 def create_deck():
     data = request.json
     deck = Deck(
@@ -44,13 +44,13 @@ def create_deck():
     return deck_schema.jsonify(deck), 201
 
 # Read All Decks
-@deck_controller.route('/decks', methods=['GET'])
+@deck_controller.route('/', methods=['GET'])
 def read_all_decks():
     decks = Deck.query.all()
     return decks_schema.jsonify(decks)
 
 # Read One Deck
-@deck_controller.route('/decks/<int:deck_id>', methods=['GET'])
+@deck_controller.route('/<int:deck_id>', methods=['GET'])
 def read_one_deck(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
@@ -58,7 +58,7 @@ def read_one_deck(deck_id):
     return deck_schema.jsonify(deck)
 
 # Update a Deck
-@deck_controller.route('/decks/<int:deck_id>', methods=['PUT'])
+@deck_controller.route('/<int:deck_id>', methods=['PUT'])
 def update_deck(deck_id):
     data = request.json
     deck = Deck.query.get(deck_id)
@@ -72,7 +72,7 @@ def update_deck(deck_id):
     return deck_schema.jsonify(deck)
 
 # Delete a Deck
-@deck_controller.route('/decks/<int:deck_id>', methods=['DELETE'])
+@deck_controller.route('/<int:deck_id>', methods=['DELETE'])
 def delete_deck(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
@@ -83,7 +83,7 @@ def delete_deck(deck_id):
     return jsonify({"message": "Deck deleted successfully!"})
 
 # Add Cards to a Deck
-@deck_controller.route('/decks/<int:deck_id>/cards', methods=['POST'])
+@deck_controller.route('/<int:deck_id>/cards', methods=['POST'])
 def add_cards_to_deck(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
@@ -110,7 +110,7 @@ def add_cards_to_deck(deck_id):
     return jsonify({"message": "Cards added to deck successfully!"}), 200
 
 # Remove a Card from a Deck
-@deck_controller.route('/decks/<int:deck_id>/cards/<int:card_id>', methods=['DELETE'])
+@deck_controller.route('/<int:deck_id>/cards/<int:card_id>', methods=['DELETE'])
 def remove_card_from_deck(deck_id, card_id):
     deck_card = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()
     if not deck_card:
@@ -121,7 +121,7 @@ def remove_card_from_deck(deck_id, card_id):
     return jsonify({"message": "Card removed from deck successfully!"}), 200
 
 # Validate a Deck
-@deck_controller.route('/decks/<int:deck_id>/validate', methods=['GET'])
+@deck_controller.route('/<int:deck_id>/validate', methods=['GET'])
 def validate_deck(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:

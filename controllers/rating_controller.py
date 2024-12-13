@@ -21,7 +21,7 @@ def validate_comment(self, value):
         raise ValidationError('Comment must be less than 500 characters')
 
 # Add a Rating to a Deck
-@rating_controller.route('/decks/<int:deck_id>/ratings', methods=['POST'])
+@rating_controller.route('/<int:deck_id>/ratings', methods=['POST'])
 def add_rating(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
@@ -42,7 +42,7 @@ def add_rating(deck_id):
     return rating_schema.jsonify(rating), 201
 
 # Get All Ratings for a Deck
-@rating_controller.route('/decks/<int:deck_id>/ratings', methods=['GET'])
+@rating_controller.route('/<int:deck_id>/ratings', methods=['GET'])
 def get_ratings(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
@@ -51,7 +51,7 @@ def get_ratings(deck_id):
     return ratings_schema.jsonify(deck.ratings)
 
 # Get Average Rating for a Deck
-@rating_controller.route('/decks/<int:deck_id>/ratings/average', methods=['GET'])
+@rating_controller.route('/<int:deck_id>/ratings/average', methods=['GET'])
 def get_average_rating(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:

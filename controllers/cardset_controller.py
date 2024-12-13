@@ -8,7 +8,7 @@ from schemas.cardset_schema import set_schema, sets_schema
 cardset_controller = Blueprint("set_controller", __name__)
 
 # Create a new Set
-@cardset_controller.route("/sets", methods=["POST"])
+@cardset_controller.route("/", methods=["POST"])
 def create_set():
     data = request.json
     new_set = CardSet(
@@ -33,13 +33,13 @@ def validate_release_date(self, value):
         raise ValidationError('Release date cannot be in the future')
 
 # Read all Sets
-@cardset_controller.route("/sets", methods=["GET"])
+@cardset_controller.route("/", methods=["GET"])
 def get_sets():
     sets = CardSet.query.all()
     return sets_schema.jsonify(sets)
 
 # Read one Set
-@cardset_controller.route("/sets/<int:set_id>", methods=["GET"])
+@cardset_controller.route("/<int:set_id>", methods=["GET"])
 def get_set(set_id):
     set_ = CardSet.query.get(set_id)
     if not set_:
@@ -47,7 +47,7 @@ def get_set(set_id):
     return set_schema.jsonify(set_)
 
 # Update a Set
-@cardset_controller.route("/sets/<int:set_id>", methods=["PUT"])
+@cardset_controller.route("/<int:set_id>", methods=["PUT"])
 def update_set(set_id):
     set_ = CardSet.query.get(set_id)
     if not set_:
@@ -61,7 +61,7 @@ def update_set(set_id):
     return set_schema.jsonify(set_)
 
 # Delete a Set
-@cardset_controller.route("/sets/<int:set_id>", methods=["DELETE"])
+@cardset_controller.route("/<int:set_id>", methods=["DELETE"])
 def delete_set(set_id):
     set_ = CardSet.query.get(set_id)
     if not set_:

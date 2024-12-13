@@ -33,13 +33,13 @@ def create_deckbox():
     return deckbox_schema.jsonify(deckbox), 201
 
 # Read All DeckBoxes
-@deckbox_controller.route('/deckboxes', methods=['GET'])
+@deckbox_controller.route('/', methods=['GET'])
 def read_all_deckboxes():
     deckboxes = DeckBox.query.all()
     return deckboxes_schema.jsonify(deckboxes)
 
 # Read One DeckBox
-@deckbox_controller.route('/deckboxes/<int:deckbox_id>', methods=['GET'])
+@deckbox_controller.route('/<int:deckbox_id>', methods=['GET'])
 def read_one_deckbox(deckbox_id):
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
@@ -47,7 +47,7 @@ def read_one_deckbox(deckbox_id):
     return deckbox_schema.jsonify(deckbox)
 
 # Update a DeckBox
-@deckbox_controller.route('/deckboxes/<int:deckbox_id>', methods=['PUT'])
+@deckbox_controller.route('/<int:deckbox_id>', methods=['PUT'])
 def update_deckbox(deckbox_id):
     data = request.json
     deckbox = DeckBox.query.get(deckbox_id)
@@ -60,7 +60,7 @@ def update_deckbox(deckbox_id):
     return deckbox_schema.jsonify(deckbox)
 
 # Delete a DeckBox
-@deckbox_controller.route('/deckboxes/<int:deckbox_id>', methods=['DELETE'])
+@deckbox_controller.route('/<int:deckbox_id>', methods=['DELETE'])
 def delete_deckbox(deckbox_id):
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
@@ -71,7 +71,7 @@ def delete_deckbox(deckbox_id):
     return jsonify({"message": "DeckBox deleted successfully!"})
 
 # Show all Decks in a DeckBox
-@deckbox_controller.route('/deckboxes/<int:deckbox_id>/decks', methods=['GET'])
+@deckbox_controller.route('/<int:deckbox_id>/decks', methods=['GET'])
 def show_decks_in_deckbox(deckbox_id):
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
@@ -80,7 +80,7 @@ def show_decks_in_deckbox(deckbox_id):
     return decks_schema.jsonify(deckbox.decks)
 
 # Add a Deck to a DeckBox
-@deckbox_controller.route('/deckboxes/<int:deckbox_id>/decks', methods=['POST'])
+@deckbox_controller.route('/<int:deckbox_id>/decks', methods=['POST'])
 def add_deck_to_deckbox(deckbox_id):
     data = request.json
 
@@ -102,7 +102,7 @@ def add_deck_to_deckbox(deckbox_id):
     return deck_schema.jsonify(deck), 201
 
 # Remove a Deck from a DeckBox
-@deckbox_controller.route('/deckboxes/<int:deckbox_id>/decks/<int:deck_id>', methods=['DELETE'])
+@deckbox_controller.route('/<int:deckbox_id>/decks/<int:deck_id>', methods=['DELETE'])
 def remove_deck_from_deckbox(deckbox_id, deck_id):
     # Validate DeckBox exists
     deckbox = DeckBox.query.get(deckbox_id)
