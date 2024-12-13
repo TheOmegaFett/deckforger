@@ -38,7 +38,7 @@ def create_app():
     app.register_blueprint(deckbox_controller, url_prefix="/api/deckboxes")
     app.register_blueprint(card_controller, url_prefix="/api/cards")
     app.register_blueprint(deckcard_controller, url_prefix="/api/deckcards")
-    app.register_blueprint(cardset_controller)
+    app.register_blueprint(cardset_controller, url_prefix="/api/cardsets")
 
 
     return app

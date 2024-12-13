@@ -28,7 +28,7 @@ def validate_set_id(self, value):
         raise ValidationError('Set ID must be a positive integer')
 
 # Create a Card
-@card_controller.route('/cards', methods=['POST'])
+@card_controller.route('/', methods=['POST'])
 def create_card():
     data = request.json
 
