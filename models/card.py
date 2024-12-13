@@ -3,9 +3,6 @@
 # Third-party imports
 from init import db
 
-# Local application imports
-from models.cardset import CardSet
-
 
 class Card(db.Model):
     """
@@ -28,7 +25,7 @@ class Card(db.Model):
     set_id = db.Column(db.Integer, db.ForeignKey('sets.id'), nullable=False)
 
     # Database relationships
-    set = db.relationship(CardSet, back_populates='cards')
+    sets = db.relationship('CardSet', back_populates='cards')
     decks = db.relationship('DeckCards', back_populates='cards', lazy='dynamic')
 
     def __repr__(self):
