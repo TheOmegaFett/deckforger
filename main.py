@@ -42,3 +42,9 @@ def create_app():
     app.register_blueprint(format_blueprint)
    
     return app
+
+if __name__ == "__main__":
+    app = create_app()
+    with app.app_context():
+        db.create_all()  # Make sure models are initialized
+    app.run()
