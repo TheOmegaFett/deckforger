@@ -13,12 +13,3 @@ class RatingSchema(ma.SQLAlchemySchema):
     created_at = ma.auto_field()
     deck = ma.Nested("DeckSchema", only=["id", "name"])
 
-    @validates('score')
-    def validate_score(self, value):
-        if not 1 <= value <= 5:
-            raise ValidationError('Score must be between 1 and 5')
-
-    @validates('comment')
-    def validate_comment(self, value):
-        if value and len(value) > 500:
-            raise ValidationError('Comment must be less than 500 characters')

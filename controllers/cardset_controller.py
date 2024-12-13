@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
 from init import db
 from models.cardset import CardSet
-from schemas.set_schema import set_schema, sets_schema
+from schemas.cardset_schema import set_schema, sets_schema
 
 cardset_controller = Blueprint("set_controller", __name__)
 
