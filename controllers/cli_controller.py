@@ -1,106 +1,105 @@
 from flask import Blueprint
-
 from init import db
-from models.student import Student
-from models.teacher import Teacher
-from models.course import Course
-from models.enrolment import Enrolment
+from models import Card, Deck, DeckBox, DeckCard, CardSet
 
-db_commands = Blueprint("db", __name__)
+cli_controller = Blueprint("cli", __name__)
 
-
-@db_commands.cli.command("create")
+@cli_controller.cli.command("create")
 def create_tables():
     db.create_all()
-    print("Tables created")
-
-
-@db_commands.cli.command("drop")
+    print("Tables created!")
+    
+@cli_controller.cli.command("drop")
 def drop_tables():
     db.drop_all()
     print("Tables dropped")
 
-
-@db_commands.cli.command("seed")
+@cli_controller.cli.command("seed")
 def seed_tables():
-
-    students = [
-        Student(
-            name="Student 1",
-            email="student1@email.com",
-            address="Sydney"
+    
+    # Seed Sets first
+    sets = [
+        CardSet(
+            name="Shrouded Fable",
+            release_date="2023-01-01",
+            description="A mysterious set featuring dark creatures"
         ),
-        Student(
-            name="Student 2",
-            email="student2@email.com",
-            address="Melbourne"
+        CardSet(
+            name="Eclipse Shadow",
+            release_date="2023-06-01",
+            description="Ghost and psychic focused expansion"
         )
     ]
-
-    db.session.add_all(students)
-
-    teachers = [
-        Teacher(
-            name="Teacher 1",
-            department="Engineering",
-            address="Sydney"
-        ),
-        Teacher(
-            name="Teacher 2",
-            department="Management",
-            address="Melbourne"
-        )
-    ]
-
-    db.session.add_all(teachers)
-
+    db.session.add_all(sets)
     db.session.commit()
 
-    courses = [
-        Course(
-            name="Course 1",
-            duration=1,
-            teacher_id=teachers[0].id
+    # Seed DeckBoxes
+    deckboxes = [
+        DeckBox(
+            name="Competitive Decks",
+            description="A collection of top-tier competitive decks."
         ),
-        Course(
-            name="Course 2",
-            duration=2,
-            teacher_id=teachers[0].id
-        ),
-        Course(
-            name="Course 3",
-            duration=2,
-            teacher_id=teachers[1].id
-        ),
-        Course(
-            name="Course 4",
-            duration=3,
-            teacher_id=teachers[0].id
+        DeckBox(
+            name="Casual Decks",
+            description="Fun and experimental decks for casual play."
         )
     ]
-
-    db.session.add_all(courses)
-
-    enrolments = [
-        Enrolment(
-            enrolment_date="2024-11-23",
-            course=courses[0],
-            student=students[0]
-        ),
-        Enrolment(
-            enrolment_date="2022-10-20",
-            course=courses[1],
-            student=students[0]
-        ),
-        Enrolment(
-            enrolment_date="2023-05-07",
-            course=courses[0],
-            student=students[1]
-        )
-    ]
-
-    db.session.add_all(enrolments)
-
+    db.session.add_all(deckboxes)
     db.session.commit()
 
-    print("Tables seeded")
+    # Seed Decks
+    decks = [
+        Deck(
+            name="Dark Moon EX",
+            description="A strong dark-themed deck.",
+            format="Standard",
+            deckbox_id=deckboxes[0].id
+        ),
+        Deck(
+            name="Ghost Control",
+            description="A ghost-themed deck for control strategies.",
+            format="Extended",
+            deckbox_id=deckboxes[0].id
+        ),
+        Deck(
+            name="Fun Energy Deck",
+            description="A casual deck with quirky combos.",
+            format="Casual",
+            deckbox_id=deckboxes[1].id
+        )
+    ]
+    db.session.add_all(decks)
+    db.session.commit()
+
+    # Seed Cards with set_id
+    cards = [
+        Card(
+            name="Fezandipiti EX",
+            type="Dark",
+            set_id=sets[0].id  # Reference to Shrouded Fable
+        ),
+        Card(
+            name="Dark Patch",
+            type="Item",
+            set_id=sets[0].id  # Reference to Shrouded Fable
+        ),
+        Card(
+            name="Gengar EX",
+            type="Ghost",
+            set_id=sets[1].id  # Reference to Eclipse Shadow
+        )
+    ]
+    db.session.add_all(cards)
+    db.session.commit()
+
+    # Seed DeckCards
+    deckcards = [
+        DeckCard(deck_id=decks[0].id, card_id=cards[0].id, quantity=4),
+        DeckCard(deck_id=decks[0].id, card_id=cards[1].id, quantity=2),
+        DeckCard(deck_id=decks[1].id, card_id=cards[2].id, quantity=3),
+        DeckCard(deck_id=decks[2].id, card_id=cards[1].id, quantity=1)
+    ]
+    db.session.add_all(deckcards)
+    db.session.commit()
+
+    print("Tables seeded with Sets, DeckBoxes, Decks, Cards, and DeckCard relationships.")
