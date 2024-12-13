@@ -13,7 +13,7 @@ class Deck(db.Model):
     deckbox_id = db.Column(db.Integer, db.ForeignKey('deckboxes.id'))
     
     format = db.relationship('Format')
-    deckbox = db.relationship('DeckBox')
+    deckbox = db.relationship('DeckBox', back_populates="decks", overlaps="decks")
     cards = db.relationship(
         'DeckCard',
         primaryjoin="Deck.id == DeckCard.deck_id",
