@@ -98,23 +98,4 @@ def delete_format(format_id):
     return jsonify({'message': 'Format deleted successfully'}), 200
 
 
-# Replace
-deck = Deck.query.get(deck_id)
 
-# With
-stmt = db.select(Deck).filter_by(id=deck_id)
-deck = db.session.scalar(stmt)
-
-# Replace
-deckboxes = DeckBox.query.all()
-
-# With
-stmt = db.select(DeckBox)
-deckboxes = db.session.scalars(stmt).all()
-
-# Replace
-existing_card = Card.query.filter_by(name=data["name"], set_id=data["set_id"]).first()
-
-# With
-stmt = db.select(Card).filter_by(name=data["name"], set_id=data["set_id"])
-existing_card = db.session.scalar(stmt)
