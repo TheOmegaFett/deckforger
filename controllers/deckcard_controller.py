@@ -85,3 +85,23 @@ def remove_card_from_deck(deck_id, card_id):
     db.session.delete(deckcard)
     db.session.commit()
     return jsonify({"message": "Card removed from deck successfully!"}), 200
+
+@deckcard_controller.route("/deck/<int:deck_id>", methods=["PUT"])
+def update_deck_cards(deck_id):
+    data = request.get_json()
+    
+    # Clear existing cards
+    DeckCard.query.filter_by(deck_id=deck_id).delete()
+    
+    # Add new cards
+    for card_data in data["cards"]:
+        new_deckcard = DeckCard(
+            deck_id=deck_id,
+            card_id=card_data["card_id"],
+            quantity=card_data["quantity"]
+        )
+        db.session.add(new_deckcard)
+    
+    db.session.commit()
+    
+    return jsonify({"message": "Deck cards updated successfully!"}), 200
