@@ -13,9 +13,8 @@ class DeckSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     name = ma.auto_field()
     description = ma.auto_field()
-    format_id = ma.auto_field(required=True)
+    format_id = ma.auto_field(required=True)  # Only format_id included
     cards = ma.Nested("DeckCardSchema", only=["id", "quantity"], many=True)
-    format = ma.Nested("FormatSchema", only=["name"])
 
     @validates('format_id')
     def validate_deck_format(self, format_id):
@@ -32,8 +31,12 @@ class DeckSchema(ma.SQLAlchemySchema):
             
             if format_id == 1:  # Standard
                 if card_set.release_date < standard_date:
-                    raise ValidationError(f"Card {card.name} from set {card_set.name} is not legal in Standard format")
+                    raise ValidationError(
+                        f"Card {card.name} from set {card_set.name} is not legal in Standard format"
+                    )
             elif format_id == 2:  # Expanded
                 if card_set.release_date < expanded_date:
-                    raise ValidationError(f"Card {card.name} from set {card_set.name} is not legal in Expanded format")
+                    raise ValidationError(
+                        f"Card {card.name} from set {card_set.name} is not legal in Expanded format"
+                    )
             # Format 3 is Unlimited, all cards allowed
