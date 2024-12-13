@@ -7,22 +7,22 @@ from models.cardset import CardSet
 from models.format import Format
 from schemas.cardset_schema import set_schema, sets_schema
 
-cardset_controller = Blueprint("set_controller", __name__)
+cardset_controller = Blueprint('set_controller', __name__)
 
 # Create a new Set
-@cardset_controller.route("/", methods=["POST"])
+@cardset_controller.route('/', methods=['POST'])
 def create_set():
     data = request.json
 
     # Check for existing set with same name
-    existing_set = CardSet.query.filter_by(name=data["name"]).first()
+    existing_set = CardSet.query.filter_by(name=data['name']).first()
     if existing_set:
-        return jsonify({"error": f"Set '{data['name']}' already exists"}), 409
+        return jsonify({'error': f'Set '{data['name']}' already exists'}), 409
 
     new_set = CardSet(
-        name=data["name"],
-        release_date=data.get("release_date"),
-        description=data.get("description")
+        name=data['name'],
+        release_date=data.get('release_date'),
+        description=data.get('description')
     )
     db.session.add(new_set)
     db.session.commit()
@@ -41,41 +41,41 @@ def validate_release_date(self, value):
         raise ValidationError('Release date cannot be in the future')
 
 # Read all Sets
-@cardset_controller.route("/", methods=["GET"])
+@cardset_controller.route('/', methods=['GET'])
 def get_sets():
     sets = CardSet.query.all()
     return sets_schema.jsonify(sets)
 
 # Read one Set
-@cardset_controller.route("/<int:set_id>", methods=["GET"])
+@cardset_controller.route('/<int:set_id>', methods=['GET'])
 def get_set(set_id):
     set_ = CardSet.query.get(set_id)
     if not set_:
-        return jsonify({"error": "Set not found"}), 404
+        return jsonify({'error': 'Set not found'}), 404
     return set_schema.jsonify(set_)
 
 # Update a Set
-@cardset_controller.route("/<int:set_id>", methods=["PUT"])
+@cardset_controller.route('/<int:set_id>', methods=['PUT'])
 def update_set(set_id):
     set_ = CardSet.query.get(set_id)
     if not set_:
-        return jsonify({"error": "Set not found"}), 404
+        return jsonify({'error': 'Set not found'}), 404
 
     data = request.json
-    set_.name = data.get("name", set_.name)
-    set_.release_date = data.get("release_date", set_.release_date)
-    set_.description = data.get("description", set_.description)
+    set_.name = data.get('name', set_.name)
+    set_.release_date = data.get('release_date', set_.release_date)
+    set_.description = data.get('description', set_.description)
     db.session.commit()
     return set_schema.jsonify(set_)
 
 # Delete a Set
-@cardset_controller.route("/<int:set_id>", methods=["DELETE"])
+@cardset_controller.route('/<int:set_id>', methods=['DELETE'])
 def delete_set(set_id):
     set_ = CardSet.query.get(set_id)
     if not set_:
-        return jsonify({"error": "Set not found"}), 404
+        return jsonify({'error': 'Set not found'}), 404
 
     db.session.delete(set_)
     db.session.commit()
-    return jsonify({"message": "Set deleted successfully!"})
+    return jsonify({'message': 'Set deleted successfully!'})
 

@@ -29,9 +29,9 @@ def validate_deck(deck_id, format_id):
 
     # Format validation using oldest card date
     if format_id == 1 and oldest_card_date < standard_date:
-        raise ValidationError("Deck contains cards not legal in Standard format")
+        raise ValidationError('Deck contains cards not legal in Standard format')
     elif format_id == 2 and oldest_card_date < expanded_date:
-        raise ValidationError("Deck contains cards not legal in Expanded format")
+        raise ValidationError('Deck contains cards not legal in Expanded format')
 
     # Continue with card count and quantity validation
     deck_cards = db.session.scalars(
@@ -41,14 +41,14 @@ def validate_deck(deck_id, format_id):
     card_count = 0
     card_quantities = {}
 
-    # Regex pattern for Basic Energy cards (e.g., "Basic Fire Energy", "Basic Water Energy")
+    # Regex pattern for Basic Energy cards (e.g., 'Basic Fire Energy', 'Basic Water Energy')
     basic_energy_pattern = re.compile(r'^Basic \w+ Energy', re.IGNORECASE)
     for deck_card in deck_cards:
         card = Card.query.get(deck_card.card_id)
         card_set = CardSet.query.get(card.set_id)
 
         if not card or not card_set:
-            raise ValidationError(f"Card or card set not found for deck card ID {deck_card.id}")
+            raise ValidationError(f'Card or card set not found for deck card ID {deck_card.id}')
 
         # Increment card count
         quantity = deck_card.quantity
@@ -59,11 +59,11 @@ def validate_deck(deck_id, format_id):
             # Track card quantities for non-Basic Energy cards
             card_quantities[card.id] = card_quantities.get(card.id, 0) + quantity
             if card_quantities[card.id] > 4:
-                raise ValidationError(f"Card '{card.name}' has more than 4 copies in the deck.")
+                raise ValidationError(f'Card '{card.name}' has more than 4 copies in the deck.')
 
     # Enforce 60 card deck rule
     if card_count != 60:
-        raise ValidationError(f"Deck must contain exactly 60 cards. Current count: {card_count}")
+        raise ValidationError(f'Deck must contain exactly 60 cards. Current count: {card_count}')
 
 # Create a Deck
 @deck_controller.route('/', methods=['POST'])
@@ -84,7 +84,7 @@ def create_deck():
         validate_deck(new_deck.id, new_deck.format_id)
     except ValidationError as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 400
+        return jsonify({'error': str(e)}), 400
 
     return deck_schema.jsonify(new_deck), 201
 
@@ -93,7 +93,7 @@ def create_deck():
 def update_deck(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
-        return jsonify({"error": "Deck not found"}), 404
+        return jsonify({'error': 'Deck not found'}), 404
 
     data = request.get_json()
     deck.name = data.get('name', deck.name)
@@ -107,7 +107,7 @@ def update_deck(deck_id):
         validate_deck(deck.id, deck.format_id)
     except ValidationError as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 400
+        return jsonify({'error': str(e)}), 400
 
     return deck_schema.jsonify(deck), 200
 
@@ -118,20 +118,20 @@ def validate_deck_rules(deck_id):
         deck = db.session.scalar(stmt)
         
         if not deck:
-            return jsonify({"error": "Deck not found"}), 404
+            return jsonify({'error': 'Deck not found'}), 404
             
         validate_deck(deck.id, deck.format_id)
         
         return jsonify({
-            "message": "Deck is valid!",
-            "deck_name": deck.name,
-            "format": deck.format_id,
-            "card_count": sum(dc.quantity for dc in deck.deck_cards)
+            'message': 'Deck is valid!',
+            'deck_name': deck.name,
+            'format': deck.format_id,
+            'card_count': sum(dc.quantity for dc in deck.deck_cards)
         }), 200
             
     except Exception as e:
         return jsonify({
-            "message": "Validation check failed",
-            "error": str(e),
-            "deck_id": deck_id
+            'message': 'Validation check failed',
+            'error': str(e),
+            'deck_id': deck_id
         }), 500

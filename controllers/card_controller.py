@@ -32,23 +32,23 @@ def create_card():
       data = request.json
 
       # Validate input
-      if not data.get("name") or not data.get("type") or not data.get("set_id"):
-          return jsonify({"error": "Name, type, and set_id are required fields."}), 400
+      if not data.get('name') or not data.get('type') or not data.get('set_id'):
+          return jsonify({'error': 'Name, type, and set_id are required fields.'}), 400
 
       # Check for existing card with same name and set_id
       existing_card = Card.query.filter_by(
-          name=data["name"],
-          set_id=data["set_id"]
+          name=data['name'],
+          set_id=data['set_id']
       ).first()
 
       if existing_card:
-          return jsonify({"error": f"Card '{data['name']}' already exists in this set"}), 409
+          return jsonify({'error': f'Card '{data['name']}' already exists in this set'}), 409
 
       # Create a new card
       card = Card(
-          name=data["name"],
-          type=data["type"],
-          set_id=data["set_id"]
+          name=data['name'],
+          type=data['type'],
+          set_id=data['set_id']
       )
       db.session.add(card)
       db.session.commit()
@@ -64,7 +64,7 @@ def get_all_cards():
 def get_one_card(card_id):
     card = Card.query.get(card_id)
     if not card:
-        return jsonify({"error": "Card not found"}), 404
+        return jsonify({'error': 'Card not found'}), 404
     return card_schema.jsonify(card), 200
 
 # Update a Card
@@ -72,20 +72,20 @@ def get_one_card(card_id):
 def update_card(card_id):
     card = Card.query.get(card_id)
     if not card:
-        return jsonify({"error": "Card not found"}), 404
+        return jsonify({'error': 'Card not found'}), 404
 
     data = request.json
-    card.name = data.get("name", card.name)
-    card.type = data.get("type", card.type)
-    card.set_id = data.get("set_id", card.set_id)
+    card.name = data.get('name', card.name)
+    card.type = data.get('type', card.type)
+    card.set_id = data.get('set_id', card.set_id)
 
     try:
         db.session.commit()
     except Exception as e:
         db.session.rollback()
         return jsonify({
-            "error": "Database operation failed",
-            "details": str(e)
+            'error': 'Database operation failed',
+            'details': str(e)
         }), 500
     return card_schema.jsonify(card), 200
 
@@ -94,11 +94,11 @@ def update_card(card_id):
 def delete_card(card_id):
     card = Card.query.get(card_id)
     if not card:
-        return jsonify({"error": "Card not found"}), 404
+        return jsonify({'error': 'Card not found'}), 404
 
     db.session.delete(card)
     db.session.commit()
-    return jsonify({"message": "Card deleted successfully!"}), 200
+    return jsonify({'message': 'Card deleted successfully!'}), 200
 
 @card_controller.route('/search', methods=['GET'])
 def search_cards():

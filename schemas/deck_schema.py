@@ -9,4 +9,4 @@ class DeckSchema(ma.SQLAlchemySchema):
     name = ma.auto_field()
     description = ma.auto_field()
     format_id = ma.auto_field(required=True)
-    cards = ma.Nested("DeckCardSchema", only=["id", "quantity"], many=True)
+    cards = ma.Nested('DeckCardSchema', only=['id', 'quantity'], many=True)

@@ -43,7 +43,7 @@ def read_all_deckboxes():
 def read_one_deckbox(deckbox_id):
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
-        return jsonify({"error": "DeckBox not found"}), 404
+        return jsonify({'error': 'DeckBox not found'}), 404
     return deckbox_schema.jsonify(deckbox)
 
 # Update a DeckBox
@@ -52,7 +52,7 @@ def update_deckbox(deckbox_id):
     data = request.json
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
-        return jsonify({"error": "DeckBox not found"}), 404
+        return jsonify({'error': 'DeckBox not found'}), 404
 
     deckbox.name = data.get('name', deckbox.name)
     deckbox.description = data.get('description', deckbox.description)
@@ -64,18 +64,18 @@ def update_deckbox(deckbox_id):
 def delete_deckbox(deckbox_id):
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
-        return jsonify({"error": "DeckBox not found"}), 404
+        return jsonify({'error': 'DeckBox not found'}), 404
 
     db.session.delete(deckbox)
     db.session.commit()
-    return jsonify({"message": "DeckBox deleted successfully!"})
+    return jsonify({'message': 'DeckBox deleted successfully!'})
 
 # Show all Decks in a DeckBox
 @deckbox_controller.route('/<int:deckbox_id>/decks', methods=['GET'])
 def show_decks_in_deckbox(deckbox_id):
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
-        return jsonify({"error": "DeckBox not found"}), 404
+        return jsonify({'error': 'DeckBox not found'}), 404
 
     return decks_schema.jsonify(deckbox.decks)
 
@@ -87,7 +87,7 @@ def add_deck_to_deckbox(deckbox_id):
     # Validate DeckBox exists
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
-        return jsonify({"error": "DeckBox not found"}), 404
+        return jsonify({'error': 'DeckBox not found'}), 404
 
     # Create a new Deck and associate it with this DeckBox
     deck = Deck(
@@ -107,13 +107,13 @@ def remove_deck_from_deckbox(deckbox_id, deck_id):
     # Validate DeckBox exists
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
-        return jsonify({"error": "DeckBox not found"}), 404
+        return jsonify({'error': 'DeckBox not found'}), 404
 
     # Validate Deck exists and belongs to this DeckBox
     deck = Deck.query.filter_by(id=deck_id, deckbox_id=deckbox_id).first()
     if not deck:
-        return jsonify({"error": "Deck not found in this DeckBox"}), 404
+        return jsonify({'error': 'Deck not found in this DeckBox'}), 404
 
     db.session.delete(deck)
     db.session.commit()
-    return jsonify({"message": "Deck removed from DeckBox successfully!"})
+    return jsonify({'message': 'Deck removed from DeckBox successfully!'})

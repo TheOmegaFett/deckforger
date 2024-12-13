@@ -9,5 +9,5 @@ class DeckCard(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
     # Relationships
-    deck = db.relationship("Deck", back_populates="deck_cards")
-    card = db.relationship("Card", back_populates="decks")
+    deck = db.relationship('Deck', back_populates='deck_cards')
+    card = db.relationship('Card', back_populates='decks')

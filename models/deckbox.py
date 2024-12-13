@@ -8,4 +8,4 @@ class DeckBox(db.Model):
     description = db.Column(db.String(200))
     
     # Relationship without overlaps
-    decks = db.relationship('Deck', back_populates="deckbox", lazy="dynamic")
+    decks = db.relationship('Deck', back_populates='deckbox', lazy='dynamic')

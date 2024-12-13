@@ -11,5 +11,5 @@ class RatingSchema(ma.SQLAlchemySchema):
     score = ma.auto_field(required=True)
     comment = ma.auto_field()
     created_at = ma.auto_field()
-    deck = ma.Nested("DeckSchema", only=["id", "name"])
+    deck = ma.Nested('DeckSchema', only=['id', 'name'])
 

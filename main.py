@@ -16,11 +16,11 @@ def create_app():
     load_dotenv()  
     
     # Load environment variables from .env
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URI")
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
     app.config['SQLALCHEMY_ECHO'] = True  # This will show SQL output
     
     
-    url = os.environ.get("DATABASE_URI")
+    url = os.environ.get('DATABASE_URI')
     print(url)
     
     app.json.sort_keys = False
@@ -32,12 +32,12 @@ def create_app():
     
     # Register blueprints
     app.register_blueprint(cli_controller)
-    app.register_blueprint(deck_controller, url_prefix="/api/decks")
-    app.register_blueprint(deckbox_controller, url_prefix="/api/deckboxes")
-    app.register_blueprint(card_controller, url_prefix="/api/cards")
-    app.register_blueprint(deckcard_controller, url_prefix="/api/deckcards")
-    app.register_blueprint(cardset_controller, url_prefix="/api/cardsets")
-    app.register_blueprint(format_controller,url_prefix="/api/formats" )
+    app.register_blueprint(deck_controller, url_prefix='/api/decks')
+    app.register_blueprint(deckbox_controller, url_prefix='/api/deckboxes')
+    app.register_blueprint(card_controller, url_prefix='/api/cards')
+    app.register_blueprint(deckcard_controller, url_prefix='/api/deckcards')
+    app.register_blueprint(cardset_controller, url_prefix='/api/cardsets')
+    app.register_blueprint(format_controller,url_prefix='/api/formats' )
     
     
         

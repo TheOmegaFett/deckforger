@@ -12,7 +12,7 @@ class SetSchema(ma.SQLAlchemySchema):
     name = ma.auto_field(required=True)
     release_date = ma.auto_field(required=True)
     description = ma.auto_field(required=True)
-    cards = ma.Nested("CardSchema", many=True, exclude=("set_id",))
+    cards = ma.Nested('CardSchema', many=True, exclude=('set_id',))
 
 
 set_schema = SetSchema()

@@ -9,5 +9,5 @@ class DeckBoxSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     name = ma.auto_field(required=True)
     description = ma.auto_field(required=True)
-    decks = ma.Nested("DeckSchema", many=True, only=["id", "name", "format"])
+    decks = ma.Nested('DeckSchema', many=True, only=['id', 'name', 'format'])
 

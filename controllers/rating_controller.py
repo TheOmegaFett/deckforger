@@ -25,12 +25,12 @@ def validate_comment(self, value):
 def add_rating(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
-        return jsonify({"error": "Deck not found"}), 404
+        return jsonify({'error': 'Deck not found'}), 404
 
     data = request.json
     score = data.get('score')
     if not (1 <= score <= 5):
-        return jsonify({"error": "Score must be between 1 and 5"}), 400
+        return jsonify({'error': 'Score must be between 1 and 5'}), 400
 
     rating = Rating(
         deck_id=deck_id,
@@ -46,7 +46,7 @@ def add_rating(deck_id):
 def get_ratings(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
-        return jsonify({"error": "Deck not found"}), 404
+        return jsonify({'error': 'Deck not found'}), 404
 
     return ratings_schema.jsonify(deck.ratings)
 
@@ -55,10 +55,10 @@ def get_ratings(deck_id):
 def get_average_rating(deck_id):
     deck = Deck.query.get(deck_id)
     if not deck:
-        return jsonify({"error": "Deck not found"}), 404
+        return jsonify({'error': 'Deck not found'}), 404
 
     if not deck.ratings:
-        return jsonify({"average": 0, "message": "No ratings yet."})
+        return jsonify({'average': 0, 'message': 'No ratings yet.'})
 
     average = sum(rating.score for rating in deck.ratings) / len(deck.ratings)
-    return jsonify({"average": round(average, 2), "deck_id": deck_id})
+    return jsonify({'average': round(average, 2), 'deck_id': deck_id})

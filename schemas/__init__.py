@@ -6,4 +6,4 @@ from schemas.deckcard_schema import DeckCardSchema
 from schemas.cardset_schema import SetSchema
 from schemas.format_schema import FormatSchema
 
-__all__ = ["DeckBoxSchema", "RatingSchema", "DeckSchema", "CardSchema", "DeckCardSchema", "SetSchema", "FormatSchema"]
+__all__ = ['DeckBoxSchema', 'RatingSchema', 'DeckSchema', 'CardSchema', 'DeckCardSchema', 'SetSchema', 'FormatSchema']
