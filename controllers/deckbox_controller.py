@@ -21,7 +21,7 @@ def validate_name(self, value):
         raise ValidationError('Deckbox name must be less than 50 characters')
 
 # Create a DeckBox
-@deckbox_controller.route('/deckboxes', methods=['POST'])
+@deckbox_controller.route('/', methods=['POST'])
 def create_deckbox():
     data = request.json
     deckbox = DeckBox(
