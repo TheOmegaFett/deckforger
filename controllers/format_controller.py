@@ -2,19 +2,19 @@ from flask import Blueprint, jsonify, request
 from models.format import Format
 from init import db
 
-format_blueprint = Blueprint('format', __name__)
+format_controller = Blueprint('formats', __name__)
 
-@format_blueprint.route('/formats', methods=['GET'])
+@format_controller.route('/formats', methods=['GET'])
 def get_formats():
     formats = Format.query.all()
     return jsonify([format.to_dict() for format in formats])
 
-@format_blueprint.route('/formats/<int:format_id>', methods=['GET'])
+@format_controller.route('/formats/<int:format_id>', methods=['GET'])
 def get_format(format_id):
     format = Format.query.get_or_404(format_id)
     return jsonify(format.to_dict())
 
-@format_blueprint.route('/formats', methods=['POST'])
+@format_controller.route('/formats', methods=['POST'])
 def create_format():
     data = request.get_json()
     
@@ -37,7 +37,7 @@ def create_format():
     
     return jsonify(new_format.to_dict()), 201
 
-@format_blueprint.route('/formats/<int:format_id>', methods=['PUT'])
+@format_controller.route('/formats/<int:format_id>', methods=['PUT'])
 def update_format(format_id):
     format = Format.query.get_or_404(format_id)
     data = request.get_json()
@@ -55,7 +55,7 @@ def update_format(format_id):
     db.session.commit()
     return jsonify(format.to_dict())
 
-@format_blueprint.route('/formats/<int:format_id>', methods=['DELETE'])
+@format_controller.route('/formats/<int:format_id>', methods=['DELETE'])
 def delete_format(format_id):
     format = Format.query.get_or_404(format_id)
     db.session.delete(format)

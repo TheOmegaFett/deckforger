@@ -7,7 +7,7 @@ from controllers.cli_controller import cli_controller
 from controllers.card_controller import card_controller
 from controllers.deckcard_controller import deckcard_controller
 from controllers.cardset_controller import cardset_controller
-from controllers.format_controller import format_blueprint
+from controllers.format_controller import format_controller
 from dotenv import load_dotenv
 
 def create_app():
@@ -39,14 +39,6 @@ def create_app():
     app.register_blueprint(card_controller, url_prefix="/api/cards")
     app.register_blueprint(deckcard_controller, url_prefix="/api/deckcards")
     app.register_blueprint(cardset_controller, url_prefix="/api/cardsets")
-    app.register_blueprint(format_blueprint)
+    app.register_blueprint(format_controller,url_prefix="/api/formats" )
    
     return app
-
-# For Gunicorn or Flask CLI
-app = create_app()
-
-# Ensure app context is pushed at start
-if __name__ != "__main__":
-    with app.app_context():
-        pass  # Push the app context to ensure no errors on imports
