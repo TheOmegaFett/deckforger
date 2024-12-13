@@ -7,8 +7,8 @@ from controllers.cli_controller import cli_controller
 from controllers.card_controller import card_controller
 from controllers.deckcard_controller import deckcard_controller
 from controllers.cardset_controller import cardset_controller
+from format_controller import format_blueprint
 from dotenv import load_dotenv
-
 
 def create_app():
     app = Flask(__name__)
@@ -39,6 +39,6 @@ def create_app():
     app.register_blueprint(card_controller, url_prefix="/api/cards")
     app.register_blueprint(deckcard_controller, url_prefix="/api/deckcards")
     app.register_blueprint(cardset_controller, url_prefix="/api/cardsets")
-
-
+    app.register_blueprint(format_blueprint)
+   
     return app
