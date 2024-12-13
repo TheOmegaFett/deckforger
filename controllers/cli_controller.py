@@ -3,6 +3,7 @@ from flask import jsonify
 from flask import Blueprint
 from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
+from models.format import Format
 
 cli_controller = Blueprint("cli", __name__)
 
@@ -13,6 +14,24 @@ def create_tables():
 
 @cli_controller.route("/run/seed", methods=["POST"])
 def seed_tables():
+    # Seed Formats first
+    formats = [
+        Format(
+            name="Standard",
+            description="Current sets from Sword & Shield forward"
+        ),
+        Format(
+            name="Expanded",
+            description="Black & White forward"
+        ),
+        Format(
+            name="Unlimited",
+            description="All cards from all sets"
+        )
+    ]
+    db.session.add_all(formats)
+    db.session.commit()
+
     # Example data for seeding
     
     cardset1 = CardSet(name="Base Set", description="The original set of cards.")
@@ -29,6 +48,29 @@ def seed_tables():
 
     card = Card(name="Fezandipiti EX", type="Dark", set_id=1)
     db.session.add(card)
+    db.session.commit()
+
+    decks = [
+        Deck(
+            name="Dark Moon EX",
+            description="A strong dark-themed deck.",
+            format_id=formats[0].id,  # Standard
+            deckbox_id=deckbox.id
+        ),
+        Deck(
+            name="Ghost Control",
+            description="A ghost-themed deck for control strategies.",
+            format_id=formats[1].id,  # Expanded
+            deckbox_id=deckbox.id
+        ),
+        Deck(
+            name="Fun Energy Deck",
+            description="A casual deck with quirky combos.",
+            format_id=formats[2].id,  # Unlimited
+            deckbox_id=deckbox.id
+        )
+    ]
+    db.session.add_all(decks)
     db.session.commit()
 
     return jsonify({"message": "Database seeded successfully!"})
