@@ -79,7 +79,14 @@ def update_card(card_id):
     card.type = data.get("type", card.type)
     card.set_id = data.get("set_id", card.set_id)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Database operation failed",
+            "details": str(e)
+        }), 500
     return card_schema.jsonify(card), 200
 
 # Delete a Card
@@ -92,3 +99,23 @@ def delete_card(card_id):
     db.session.delete(card)
     db.session.commit()
     return jsonify({"message": "Card deleted successfully!"}), 200
+
+@card_controller.route('/search', methods=['GET'])
+def search_cards():
+    # Get search parameters from query string
+    name = request.args.get('name', '')
+    card_type = request.args.get('type', '')
+    set_id = request.args.get('set_id')
+    
+    # Build query using modern SQLAlchemy syntax
+    stmt = db.select(Card)
+    
+    if name:
+        stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
+    if card_type:
+        stmt = stmt.filter(Card.type.ilike(f'%{card_type}%'))
+    if set_id:
+        stmt = stmt.filter(Card.set_id == set_id)
+        
+    cards = db.session.scalars(stmt).all()
+    return cards_schema.jsonify(cards), 200
