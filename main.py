@@ -7,7 +7,7 @@ from controllers.cli_controller import cli_controller
 from controllers.card_controller import card_controller
 from controllers.deckcard_controller import deckcard_controller
 from controllers.cardset_controller import cardset_controller
-from format_controller import format_blueprint
+from controllers.format_controller import format_blueprint
 from dotenv import load_dotenv
 
 def create_app():

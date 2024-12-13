@@ -1,11 +1,10 @@
 from init import db
 
 class DeckBox(db.Model):
-    __tablename__ = 'deckbox'
-
+    __tablename__ = 'deckboxes'
+    
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-
-    # Relationship to Deck
-    decks = db.relationship('Deck', back_populates='deckbox', lazy=True)
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(200))
+    
+    decks = db.relationship('Deck', backref='deckbox', lazy=True)
