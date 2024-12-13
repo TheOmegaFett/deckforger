@@ -104,7 +104,7 @@ def update_deck(deck_id):
 
     return deck_schema.jsonify(deck), 200
 
-@deck_controller.route('/decks/<int:deck_id>/validate', methods=['GET'])
+@deck_controller.route('/validate/<int:deck_id>', methods=['GET'])
 def validate_deck_rules(deck_id):
     try:
         deck = Deck.query.get(deck_id)
