@@ -13,11 +13,20 @@ def create_tables():
 @cli_controller.route("/run/seed", methods=["POST"])
 def seed_tables():
     # Example data for seeding
+    
+    cardset1 = CardSet(name="Base Set", description="The original set of cards.")
+    db.session.add(cardset1)
+    db.session.commit()
+    
+    cardset2 = CardSet(name="Expansion Set", description="Additional cards added later.")
+    db.session.add(cardset2)
+    db.session.commit()
+    
     deckbox = DeckBox(name="Competitive Decks", description="Top tier decks.")
     db.session.add(deckbox)
     db.session.commit()
 
-    card = Card(name="Fezandipiti EX", type="Dark", set_id=None)
+    card = Card(name="Fezandipiti EX", type="Dark", set_id=1)
     db.session.add(card)
     db.session.commit()
 
