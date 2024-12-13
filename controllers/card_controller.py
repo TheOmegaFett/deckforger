@@ -42,7 +42,7 @@ def create_card():
       ).first()
 
       if existing_card:
-          return jsonify({'error': f'Card '{data['name']}' already exists in this set'}), 409
+          return jsonify({'error': f'Card \'{data['name']}\' already exists in this set'}), 409
 
       # Create a new card
       card = Card(

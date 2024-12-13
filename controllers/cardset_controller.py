@@ -17,7 +17,7 @@ def create_set():
     # Check for existing set with same name
     existing_set = CardSet.query.filter_by(name=data['name']).first()
     if existing_set:
-        return jsonify({'error': f'Set '{data['name']}' already exists'}), 409
+        return jsonify({'error': f'Set \'{data['name']}\' already exists'}), 409
 
     new_set = CardSet(
         name=data['name'],

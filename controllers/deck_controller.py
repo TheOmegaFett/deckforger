@@ -59,7 +59,7 @@ def validate_deck(deck_id, format_id):
             # Track card quantities for non-Basic Energy cards
             card_quantities[card.id] = card_quantities.get(card.id, 0) + quantity
             if card_quantities[card.id] > 4:
-                raise ValidationError(f'Card '{card.name}' has more than 4 copies in the deck.')
+                raise ValidationError(f'Card \'{card.name}\' has more than 4 copies in the deck.')
 
     # Enforce 60 card deck rule
     if card_count != 60:

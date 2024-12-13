@@ -51,7 +51,7 @@ def add_cards_to_deck(deck_id):
 
         if not is_basic_energy and (current_quantity + quantity) > 4:
             return jsonify({
-                'error': f'Card '{card.name}' exceeds the maximum of 4 copies allowed in the deck.'
+                'error': f'Card \'{card.name}\' exceeds the maximum of 4 copies allowed in the deck.'
             }), 400
 
         # Add or update the DeckCard entry
