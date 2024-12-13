@@ -27,8 +27,6 @@ def create_app():
     
     # Initialize extensions
     db.init_app(app)
-    # with app.app_context():
-    #     db.create_all()
     ma.init_app(app)
     # migrate.init_app(app, db)
     
@@ -40,5 +38,9 @@ def create_app():
     app.register_blueprint(deckcard_controller, url_prefix="/api/deckcards")
     app.register_blueprint(cardset_controller, url_prefix="/api/cardsets")
     app.register_blueprint(format_controller,url_prefix="/api/formats" )
-   
+    
+    with app.app_context():
+        db.create_all()
+    
     return app
+
