@@ -4,6 +4,32 @@ from init import db
 
 format_controller = Blueprint('formats', __name__)
 
+@validates('format_id')
+def validate_deck_format(self, format_id):
+    # Get all cards in the deck through DeckCards
+    deck_cards = DeckCard.query.filter_by(deck_id=self.id).all()
+    
+    # Define format date boundaries
+    standard_date = datetime(2022, 7, 1)  # Sword & Shield forward
+    expanded_date = datetime(2011, 9, 1)  # Black & White forward
+    
+    for deck_card in deck_cards:
+        card = Card.query.get(deck_card.card_id)
+        card_set = CardSet.query.get(card.set_id)
+        
+        if format_id == 1:  # Standard
+            if card_set.release_date < standard_date:
+                raise ValidationError(
+                    f"Card {card.name} from set {card_set.name} is not legal in Standard format"
+                )
+        elif format_id == 2:  # Expanded
+            if card_set.release_date < expanded_date:
+                raise ValidationError(
+                    f"Card {card.name} from set {card_set.name} is not legal in Expanded format"
+                )
+        # Format 3 is Unlimited, all cards allowed
+
+
 @format_controller.route('/formats', methods=['GET'])
 def get_formats():
     formats = Format.query.all()
@@ -61,3 +87,4 @@ def delete_format(format_id):
     db.session.delete(format)
     db.session.commit()
     return jsonify({'message': 'Format deleted successfully'}), 200
+
