@@ -27,6 +27,13 @@ def validate_deck(deck_id, format_id):
     )
     oldest_card_date = db.session.scalar(stmt).date()
 
+    # Format validation using oldest card date
+    if format_id == 1 and oldest_card_date < standard_date:
+        raise ValidationError("Deck contains cards not legal in Standard format")
+    elif format_id == 2 and oldest_card_date < expanded_date:
+        raise ValidationError("Deck contains cards not legal in Expanded format")
+
+    # Continue with card count and quantity validation
     deck_cards = db.session.scalars(
         db.select(DeckCard).filter_by(deck_id=deck_id)
     ).all()
@@ -53,16 +60,6 @@ def validate_deck(deck_id, format_id):
             card_quantities[card.id] = card_quantities.get(card.id, 0) + quantity
             if card_quantities[card.id] > 4:
                 raise ValidationError(f"Card '{card.name}' has more than 4 copies in the deck.")
-
-        # Format validation
-        if format_id == 1 and card_set.release_date < standard_date:
-            raise ValidationError(
-                f"Card '{card.name}' from set '{card_set.name}' is not legal in Standard format."
-            )
-        elif format_id == 2 and card_set.release_date < expanded_date:
-            raise ValidationError(
-                f"Card '{card.name}' from set '{card_set.name}' is not legal in Expanded format."
-            )
 
     # Enforce 60 card deck rule
     if card_count != 60:
