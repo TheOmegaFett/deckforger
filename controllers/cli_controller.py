@@ -287,68 +287,67 @@ def seed_tables():
 
 @cli_controller.route("/run/cleanup", methods=["POST"])
 def cleanup_database():
-    # Clean up duplicate cards
-    stmt = (
-        db.select(Card.name, Card.set_id, db.func.count('*'))
-        .group_by(Card.name, Card.set_id)
-        .having(db.func.count('*') > 1)
-    )
-    duplicate_cards = db.session.execute(stmt).all()
-    
-    cards_deleted = 0
-    for name, set_id, count in duplicate_cards:
-        # Keep the first occurrence, delete the rest
-        duplicates = Card.query.filter_by(name=name, set_id=set_id).offset(1).all()
-        for card in duplicates:
-            db.session.delete(card)
-            cards_deleted += 1
+    try:
+        # Clean up duplicate cards using modern syntax
+        stmt = (
+            db.select(Card.name, Card.set_id, db.func.count('*'))
+            .group_by(Card.name, Card.set_id)
+            .having(db.func.count('*') > 1)
+        )
+        duplicate_cards = db.session.execute(stmt).all()
+        
+        cards_deleted = 0
+        try:
+            for name, set_id, count in duplicate_cards:
+                stmt = db.select(Card).filter_by(name=name, set_id=set_id).offset(1)
+                duplicates = db.session.scalars(stmt).all()
+                for card in duplicates:
+                    db.session.delete(card)
+                    cards_deleted += 1
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({
+                "error": "Card cleanup failed",
+                "details": str(e)
+            }), 500
 
-    # Clean up duplicate sets
-    duplicate_sets = db.session.query(CardSet.name, db.func.count('*'))\
-        .group_by(CardSet.name)\
-        .having(db.func.count('*') > 1)\
-        .all()
-    
-    sets_deleted = 0
-    for name, count in duplicate_sets:
-        # Keep the first occurrence, delete the rest
-        duplicates = CardSet.query.filter_by(name=name).offset(1).all()
-        for set_ in duplicates:
-            db.session.delete(set_)
-            sets_deleted += 1
+        # Clean up duplicate sets using modern syntax
+        stmt = (
+            db.select(CardSet.name, db.func.count('*'))
+            .group_by(CardSet.name)
+            .having(db.func.count('*') > 1)
+        )
+        duplicate_sets = db.session.execute(stmt).all()
+        
+        sets_deleted = 0
+        try:
+            for name, count in duplicate_sets:
+                stmt = db.select(CardSet).filter_by(name=name).offset(1)
+                duplicates = db.session.scalars(stmt).all()
+                for set_ in duplicates:
+                    db.session.delete(set_)
+                    sets_deleted += 1
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({
+                "error": "Set cleanup failed",
+                "details": str(e)
+            }), 500
 
-    # Validate and update deck formats
-    decks = Deck.query.all()
-    decks_updated = 0
-    
-    standard_date = datetime(2022, 7, 1)  # Sword & Shield forward
-    expanded_date = datetime(2011, 9, 1)  # Black & White forward
-    
-    for deck in decks:
-        oldest_card_date = db.session.query(db.func.min(CardSet.release_date))\
-            .join(Card)\
-            .join(DeckCard)\
-            .filter(DeckCard.deck_id == deck.id)\
-            .scalar()
-            
-        if oldest_card_date >= standard_date:
-            deck.format_id = 1  # Standard
-        elif oldest_card_date >= expanded_date:
-            deck.format_id = 2  # Expanded
-        else:
-            deck.format_id = 3  # Unlimited
-            
-        decks_updated += 1
-    
-    db.session.commit()
+        db.session.commit()
 
-    return jsonify({
-        "message": "Cleanup and format validation completed successfully!",
-        "cards_removed": cards_deleted,
-        "sets_removed": sets_deleted,
-        "decks_validated": decks_updated
-    }), 200
+        return jsonify({
+            "message": "Cleanup completed successfully!",
+            "cards_removed": cards_deleted,
+            "sets_removed": sets_deleted
+        }), 200
 
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Database cleanup failed",
+            "details": str(e)
+        }), 500
 
 @cli_controller.route('/routes', methods=['GET'])
 def list_routes():
