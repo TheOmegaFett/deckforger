@@ -45,3 +45,6 @@ def create_app():
         pass
 
     return app
+
+# For Gunicorn or Flask CLI
+app = create_app()
