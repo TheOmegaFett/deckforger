@@ -33,8 +33,8 @@ def create_card():
     data = request.json
 
     # Validate input
-    if not data.get("name") or not data.get("type") or not data.get("set"):
-        return jsonify({"error": "Name, type, and set are required fields."}), 400
+    if not data.get("name") or not data.get("type") or not data.get("set_id"):
+        return jsonify({"error": "Name, type, and set_id are required fields."}), 400
 
     # Create a new card
     card = Card(
@@ -70,7 +70,7 @@ def update_card(card_id):
     data = request.json
     card.name = data.get("name", card.name)
     card.type = data.get("type", card.type)
-    card.set = data.get("set", card.set)
+    card.set_id = data.get("set_id", card.set_id)
 
     db.session.commit()
     return card_schema.jsonify(card), 200
