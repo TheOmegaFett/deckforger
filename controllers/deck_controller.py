@@ -25,7 +25,7 @@ def validate_deck(deck_id, format_id):
         .join(DeckCard)
         .filter(DeckCard.deck_id == deck_id)
     )
-    oldest_card_date = db.session.scalar(stmt).date()
+    oldest_card_date = db.session.scalar(stmt)
 
     # Format validation using oldest card date
     if format_id == 1 and oldest_card_date < standard_date:
