@@ -32,15 +32,23 @@ def seed_tables():
     db.session.add_all(formats)
     db.session.commit()
 
-    # Example data for seeding
-    
-    cardset1 = CardSet(name="Base Set", description="The original set of cards.")
-    db.session.add(cardset1)
+    # Seed Sets
+     # Seed Sets first
+    sets = [
+        CardSet(
+            name="Shrouded Fable",
+            release_date="2023-01-01",
+            description="A mysterious set featuring dark creatures"
+        ),
+        CardSet(
+            name="Eclipse Shadow",
+            release_date="2023-06-01",
+            description="Ghost and psychic focused expansion"
+        )
+    ]
+    db.session.add_all(sets)
     db.session.commit()
     
-    cardset2 = CardSet(name="Expansion Set", description="Additional cards added later.")
-    db.session.add(cardset2)
-    db.session.commit()
     
     deckbox = DeckBox(name="Competitive Decks", description="Top tier decks.")
     db.session.add(deckbox)
