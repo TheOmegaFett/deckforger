@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
 from init import db
 from models.cardset import CardSet
+from models.format import Format
 from schemas.cardset_schema import set_schema, sets_schema
 
 cardset_controller = Blueprint("set_controller", __name__)
@@ -11,6 +12,12 @@ cardset_controller = Blueprint("set_controller", __name__)
 @cardset_controller.route("/", methods=["POST"])
 def create_set():
     data = request.json
+
+    # Check for existing set with same name
+    existing_set = CardSet.query.filter_by(name=data["name"]).first()
+    if existing_set:
+        return jsonify({"error": f"Set '{data['name']}' already exists"}), 409
+
     new_set = CardSet(
         name=data["name"],
         release_date=data.get("release_date"),
@@ -70,3 +77,20 @@ def delete_set(set_id):
     db.session.delete(set_)
     db.session.commit()
     return jsonify({"message": "Set deleted successfully!"})
+
+formats = [
+    Format(
+        name="Standard",
+        description="Most recent card sets, typically past 2 years"
+    ),
+    Format(
+        name="Expanded",
+        description="Cards from Black & White onwards"
+    ),
+    Format(
+        name="Unlimited",
+        description="All Pokemon cards ever printed"
+    )
+]
+db.session.add_all(formats)
+db.session.commit()

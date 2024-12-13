@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import jsonify
 from flask import Blueprint
 from init import db
@@ -137,7 +138,7 @@ def seed_tables():
     print("Tables seeded with Sets, DeckBoxes, Decks, Cards, and DeckCard relationships.")
 
 @cli_controller.route("/run/cleanup", methods=["POST"])
-def cleanup_duplicates():
+def cleanup_database():
     # Clean up duplicate cards
     duplicate_cards = db.session.query(Card.name, Card.set_id, db.func.count('*'))\
         .group_by(Card.name, Card.set_id)\
@@ -166,10 +167,34 @@ def cleanup_duplicates():
             db.session.delete(set_)
             sets_deleted += 1
 
+    # Validate and update deck formats
+    decks = Deck.query.all()
+    decks_updated = 0
+    
+    standard_date = datetime(2022, 7, 1)  # Sword & Shield forward
+    expanded_date = datetime(2011, 9, 1)  # Black & White forward
+    
+    for deck in decks:
+        oldest_card_date = db.session.query(db.func.min(CardSet.release_date))\
+            .join(Card)\
+            .join(DeckCard)\
+            .filter(DeckCard.deck_id == deck.id)\
+            .scalar()
+            
+        if oldest_card_date >= standard_date:
+            deck.format_id = 1  # Standard
+        elif oldest_card_date >= expanded_date:
+            deck.format_id = 2  # Expanded
+        else:
+            deck.format_id = 3  # Unlimited
+            
+        decks_updated += 1
+    
     db.session.commit()
 
     return jsonify({
-        "message": "Cleanup completed successfully!",
+        "message": "Cleanup and format validation completed successfully!",
         "cards_removed": cards_deleted,
-        "sets_removed": sets_deleted
+        "sets_removed": sets_deleted,
+        "decks_validated": decks_updated
     }), 200
