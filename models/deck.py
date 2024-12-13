@@ -1,6 +1,5 @@
 from init import db
 from models.format import Format
-from models.card import Card
 from models.deckbox import DeckBox
 
 class Deck(db.Model):
@@ -12,11 +11,12 @@ class Deck(db.Model):
     format_id = db.Column(db.Integer, db.ForeignKey('formats.id'))
     deckbox_id = db.Column(db.Integer, db.ForeignKey('deckboxes.id'))
     
-    format = db.relationship('Format')
-    deckbox = db.relationship('DeckBox', back_populates="decks", overlaps="decks")
+    # Relationships
+    format = db.relationship('Format', backref='decks')  # Optional: Add relationship for Format
+    deckbox = db.relationship('DeckBox', back_populates="decks")
+    
     cards = db.relationship(
         'DeckCard',
-        primaryjoin="Deck.id == DeckCard.deck_id",
         back_populates="deck",
         lazy='dynamic'
     )

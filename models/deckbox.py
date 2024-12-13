@@ -7,5 +7,5 @@ class DeckBox(db.Model):
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
     
-    decks = db.relationship('Deck', back_populates="deckbox", overlaps="deckbox")
-
+    # Relationship without overlaps
+    decks = db.relationship('Deck', back_populates="deckbox", lazy="dynamic")
