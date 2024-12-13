@@ -31,6 +31,7 @@ def seed_tables():
     ]
     db.session.add_all(formats)
     db.session.commit()
+
     # Seed Sets
     sets = [
         CardSet(name="Shrouded Fable", release_date="2023-01-01", description="A mysterious set featuring dark creatures"),
@@ -50,20 +51,6 @@ def seed_tables():
         DeckBox(name="Legacy Decks", description="Classic deck builds from past formats")
     ]
     db.session.add_all(deckboxes)
-    db.session.commit()
-
-    # Seed Decks
-    decks = [
-        Deck(name="Dark Moon EX", description="A strong dark-themed deck", format_id=1, deckbox_id=1),
-        Deck(name="Ghost Control", description="Ghost-type control deck", format_id=2, deckbox_id=1),
-        Deck(name="Crystal Power", description="Crystal-type aggro deck", format_id=1, deckbox_id=1),
-        Deck(name="Time Loop", description="Temporal Forces combo deck", format_id=1, deckbox_id=2),
-        Deck(name="Fossil Revival", description="Ancient Pokemon deck", format_id=2, deckbox_id=2),
-        Deck(name="Shadow Riders", description="Ghost-type aggro deck", format_id=1, deckbox_id=3),
-        Deck(name="Dark Crystal", description="Dark/Crystal hybrid deck", format_id=1, deckbox_id=3),
-        Deck(name="Legacy Legends", description="Classic legendary Pokemon deck", format_id=3, deckbox_id=4)
-    ]
-    db.session.add_all(decks)
     db.session.commit()
 
     # Seed Cards with set_id
@@ -89,6 +76,20 @@ def seed_tables():
         Card(name="Basic Fairy Energy", type="Energy", set_id=1)
     ]
     db.session.add_all(cards)
+    db.session.commit()
+
+    # Seed Decks
+    decks = [
+        Deck(name="Dark Moon EX", description="A strong dark-themed deck", format_id=1, deckbox_id=1),
+        Deck(name="Ghost Control", description="Ghost-type control deck", format_id=2, deckbox_id=1),
+        Deck(name="Crystal Power", description="Crystal-type aggro deck", format_id=1, deckbox_id=1),
+        Deck(name="Time Loop", description="Temporal Forces combo deck", format_id=1, deckbox_id=2),
+        Deck(name="Fossil Revival", description="Ancient Pokemon deck", format_id=2, deckbox_id=2),
+        Deck(name="Shadow Riders", description="Ghost-type aggro deck", format_id=1, deckbox_id=3),
+        Deck(name="Dark Crystal", description="Dark/Crystal hybrid deck", format_id=1, deckbox_id=3),
+        Deck(name="Legacy Legends", description="Classic legendary Pokemon deck", format_id=3, deckbox_id=4)
+    ]
+    db.session.add_all(decks)
     db.session.commit()
 
     # Seed DeckCards
