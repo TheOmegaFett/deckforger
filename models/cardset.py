@@ -24,7 +24,7 @@ class CardSet(db.Model):
     description = db.Column(db.Text, nullable=True)
 
     # Database relationships
-    cards = db.relationship('Card', back_populates='set', lazy=True)
+    cards = db.relationship('Cards', back_populates='sets', lazy=True)
 
     def __repr__(self):
         return f'<Set {self.name}>'

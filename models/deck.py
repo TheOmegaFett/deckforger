@@ -33,10 +33,10 @@ class Deck(db.Model):
     deckbox_id = db.Column(db.Integer, db.ForeignKey('deckboxes.id'))
 
     # Database relationships
-    deck_cards = db.relationship('DeckCard', back_populates='deck', lazy=True)
-    format = db.relationship('Format', backref='decks')
-    deckbox = db.relationship('DeckBox', back_populates='decks')
-    ratings = db.relationship('Rating', back_populates='deck', lazy='dynamic')
+    deck_cards = db.relationship('DeckCards', back_populates='deck', lazy=True)
+    format = db.relationship('Formats', backref='decks')
+    deckbox = db.relationship('DeckBoxes', back_populates='decks')
+    ratings = db.relationship('Ratings', back_populates='decks', lazy='dynamic')
 
     def __repr__(self):
         return f'<Deck {self.name}>'

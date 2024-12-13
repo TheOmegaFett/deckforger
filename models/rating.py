@@ -26,7 +26,7 @@ class Rating(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     # Database relationships
-    deck = db.relationship('Deck', back_populates='ratings')
+    deck = db.relationship('Decks', back_populates='ratings')
 
     def __repr__(self):
         return f'<Rating {self.deck_id}:{self.score}>'
