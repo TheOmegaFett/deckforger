@@ -135,3 +135,41 @@ def seed_tables():
     db.session.commit()
 
     print("Tables seeded with Sets, DeckBoxes, Decks, Cards, and DeckCard relationships.")
+
+@cli_controller.route("/run/cleanup", methods=["POST"])
+def cleanup_duplicates():
+    # Clean up duplicate cards
+    duplicate_cards = db.session.query(Card.name, Card.set_id, db.func.count('*'))\
+        .group_by(Card.name, Card.set_id)\
+        .having(db.func.count('*') > 1)\
+        .all()
+    
+    cards_deleted = 0
+    for name, set_id, count in duplicate_cards:
+        # Keep the first occurrence, delete the rest
+        duplicates = Card.query.filter_by(name=name, set_id=set_id).offset(1).all()
+        for card in duplicates:
+            db.session.delete(card)
+            cards_deleted += 1
+
+    # Clean up duplicate sets
+    duplicate_sets = db.session.query(CardSet.name, db.func.count('*'))\
+        .group_by(CardSet.name)\
+        .having(db.func.count('*') > 1)\
+        .all()
+    
+    sets_deleted = 0
+    for name, count in duplicate_sets:
+        # Keep the first occurrence, delete the rest
+        duplicates = CardSet.query.filter_by(name=name).offset(1).all()
+        for set_ in duplicates:
+            db.session.delete(set_)
+            sets_deleted += 1
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Cleanup completed successfully!",
+        "cards_removed": cards_deleted,
+        "sets_removed": sets_deleted
+    }), 200

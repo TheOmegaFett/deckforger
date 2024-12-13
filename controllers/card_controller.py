@@ -27,25 +27,32 @@ def validate_set_id(self, value):
     if value <= 0:
         raise ValidationError('Set ID must be a positive integer')
 
-# Create a Card
-@card_controller.route('/', methods=['POST'])
+@card_controller.route('/cards', methods=['POST'])
 def create_card():
-    data = request.json
+      data = request.json
 
-    # Validate input
-    if not data.get("name") or not data.get("type") or not data.get("set_id"):
-        return jsonify({"error": "Name, type, and set_id are required fields."}), 400
+      # Validate input
+      if not data.get("name") or not data.get("type") or not data.get("set_id"):
+          return jsonify({"error": "Name, type, and set_id are required fields."}), 400
 
-    # Create a new card
-    card = Card(
-        name=data["name"],
-        type=data["type"],
-        set_id=data["set_id"]
-    )
-    db.session.add(card)
-    db.session.commit()
-    return card_schema.jsonify(card), 201
+      # Check for existing card with same name and set_id
+      existing_card = Card.query.filter_by(
+          name=data["name"],
+          set_id=data["set_id"]
+      ).first()
 
+      if existing_card:
+          return jsonify({"error": f"Card '{data['name']}' already exists in this set"}), 409
+
+      # Create a new card
+      card = Card(
+          name=data["name"],
+          type=data["type"],
+          set_id=data["set_id"]
+      )
+      db.session.add(card)
+      db.session.commit()
+      return card_schema.jsonify(card), 201
 # Read All Cards
 @card_controller.route('/', methods=['GET'])
 def get_all_cards():
