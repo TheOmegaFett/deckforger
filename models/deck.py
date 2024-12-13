@@ -1,4 +1,7 @@
 from init import db
+from models.format import Format
+from models.card import Card
+from models.deckbox import DeckBox
 
 class Deck(db.Model):
     __tablename__ = 'decks'
