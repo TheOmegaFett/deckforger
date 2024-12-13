@@ -1,6 +1,5 @@
 from init import ma
 from models.deckcard import DeckCard
-from marshmallow import validates, ValidationError
 
 class DeckCardSchema(ma.SQLAlchemySchema):
     class Meta:

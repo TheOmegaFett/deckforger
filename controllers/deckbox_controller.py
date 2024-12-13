@@ -1,10 +1,16 @@
+'''Controller for managing Pokemon TCG deck box operations'''
+
+# Third-party imports
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
+
+# Local application imports
 from init import db
 from models.deckbox import DeckBox
-from schemas.deckbox_schema import DeckBoxSchema
 from models.deck import Deck
+from schemas.deckbox_schema import DeckBoxSchema
 from schemas.deck_schema import DeckSchema
+
 
 # Blueprint and Schema Setup
 deckbox_controller = Blueprint('deckbox_controller', __name__)
@@ -13,16 +19,37 @@ deckboxes_schema = DeckBoxSchema(many=True)
 deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
 
+
 @validates('name')
 def validate_name(self, value):
+    """
+    Validate deckbox name length.
+    
+    Parameters:
+        value (str): Name to validate
+        
+    Raises:
+        ValidationError: If name is empty or too long
+    """
     if len(value) < 1:
         raise ValidationError('Deckbox name must not be empty')
     if len(value) > 50:
         raise ValidationError('Deckbox name must be less than 50 characters')
 
-# Create a DeckBox
+
 @deckbox_controller.route('/', methods=['POST'])
 def create_deckbox():
+    """
+    Create a new deck box.
+    
+    Request Body:
+        name (str): Name of the deck box
+        description (str, optional): Description of the deck box
+        
+    Returns:
+        201: Deck box created successfully
+        400: Invalid input data
+    """
     data = request.json
     deckbox = DeckBox(
         name=data['name'],
@@ -32,23 +59,53 @@ def create_deckbox():
     db.session.commit()
     return deckbox_schema.jsonify(deckbox), 201
 
-# Read All DeckBoxes
+
 @deckbox_controller.route('/', methods=['GET'])
 def read_all_deckboxes():
+    """
+    Retrieve all deck boxes.
+    
+    Returns:
+        200: List of all deck boxes
+    """
     deckboxes = DeckBox.query.all()
     return deckboxes_schema.jsonify(deckboxes)
 
-# Read One DeckBox
+
 @deckbox_controller.route('/<int:deckbox_id>', methods=['GET'])
 def read_one_deckbox(deckbox_id):
+    """
+    Retrieve a specific deck box.
+    
+    Parameters:
+        deckbox_id (int): ID of the deck box to retrieve
+        
+    Returns:
+        200: Deck box details
+        404: Deck box not found
+    """
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
     return deckbox_schema.jsonify(deckbox)
 
-# Update a DeckBox
+
 @deckbox_controller.route('/<int:deckbox_id>', methods=['PUT'])
 def update_deckbox(deckbox_id):
+    """
+    Update a specific deck box.
+    
+    Parameters:
+        deckbox_id (int): ID of the deck box to update
+        
+    Request Body:
+        name (str, optional): New name for the deck box
+        description (str, optional): New description
+        
+    Returns:
+        200: Deck box updated successfully
+        404: Deck box not found
+    """
     data = request.json
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
@@ -59,9 +116,19 @@ def update_deckbox(deckbox_id):
     db.session.commit()
     return deckbox_schema.jsonify(deckbox)
 
-# Delete a DeckBox
+
 @deckbox_controller.route('/<int:deckbox_id>', methods=['DELETE'])
 def delete_deckbox(deckbox_id):
+    """
+    Delete a specific deck box.
+    
+    Parameters:
+        deckbox_id (int): ID of the deck box to delete
+        
+    Returns:
+        200: Deck box deleted successfully
+        404: Deck box not found
+    """
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
@@ -70,26 +137,48 @@ def delete_deckbox(deckbox_id):
     db.session.commit()
     return jsonify({'message': 'DeckBox deleted successfully!'})
 
-# Show all Decks in a DeckBox
+
 @deckbox_controller.route('/<int:deckbox_id>/decks', methods=['GET'])
 def show_decks_in_deckbox(deckbox_id):
+    """
+    List all decks in a specific deck box.
+    
+    Parameters:
+        deckbox_id (int): ID of the deck box to list decks from
+        
+    Returns:
+        200: List of decks in the deck box
+        404: Deck box not found
+    """
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
     return decks_schema.jsonify(deckbox.decks)
 
-# Add a Deck to a DeckBox
+
 @deckbox_controller.route('/<int:deckbox_id>/decks', methods=['POST'])
 def add_deck_to_deckbox(deckbox_id):
+    """
+    Add a new deck to a deck box.
+    
+    Parameters:
+        deckbox_id (int): ID of the deck box to add deck to
+        
+    Request Body:
+        name (str): Name of the new deck
+        description (str, optional): Description of the deck
+        format (str): Format of the deck
+        
+    Returns:
+        201: Deck added successfully
+        404: Deck box not found
+    """
     data = request.json
-
-    # Validate DeckBox exists
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
-    # Create a new Deck and associate it with this DeckBox
     deck = Deck(
         name=data['name'],
         description=data.get('description', ''),
@@ -101,15 +190,24 @@ def add_deck_to_deckbox(deckbox_id):
 
     return deck_schema.jsonify(deck), 201
 
-# Remove a Deck from a DeckBox
+
 @deckbox_controller.route('/<int:deckbox_id>/decks/<int:deck_id>', methods=['DELETE'])
 def remove_deck_from_deckbox(deckbox_id, deck_id):
-    # Validate DeckBox exists
+    """
+    Remove a deck from a deck box.
+    
+    Parameters:
+        deckbox_id (int): ID of the deck box containing the deck
+        deck_id (int): ID of the deck to remove
+        
+    Returns:
+        200: Deck removed successfully
+        404: Deck box or deck not found
+    """
     deckbox = DeckBox.query.get(deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
-    # Validate Deck exists and belongs to this DeckBox
     deck = Deck.query.filter_by(id=deck_id, deckbox_id=deckbox_id).first()
     if not deck:
         return jsonify({'error': 'Deck not found in this DeckBox'}), 404

@@ -1,9 +1,24 @@
+'''Schema for serializing and deserializing Pokemon TCG card sets'''
+
+# Third-party imports
 from init import ma
+
+# Local application imports
 from models.cardset import CardSet
-from marshmallow import validates, ValidationError
-from datetime import datetime
+
 
 class SetSchema(ma.SQLAlchemySchema):
+    """
+    Schema for CardSet model serialization.
+    
+    Attributes:
+        id: Set identifier
+        name: Set name
+        release_date: Set release date
+        description: Set description
+        cards: Nested relationship to cards in set
+    """
+    
     class Meta:
         model = CardSet
         load_instance = True

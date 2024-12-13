@@ -1,17 +1,34 @@
-from datetime import datetime
+'''Controller for managing Pokemon TCG card set operations'''
+
+# Third-party imports
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
+from datetime import datetime
+
+# Local application imports
 from init import db
-from models.card import Card
 from models.cardset import CardSet
-from models.format import Format
 from schemas.cardset_schema import set_schema, sets_schema
+
 
 cardset_controller = Blueprint('set_controller', __name__)
 
-# Create a new Set
+
 @cardset_controller.route('/', methods=['POST'])
 def create_set():
+    """
+    Create a new Pokemon card set.
+    
+    Request Body:
+        name (str): Name of the set
+        release_date (date): Release date of the set
+        description (str): Description of the set
+        
+    Returns:
+        201: Set created successfully
+        400: Missing required fields
+        409: Set with name already exists
+    """
     data = request.json
 
     # Check for existing set with same name
@@ -40,23 +57,52 @@ def validate_release_date(self, value):
     if value > datetime.now():
         raise ValidationError('Release date cannot be in the future')
 
-# Read all Sets
 @cardset_controller.route('/', methods=['GET'])
 def get_sets():
+    """
+    Retrieve all Pokemon card sets.
+    
+    Returns:
+        200: List of all sets
+    """
     sets = CardSet.query.all()
     return sets_schema.jsonify(sets)
 
-# Read one Set
 @cardset_controller.route('/<int:set_id>', methods=['GET'])
 def get_set(set_id):
+    """
+    Retrieve a specific Pokemon card set by ID.
+    
+    Parameters:
+        set_id (int): ID of the set to retrieve
+        
+    Returns:
+        200: Set details
+        404: Set not found
+    """
     set_ = CardSet.query.get(set_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
     return set_schema.jsonify(set_)
 
-# Update a Set
 @cardset_controller.route('/<int:set_id>', methods=['PUT'])
 def update_set(set_id):
+    """
+    Update a specific Pokemon card set.
+    
+    Parameters:
+        set_id (int): ID of the set to update
+        
+    Request Body:
+        name (str, optional): New name for the set
+        release_date (date, optional): New release date
+        description (str, optional): New description
+        
+    Returns:
+        200: Set updated successfully
+        404: Set not found
+        500: Database operation failed
+    """
     set_ = CardSet.query.get(set_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
@@ -68,9 +114,18 @@ def update_set(set_id):
     db.session.commit()
     return set_schema.jsonify(set_)
 
-# Delete a Set
 @cardset_controller.route('/<int:set_id>', methods=['DELETE'])
 def delete_set(set_id):
+    """
+    Delete a specific Pokemon card set.
+    
+    Parameters:
+        set_id (int): ID of the set to delete
+        
+    Returns:
+        200: Set deleted successfully
+        404: Set not found
+    """
     set_ = CardSet.query.get(set_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
@@ -79,3 +134,17 @@ def delete_set(set_id):
     db.session.commit()
     return jsonify({'message': 'Set deleted successfully!'})
 
+@cardset_controller.route('/search', methods=['GET'])
+def search_sets():
+    """
+    Search for Pokemon card sets using filters.
+    
+    Query Parameters:
+        name (str, optional): Set name to search for
+        release_date (date, optional): Filter by release date
+        
+    Returns:
+        200: List of matching sets
+    """
+    # Implementation for search functionality
+    pass
