@@ -23,7 +23,7 @@ def seed_tables():
 
     return jsonify({"message": "Database seeded successfully!"})
 
-@app.route('/health')
+@cli_controller.route('/health')
 def health_check():
     return jsonify({"status": "API is running!"}), 200
 

@@ -63,7 +63,7 @@ def update_set(set_id):
 # Delete a Set
 @cardset_controller.route("/sets/<int:set_id>", methods=["DELETE"])
 def delete_set(set_id):
-    set_ = Set.query.get(set_id)
+    set_ = CardSet.query.get(set_id)
     if not set_:
         return jsonify({"error": "Set not found"}), 404
 
