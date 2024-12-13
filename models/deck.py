@@ -11,7 +11,7 @@ class Deck(db.Model):
     format_id = db.Column(db.Integer, db.ForeignKey('formats.id'))
     deckbox_id = db.Column(db.Integer, db.ForeignKey('deckboxes.id'))
     
-    format = db.relationship('Format', backref='decks')
-    deckbox = db.relationship('DeckBox', backref='decks')
+    format = db.relationship('Format')
+    deckbox = db.relationship('DeckBox')
     cards = db.relationship("DeckCard", back_populates="deck", lazy="dynamic")
     ratings = db.relationship("Rating", back_populates="deck", lazy="dynamic")
