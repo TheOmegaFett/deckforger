@@ -349,3 +349,18 @@ def cleanup_database():
     }), 200
 
 
+
+@cli_controller.route('/routes', methods=['GET'])
+def list_routes():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append({
+            "endpoint": rule.endpoint,
+            "methods": list(rule.methods),
+            "path": str(rule)
+        })
+    
+    return jsonify({
+        "available_routes": routes,
+        "total_routes": len(routes)
+    }), 200
