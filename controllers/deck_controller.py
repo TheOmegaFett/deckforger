@@ -14,18 +14,24 @@ deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
 
 def validate_deck(deck_id, format_id):
+    # Convert datetime boundaries to date objects
+    standard_date = datetime(2022, 7, 1).date()
+    expanded_date = datetime(2011, 9, 1).date()
+
+    # Get release date as date object
+    oldest_card_date = db.session.query(db.func.min(CardSet.release_date))\
+        .join(Card)\
+        .join(DeckCard)\
+        .filter(DeckCard.deck_id == deck_id)\
+        .scalar().date()
+
     """Validate deck rules: 60 cards, max 4 copies per card except Basic Energy cards."""
     deck_cards = DeckCard.query.filter_by(deck_id=deck_id).all()
     card_count = 0
     card_quantities = {}
 
     # Regex pattern for Basic Energy cards (e.g., "Basic Fire Energy", "Basic Water Energy")
-    basic_energy_pattern = re.compile(r'^Basic \w+ Energy$', re.IGNORECASE)
-
-    # Format boundaries
-    standard_date = datetime(2022, 7, 1)
-    expanded_date = datetime(2011, 9, 1)
-
+    basic_energy_pattern = re.compile(r'^Basic \w+ Energy', re.IGNORECASE)
     for deck_card in deck_cards:
         card = Card.query.get(deck_card.card_id)
         card_set = CardSet.query.get(card.set_id)
