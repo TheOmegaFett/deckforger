@@ -13,8 +13,7 @@ class Deck(db.Model):
     
     # Relationships
     deck_cards = db.relationship('DeckCard', lazy=True)
+    cards = db.relationship('Card', secondary='deckcards', lazy='dynamic')
     format = db.relationship('Format', backref='decks')
     deckbox = db.relationship('DeckBox', back_populates="decks")
-    ratings = db.relationship("Rating", back_populates="deck", lazy="dynamic")
-    deckbox = db.relationship('DeckBox', back_populates="decks")
-    ratings = db.relationship("Rating", back_populates="deck", lazy="dynamic")
+    ratings = db.relationship("Rating", back_populates="deck", lazy="dynamic")   
