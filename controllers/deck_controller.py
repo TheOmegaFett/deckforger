@@ -18,15 +18,19 @@ def validate_deck(deck_id, format_id):
     standard_date = datetime(2022, 7, 1).date()
     expanded_date = datetime(2011, 9, 1).date()
 
-    # Get release date as date object
-    oldest_card_date = db.session.query(db.func.min(CardSet.release_date))\
-        .join(Card)\
-        .join(DeckCard)\
-        .filter(DeckCard.deck_id == deck_id)\
-        .scalar().date()
+    # Get release date using modern query syntax
+    stmt = (
+        db.select(db.func.min(CardSet.release_date))
+        .join(Card)
+        .join(DeckCard)
+        .filter(DeckCard.deck_id == deck_id)
+    )
+    oldest_card_date = db.session.scalar(stmt).date()
 
-    """Validate deck rules: 60 cards, max 4 copies per card except Basic Energy cards."""
-    deck_cards = DeckCard.query.filter_by(deck_id=deck_id).all()
+    deck_cards = db.session.scalars(
+        db.select(DeckCard).filter_by(deck_id=deck_id)
+    ).all()
+
     card_count = 0
     card_quantities = {}
 
