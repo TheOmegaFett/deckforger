@@ -14,5 +14,10 @@ class Deck(db.Model):
     
     format = db.relationship('Format')
     deckbox = db.relationship('DeckBox')
-    cards = db.relationship('DeckCard', back_populates="deck", lazy='dynamic')
+    cards = db.relationship(
+        'DeckCard',
+        primaryjoin="Deck.id == DeckCard.deck_id",
+        back_populates="deck",
+        lazy='dynamic'
+    )
     ratings = db.relationship("Rating", back_populates="deck", lazy="dynamic")
