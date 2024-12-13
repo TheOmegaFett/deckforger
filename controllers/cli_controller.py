@@ -4,6 +4,7 @@ from flask import Blueprint
 from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format
+from flask import current_app
 
 cli_controller = Blueprint("cli", __name__)
 
@@ -349,11 +350,10 @@ def cleanup_database():
     }), 200
 
 
-
 @cli_controller.route('/routes', methods=['GET'])
 def list_routes():
     routes = []
-    for rule in app.url_map.iter_rules():
+    for rule in current_app.url_map.iter_rules():
         routes.append({
             "endpoint": rule.endpoint,
             "methods": list(rule.methods),
