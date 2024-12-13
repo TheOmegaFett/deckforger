@@ -41,10 +41,12 @@ def create_app():
     app.register_blueprint(cardset_controller, url_prefix="/api/cardsets")
     app.register_blueprint(format_blueprint)
    
-    with app.app_context():
-        pass
-
     return app
 
 # For Gunicorn or Flask CLI
 app = create_app()
+
+# Ensure app context is pushed at start
+if __name__ != "__main__":
+    with app.app_context():
+        pass  # Push the app context to ensure no errors on imports
