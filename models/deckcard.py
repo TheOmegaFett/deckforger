@@ -25,8 +25,8 @@ class DeckCard(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
     # Database relationships
-    deck = db.relationship('Decks', back_populates='deck_cards')
-    card = db.relationship('Cards', back_populates='decks')
+    decks = db.relationship('Deck', back_populates='deck_cards')
+    cards = db.relationship('Card', back_populates='decks')
 
     def __repr__(self):
         return f'<DeckCard {self.deck_id}:{self.card_id}>'

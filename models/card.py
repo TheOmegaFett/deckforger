@@ -26,7 +26,7 @@ class Card(db.Model):
 
     # Database relationships
     sets = db.relationship('CardSet', back_populates='cards')
-    decks = db.relationship('DeckCards', back_populates='cards', lazy='dynamic')
+    decks = db.relationship('DeckCard', back_populates='cards', lazy='dynamic')
 
     def __repr__(self):
         return f'<Card {self.name}>'
