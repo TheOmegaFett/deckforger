@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
-from init import db, app
+from init import db
 from models.card import Card
 from models.cardset import CardSet
 from models.format import Format

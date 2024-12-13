@@ -43,11 +43,3 @@ def create_app():
         
     
     return app
-
-# Gunicorn will load 'app'
-app = create_app()
-
-# Ensure app context is available for initialization
-with app.app_context():
-    # Avoid placing unnecessary logic here
-    pass

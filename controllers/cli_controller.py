@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import jsonify
 from flask import Blueprint
-from init import db, app
+from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format
 
