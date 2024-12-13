@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from marshmallow import ValidationError, validates
 from init import db
 from models.card import Card
 from schemas.card_schema import CardSchema
@@ -7,6 +8,24 @@ from schemas.card_schema import CardSchema
 card_controller = Blueprint('card_controller', __name__)
 card_schema = CardSchema()
 cards_schema = CardSchema(many=True)
+
+@validates('name')
+def validate_name(self, value):
+    if len(value) < 1:
+        raise ValidationError('Name must not be empty')
+    if len(value) > 100:
+        raise ValidationError('Name must be less than 100 characters')
+
+@validates('type')
+def validate_type(self, value):
+    valid_types = ['grass', 'fire', 'water', 'lightning', 'fighting', 'psychic', 'colorless', 'darkness', 'metal', 'dragon', 'fairy']
+    if value.lower() not in valid_types:
+        raise ValidationError('Invalid Pokemon card type. Must be one of: ' + ', '.join(valid_types))
+
+@validates('set_id')
+def validate_set_id(self, value):
+    if value <= 0:
+        raise ValidationError('Set ID must be a positive integer')
 
 # Create a Card
 @card_controller.route('/cards', methods=['POST'])
