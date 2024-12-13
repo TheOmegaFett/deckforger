@@ -12,12 +12,7 @@ class Deck(db.Model):
     deckbox_id = db.Column(db.Integer, db.ForeignKey('deckboxes.id'))
     
     # Relationships
-    format = db.relationship('Format', backref='decks')  # Optional: Add relationship for Format
-    deckbox = db.relationship('DeckBox', back_populates="decks")
-    
-    cards = db.relationship(
-        'DeckCard',
-        back_populates="deck",
-        lazy='dynamic'
-    )
+    format = db.relationship('Format', backref='decks')  # Link to Format
+    deckbox = db.relationship('DeckBox', back_populates="decks")  # Link to DeckBox
+    cards = db.relationship('DeckCard', back_populates="deck", lazy='dynamic')
     ratings = db.relationship("Rating", back_populates="deck", lazy="dynamic")
