@@ -31,54 +31,91 @@ def seed_tables():
     ]
     db.session.add_all(formats)
     db.session.commit()
-
     # Seed Sets
-     # Seed Sets first
     sets = [
-        CardSet(
-            name="Shrouded Fable",
-            release_date="2023-01-01",
-            description="A mysterious set featuring dark creatures"
-        ),
-        CardSet(
-            name="Eclipse Shadow",
-            release_date="2023-06-01",
-            description="Ghost and psychic focused expansion"
-        )
+        CardSet(name="Shrouded Fable", release_date="2023-01-01", description="A mysterious set featuring dark creatures"),
+        CardSet(name="Eclipse Shadow", release_date="2023-06-01", description="Ghost and psychic focused expansion"),
+        CardSet(name="Temporal Forces", release_date="2023-09-15", description="Time-themed Pokemon expansion"),
+        CardSet(name="Crystal Storm", release_date="2023-03-20", description="Featuring powerful crystal-type Pokemon"),
+        CardSet(name="Ancient Legends", release_date="2022-11-30", description="Prehistoric and legendary Pokemon")
     ]
     db.session.add_all(sets)
     db.session.commit()
-    
-    
-    deckbox = DeckBox(name="Competitive Decks", description="Top tier decks.")
-    db.session.add(deckbox)
+
+    # Seed DeckBoxes
+    deckboxes = [
+        DeckBox(name="Competitive Decks", description="Top tier tournament decks"),
+        DeckBox(name="Casual Decks", description="Fun and experimental decks"),
+        DeckBox(name="Theme Decks", description="Type-focused themed decks"),
+        DeckBox(name="Legacy Decks", description="Classic deck builds from past formats")
+    ]
+    db.session.add_all(deckboxes)
     db.session.commit()
 
-    card = Card(name="Fezandipiti EX", type="Dark", set_id=1)
-    db.session.add(card)
-    db.session.commit()
-
+    # Seed Decks
     decks = [
-        Deck(
-            name="Dark Moon EX",
-            description="A strong dark-themed deck.",
-            format_id=formats[0].id,  # Standard
-            deckbox_id=deckbox.id
-        ),
-        Deck(
-            name="Ghost Control",
-            description="A ghost-themed deck for control strategies.",
-            format_id=formats[1].id,  # Expanded
-            deckbox_id=deckbox.id
-        ),
-        Deck(
-            name="Fun Energy Deck",
-            description="A casual deck with quirky combos.",
-            format_id=formats[2].id,  # Unlimited
-            deckbox_id=deckbox.id
-        )
+        Deck(name="Dark Moon EX", description="A strong dark-themed deck", format_id=1, deckbox_id=1),
+        Deck(name="Ghost Control", description="Ghost-type control deck", format_id=2, deckbox_id=1),
+        Deck(name="Crystal Power", description="Crystal-type aggro deck", format_id=1, deckbox_id=1),
+        Deck(name="Time Loop", description="Temporal Forces combo deck", format_id=1, deckbox_id=2),
+        Deck(name="Fossil Revival", description="Ancient Pokemon deck", format_id=2, deckbox_id=2),
+        Deck(name="Shadow Riders", description="Ghost-type aggro deck", format_id=1, deckbox_id=3),
+        Deck(name="Dark Crystal", description="Dark/Crystal hybrid deck", format_id=1, deckbox_id=3),
+        Deck(name="Legacy Legends", description="Classic legendary Pokemon deck", format_id=3, deckbox_id=4)
     ]
     db.session.add_all(decks)
+    db.session.commit()
+
+    # Seed Cards with set_id
+    cards = [
+        Card(name="Fezandipiti EX", type="Dark", set_id=1),
+        Card(name="Dark Patch", type="Item", set_id=1),
+        Card(name="Gengar EX", type="Ghost", set_id=2),
+        Card(name="Temporal Tyranitar", type="Dark", set_id=3),
+        Card(name="Crystal Charizard", type="Fire", set_id=4),
+        Card(name="Ancient Aerodactyl", type="Fighting", set_id=5),
+        Card(name="Time Spiral", type="Item", set_id=3),
+        Card(name="Crystal Energy", type="Energy", set_id=4),
+        Card(name="Fossil Researcher", type="Supporter", set_id=5),
+        Card(name="Shadow Rider", type="Ghost", set_id=2),
+        Card(name="Basic Fire Energy", type="Energy", set_id=1),
+        Card(name="Basic Water Energy", type="Energy", set_id=1),
+        Card(name="Basic Grass Energy", type="Energy", set_id=1),
+        Card(name="Basic Lightning Energy", type="Energy", set_id=1),
+        Card(name="Basic Psychic Energy", type="Energy", set_id=1),
+        Card(name="Basic Fighting Energy", type="Energy", set_id=1),
+        Card(name="Basic Darkness Energy", type="Energy", set_id=1),
+        Card(name="Basic Metal Energy", type="Energy", set_id=1),
+        Card(name="Basic Fairy Energy", type="Energy", set_id=1)
+    ]
+    db.session.add_all(cards)
+    db.session.commit()
+
+    # Seed DeckCards
+    deckcards = [
+        DeckCard(deck_id=1, card_id=1, quantity=4),
+        DeckCard(deck_id=1, card_id=2, quantity=3),
+        DeckCard(deck_id=2, card_id=3, quantity=4),
+        DeckCard(deck_id=3, card_id=5, quantity=3),
+        DeckCard(deck_id=3, card_id=8, quantity=4),
+        DeckCard(deck_id=4, card_id=4, quantity=3),
+        DeckCard(deck_id=4, card_id=7, quantity=4),
+        DeckCard(deck_id=5, card_id=6, quantity=3),
+        DeckCard(deck_id=5, card_id=9, quantity=4),
+        DeckCard(deck_id=6, card_id=10, quantity=4),
+        DeckCard(deck_id=7, card_id=1, quantity=2),
+        DeckCard(deck_id=7, card_id=5, quantity=2),
+        DeckCard(deck_id=8, card_id=6, quantity=3),
+        DeckCard(deck_id=1, card_id=7, quantity=20),  # Darkness Energy for Dark Moon EX
+        DeckCard(deck_id=2, card_id=5, quantity=20),  # Psychic Energy for Ghost Control
+        DeckCard(deck_id=3, card_id=1, quantity=20),  # Fire Energy for Crystal Power
+        DeckCard(deck_id=4, card_id=5, quantity=20),  # Psychic Energy for Time Loop
+        DeckCard(deck_id=5, card_id=6, quantity=20),  # Fighting Energy for Fossil Revival
+        DeckCard(deck_id=6, card_id=5, quantity=20),  # Psychic Energy for Shadow Riders
+        DeckCard(deck_id=7, card_id=7, quantity=20),  # Darkness Energy for Dark Crystal
+        DeckCard(deck_id=8, card_id=1, quantity=20)   # Fire Energy for Legacy Legends
+    ]
+    db.session.add_all(deckcards)
     db.session.commit()
 
     return jsonify({"message": "Database seeded successfully!"})
@@ -100,94 +137,111 @@ def drop_tables():
 
 @cli_controller.cli.command("seed")
 def seed_tables():
-    with app.app_context():
-        # Seed Sets first
-        sets = [
-            CardSet(name="Shrouded Fable", release_date="2023-01-01", description="A mysterious set featuring dark creatures"),
-            CardSet(name="Eclipse Shadow", release_date="2023-06-01", description="Ghost and psychic focused expansion"),
-            CardSet(name="Temporal Forces", release_date="2023-09-15", description="Time-themed Pokemon expansion"),
-            CardSet(name="Crystal Storm", release_date="2023-03-20", description="Featuring powerful crystal-type Pokemon"),
-            CardSet(name="Ancient Legends", release_date="2022-11-30", description="Prehistoric and legendary Pokemon")
-        ]
-        db.session.add_all(sets)
-        db.session.commit()
+    
+    # Seed Formats first
+    formats = [
+        Format(
+            name="Standard",
+            description="Current sets from Sword & Shield forward"
+        ),
+        Format(
+            name="Expanded",
+            description="Black & White forward"
+        ),
+        Format(
+            name="Unlimited",
+            description="All cards from all sets"
+        )
+    ]
+    db.session.add_all(formats)
+    db.session.commit()
+    # Seed Sets
+    sets = [
+        CardSet(name="Shrouded Fable", release_date="2023-01-01", description="A mysterious set featuring dark creatures"),
+        CardSet(name="Eclipse Shadow", release_date="2023-06-01", description="Ghost and psychic focused expansion"),
+        CardSet(name="Temporal Forces", release_date="2023-09-15", description="Time-themed Pokemon expansion"),
+        CardSet(name="Crystal Storm", release_date="2023-03-20", description="Featuring powerful crystal-type Pokemon"),
+        CardSet(name="Ancient Legends", release_date="2022-11-30", description="Prehistoric and legendary Pokemon")
+    ]
+    db.session.add_all(sets)
+    db.session.commit()
 
-        # Seed DeckBoxes
-        deckboxes = [
-            DeckBox(name="Competitive Decks", description="Top tier tournament decks"),
-            DeckBox(name="Casual Decks", description="Fun and experimental decks"),
-            DeckBox(name="Theme Decks", description="Type-focused themed decks"),
-            DeckBox(name="Legacy Decks", description="Classic deck builds from past formats")
-        ]
-        db.session.add_all(deckboxes)
-        db.session.commit()
+    # Seed DeckBoxes
+    deckboxes = [
+        DeckBox(name="Competitive Decks", description="Top tier tournament decks"),
+        DeckBox(name="Casual Decks", description="Fun and experimental decks"),
+        DeckBox(name="Theme Decks", description="Type-focused themed decks"),
+        DeckBox(name="Legacy Decks", description="Classic deck builds from past formats")
+    ]
+    db.session.add_all(deckboxes)
+    db.session.commit()
 
-        # Seed Decks
-        decks = [
-            Deck(name="Dark Moon EX", description="A strong dark-themed deck", format_id=1, deckbox_id=1),
-            Deck(name="Ghost Control", description="Ghost-type control deck", format_id=2, deckbox_id=1),
-            Deck(name="Crystal Power", description="Crystal-type aggro deck", format_id=1, deckbox_id=1),
-            Deck(name="Time Loop", description="Temporal Forces combo deck", format_id=1, deckbox_id=2),
-            Deck(name="Fossil Revival", description="Ancient Pokemon deck", format_id=2, deckbox_id=2),
-            Deck(name="Shadow Riders", description="Ghost-type aggro deck", format_id=1, deckbox_id=3),
-            Deck(name="Dark Crystal", description="Dark/Crystal hybrid deck", format_id=1, deckbox_id=3),
-            Deck(name="Legacy Legends", description="Classic legendary Pokemon deck", format_id=3, deckbox_id=4)
-        ]
-        db.session.add_all(decks)
-        db.session.commit()
+    # Seed Decks
+    decks = [
+        Deck(name="Dark Moon EX", description="A strong dark-themed deck", format_id=1, deckbox_id=1),
+        Deck(name="Ghost Control", description="Ghost-type control deck", format_id=2, deckbox_id=1),
+        Deck(name="Crystal Power", description="Crystal-type aggro deck", format_id=1, deckbox_id=1),
+        Deck(name="Time Loop", description="Temporal Forces combo deck", format_id=1, deckbox_id=2),
+        Deck(name="Fossil Revival", description="Ancient Pokemon deck", format_id=2, deckbox_id=2),
+        Deck(name="Shadow Riders", description="Ghost-type aggro deck", format_id=1, deckbox_id=3),
+        Deck(name="Dark Crystal", description="Dark/Crystal hybrid deck", format_id=1, deckbox_id=3),
+        Deck(name="Legacy Legends", description="Classic legendary Pokemon deck", format_id=3, deckbox_id=4)
+    ]
+    db.session.add_all(decks)
+    db.session.commit()
 
-        # Seed Cards with set_id
-        cards = [
-            Card(name="Fezandipiti EX", type="Dark", set_id=1),
-            Card(name="Dark Patch", type="Item", set_id=1),
-            Card(name="Gengar EX", type="Ghost", set_id=2),
-            Card(name="Temporal Tyranitar", type="Dark", set_id=3),
-            Card(name="Crystal Charizard", type="Fire", set_id=4),
-            Card(name="Ancient Aerodactyl", type="Fighting", set_id=5),
-            Card(name="Time Spiral", type="Item", set_id=3),
-            Card(name="Crystal Energy", type="Energy", set_id=4),
-            Card(name="Fossil Researcher", type="Supporter", set_id=5),
-            Card(name="Shadow Rider", type="Ghost", set_id=2),
-            Card(name="Basic Fire Energy", type="Energy", set_id=1),
-            Card(name="Basic Water Energy", type="Energy", set_id=1),
-            Card(name="Basic Grass Energy", type="Energy", set_id=1),
-            Card(name="Basic Lightning Energy", type="Energy", set_id=1),
-            Card(name="Basic Psychic Energy", type="Energy", set_id=1),
-            Card(name="Basic Fighting Energy", type="Energy", set_id=1),
-            Card(name="Basic Darkness Energy", type="Energy", set_id=1),
-            Card(name="Basic Metal Energy", type="Energy", set_id=1),
-            Card(name="Basic Fairy Energy", type="Energy", set_id=1)
-        ]
-        db.session.add_all(cards)
-        db.session.commit()
+    # Seed Cards with set_id
+    cards = [
+        Card(name="Fezandipiti EX", type="Dark", set_id=1),
+        Card(name="Dark Patch", type="Item", set_id=1),
+        Card(name="Gengar EX", type="Ghost", set_id=2),
+        Card(name="Temporal Tyranitar", type="Dark", set_id=3),
+        Card(name="Crystal Charizard", type="Fire", set_id=4),
+        Card(name="Ancient Aerodactyl", type="Fighting", set_id=5),
+        Card(name="Time Spiral", type="Item", set_id=3),
+        Card(name="Crystal Energy", type="Energy", set_id=4),
+        Card(name="Fossil Researcher", type="Supporter", set_id=5),
+        Card(name="Shadow Rider", type="Ghost", set_id=2),
+        Card(name="Basic Fire Energy", type="Energy", set_id=1),
+        Card(name="Basic Water Energy", type="Energy", set_id=1),
+        Card(name="Basic Grass Energy", type="Energy", set_id=1),
+        Card(name="Basic Lightning Energy", type="Energy", set_id=1),
+        Card(name="Basic Psychic Energy", type="Energy", set_id=1),
+        Card(name="Basic Fighting Energy", type="Energy", set_id=1),
+        Card(name="Basic Darkness Energy", type="Energy", set_id=1),
+        Card(name="Basic Metal Energy", type="Energy", set_id=1),
+        Card(name="Basic Fairy Energy", type="Energy", set_id=1)
+    ]
+    db.session.add_all(cards)
+    db.session.commit()
 
-        # Seed DeckCards
-        deckcards = [
-            DeckCard(deck_id=1, card_id=1, quantity=4),
-            DeckCard(deck_id=1, card_id=2, quantity=3),
-            DeckCard(deck_id=2, card_id=3, quantity=4),
-            DeckCard(deck_id=3, card_id=5, quantity=3),
-            DeckCard(deck_id=3, card_id=8, quantity=4),
-            DeckCard(deck_id=4, card_id=4, quantity=3),
-            DeckCard(deck_id=4, card_id=7, quantity=4),
-            DeckCard(deck_id=5, card_id=6, quantity=3),
-            DeckCard(deck_id=5, card_id=9, quantity=4),
-            DeckCard(deck_id=6, card_id=10, quantity=4),
-            DeckCard(deck_id=7, card_id=1, quantity=2),
-            DeckCard(deck_id=7, card_id=5, quantity=2),
-            DeckCard(deck_id=8, card_id=6, quantity=3),
-            DeckCard(deck_id=1, card_id=7, quantity=20),  # Darkness Energy for Dark Moon EX
-            DeckCard(deck_id=2, card_id=5, quantity=20),  # Psychic Energy for Ghost Control
-            DeckCard(deck_id=3, card_id=1, quantity=20),  # Fire Energy for Crystal Power
-            DeckCard(deck_id=4, card_id=5, quantity=20),  # Psychic Energy for Time Loop
-            DeckCard(deck_id=5, card_id=6, quantity=20),  # Fighting Energy for Fossil Revival
-            DeckCard(deck_id=6, card_id=5, quantity=20),  # Psychic Energy for Shadow Riders
-            DeckCard(deck_id=7, card_id=7, quantity=20),  # Darkness Energy for Dark Crystal
-            DeckCard(deck_id=8, card_id=1, quantity=20)   # Fire Energy for Legacy Legends
-        ]
-        db.session.add_all(deckcards)
-        db.session.commit()
-        print("Tables seeded with Sets, DeckBoxes, Decks, Cards, and DeckCard relationships.")
+    # Seed DeckCards
+    deckcards = [
+        DeckCard(deck_id=1, card_id=1, quantity=4),
+        DeckCard(deck_id=1, card_id=2, quantity=3),
+        DeckCard(deck_id=2, card_id=3, quantity=4),
+        DeckCard(deck_id=3, card_id=5, quantity=3),
+        DeckCard(deck_id=3, card_id=8, quantity=4),
+        DeckCard(deck_id=4, card_id=4, quantity=3),
+        DeckCard(deck_id=4, card_id=7, quantity=4),
+        DeckCard(deck_id=5, card_id=6, quantity=3),
+        DeckCard(deck_id=5, card_id=9, quantity=4),
+        DeckCard(deck_id=6, card_id=10, quantity=4),
+        DeckCard(deck_id=7, card_id=1, quantity=2),
+        DeckCard(deck_id=7, card_id=5, quantity=2),
+        DeckCard(deck_id=8, card_id=6, quantity=3),
+        DeckCard(deck_id=1, card_id=7, quantity=20),  # Darkness Energy for Dark Moon EX
+        DeckCard(deck_id=2, card_id=5, quantity=20),  # Psychic Energy for Ghost Control
+        DeckCard(deck_id=3, card_id=1, quantity=20),  # Fire Energy for Crystal Power
+        DeckCard(deck_id=4, card_id=5, quantity=20),  # Psychic Energy for Time Loop
+        DeckCard(deck_id=5, card_id=6, quantity=20),  # Fighting Energy for Fossil Revival
+        DeckCard(deck_id=6, card_id=5, quantity=20),  # Psychic Energy for Shadow Riders
+        DeckCard(deck_id=7, card_id=7, quantity=20),  # Darkness Energy for Dark Crystal
+        DeckCard(deck_id=8, card_id=1, quantity=20)   # Fire Energy for Legacy Legends
+    ]
+    db.session.add_all(deckcards)
+    db.session.commit()
+    print("Tables seeded with Sets, DeckBoxes, Decks, Cards, and DeckCard relationships.")
 
 @cli_controller.route("/run/cleanup", methods=["POST"])
 def cleanup_database():
