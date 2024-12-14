@@ -68,7 +68,8 @@ def read_all_deckboxes():
     Returns:
         200: List of all deck boxes
     """
-    deckboxes = DeckBox.query.all()
+    stmt = db.select(DeckBox)
+    deckboxes = db.session.scalars(stmt).all()
     return deckboxes_schema.jsonify(deckboxes)
 
 
@@ -84,7 +85,7 @@ def read_one_deckbox(deckbox_id):
         200: Deck box details
         404: Deck box not found
     """
-    deckbox = DeckBox.query.get(deckbox_id)
+    deckbox = db.session.get(DeckBox, deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
     return deckbox_schema.jsonify(deckbox)
@@ -106,11 +107,11 @@ def update_deckbox(deckbox_id):
         200: Deck box updated successfully
         404: Deck box not found
     """
-    data = request.json
-    deckbox = DeckBox.query.get(deckbox_id)
+    deckbox = db.session.get(DeckBox, deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
+    data = request.json
     deckbox.name = data.get('name', deckbox.name)
     deckbox.description = data.get('description', deckbox.description)
     db.session.commit()
@@ -129,7 +130,7 @@ def delete_deckbox(deckbox_id):
         200: Deck box deleted successfully
         404: Deck box not found
     """
-    deckbox = DeckBox.query.get(deckbox_id)
+    deckbox = db.session.get(DeckBox, deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
@@ -150,7 +151,7 @@ def show_decks_in_deckbox(deckbox_id):
         200: List of decks in the deck box
         404: Deck box not found
     """
-    deckbox = DeckBox.query.get(deckbox_id)
+    deckbox = db.session.get(DeckBox, deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
@@ -174,11 +175,11 @@ def add_deck_to_deckbox(deckbox_id):
         201: Deck added successfully
         404: Deck box not found
     """
-    data = request.json
-    deckbox = DeckBox.query.get(deckbox_id)
+    deckbox = db.session.get(DeckBox, deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
+    data = request.json
     deck = Deck(
         name=data['name'],
         description=data.get('description', ''),
@@ -204,11 +205,12 @@ def remove_deck_from_deckbox(deckbox_id, deck_id):
         200: Deck removed successfully
         404: Deck box or deck not found
     """
-    deckbox = DeckBox.query.get(deckbox_id)
+    deckbox = db.session.get(DeckBox, deckbox_id)
     if not deckbox:
         return jsonify({'error': 'DeckBox not found'}), 404
 
-    deck = Deck.query.filter_by(id=deck_id, deckbox_id=deckbox_id).first()
+    stmt = db.select(Deck).filter_by(id=deck_id, deckbox_id=deckbox_id)
+    deck = db.session.scalar(stmt)
     if not deck:
         return jsonify({'error': 'Deck not found in this DeckBox'}), 404
 

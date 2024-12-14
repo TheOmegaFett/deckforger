@@ -37,3 +37,4 @@ Format
     .. automodule:: models.format
         :members:
         :undoc-members:
+        :exclude-members: id, name, description

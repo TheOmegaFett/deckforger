@@ -345,16 +345,22 @@ already created declarative model class as <code class="docutils literal notrans
 <section id="format">
 <h2>Format<a class="headerlink" href="#format" title="Link to this heading">¶</a></h2>
 <blockquote>
-<div><p id="module-models.format">Format model for managing Pokemon TCG game formats</p>
+<div><p id="module-models.format">Format module for managing Pokemon TCG game formats and their rules.</p>
+<p>This module defines the Format model which represents different play formats
+like Standard, Expanded, and Unlimited. Each format has specific rules about
+which card sets are legal for play.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="models.format.Format">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.format.</span></span><span class="sig-name descname"><span class="pre">Format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models/format.html#Format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.format.Format" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
 <p>Represents a Pokemon Trading Card Game format.</p>
+<p>A format defines which cards are legal for tournament play based on
+release dates and set legality. Examples include Standard (newest sets),
+Expanded (Black &amp; White forward), and Unlimited (all cards).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="models.format.Format.id">
 <span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.format.Format.id" title="Link to this definition">¶</a></dt>
-<dd><p>Primary key for the format</p>
+<dd><p>Unique identifier for the format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -365,7 +371,7 @@ already created declarative model class as <code class="docutils literal notrans
 <dl class="py attribute">
 <dt class="sig sig-object py" id="models.format.Format.name">
 <span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#models.format.Format.name" title="Link to this definition">¶</a></dt>
-<dd><p>Name of the format, must be unique</p>
+<dd><p>Name of the format, must be unique (e.g. “Standard”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -376,28 +382,13 @@ already created declarative model class as <code class="docutils literal notrans
 <dl class="py attribute">
 <dt class="sig sig-object py" id="models.format.Format.description">
 <span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#models.format.Format.description" title="Link to this definition">¶</a></dt>
-<dd><p>Description of the format rules</p>
+<dd><p>Detailed rules and set restrictions for the format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="models.format.Format.query">
@@ -410,11 +401,6 @@ customized per-model by overriding <code class="xref py py-attr docutils literal
 <code class="docutils literal notranslate"><span class="pre">session.execute(select())</span></code> instead.</p>
 </div>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="models.format.Format.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/models/format.html#Format.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.format.Format.to_dict" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

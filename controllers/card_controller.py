@@ -61,10 +61,8 @@ def create_card():
     if not data.get('name') or not data.get('type') or not data.get('set_id'):
         return jsonify({'error': 'Name, type, and set_id are required fields.'}), 400
 
-    existing_card = Card.query.filter_by(
-        name=data['name'],
-        set_id=data['set_id']
-    ).first()
+    stmt = db.select(Card).filter_by(name=data['name'], set_id=data['set_id'])
+    existing_card = db.session.scalar(stmt)
 
     if existing_card:
         return jsonify({'error': f'Card \'{data["name"]}\' already exists in this set'}), 409
@@ -87,7 +85,8 @@ def get_all_cards():
     Returns:
         200: List of all cards
     """
-    cards = Card.query.all()
+    stmt = db.select(Card)
+    cards = db.session.scalars(stmt).all()
     return cards_schema.jsonify(cards), 200
 
 
@@ -103,7 +102,7 @@ def get_one_card(card_id):
         200: Card details
         404: Card not found
     """
-    card = Card.query.get(card_id)
+    card = db.session.get(Card, card_id)
     if not card:
         return jsonify({'error': 'Card not found'}), 404
     return card_schema.jsonify(card), 200
@@ -127,7 +126,7 @@ def update_card(card_id):
         404: Card not found
         500: Database operation failed
     """
-    card = Card.query.get(card_id)
+    card = db.session.get(Card, card_id)
     if not card:
         return jsonify({'error': 'Card not found'}), 404
 
@@ -159,7 +158,7 @@ def delete_card(card_id):
         200: Card deleted successfully
         404: Card not found
     """
-    card = Card.query.get(card_id)
+    card = db.session.get(Card, card_id)
     if not card:
         return jsonify({'error': 'Card not found'}), 404
 
@@ -181,17 +180,13 @@ def search_cards():
     Returns:
         200: List of matching cards
     """
-    name = request.args.get('name', '')
-    card_type = request.args.get('type', '')
-    set_id = request.args.get('set_id')
-    
     stmt = db.select(Card)
     
-    if name:
+    if name := request.args.get('name'):
         stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
-    if card_type:
+    if card_type := request.args.get('type'):
         stmt = stmt.filter(Card.type.ilike(f'%{card_type}%'))
-    if set_id:
+    if set_id := request.args.get('set_id'):
         stmt = stmt.filter(Card.set_id == set_id)
         
     cards = db.session.scalars(stmt).all()

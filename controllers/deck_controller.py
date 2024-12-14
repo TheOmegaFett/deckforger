@@ -47,17 +47,16 @@ def validate_deck(deck_id, format_id):
     elif format_id == 2 and oldest_card_date < expanded_date:
         raise ValidationError('Deck contains cards not legal in Expanded format')
 
-    deck_cards = db.session.scalars(
-        db.select(DeckCard).filter_by(deck_id=deck_id)
-    ).all()
+    stmt = db.select(DeckCard).filter_by(deck_id=deck_id)
+    deck_cards = db.session.scalars(stmt).all()
 
     card_count = 0
     card_quantities = {}
     basic_energy_pattern = re.compile(r'^Basic \w+ Energy', re.IGNORECASE)
 
     for deck_card in deck_cards:
-        card = Card.query.get(deck_card.card_id)
-        card_set = CardSet.query.get(card.set_id)
+        card = db.session.get(Card, deck_card.card_id)
+        card_set = db.session.get(CardSet, card.set_id)
 
         if not card or not card_set:
             raise ValidationError(f'Card or card set not found for deck card ID {deck_card.id}')
@@ -125,7 +124,7 @@ def update_deck(deck_id):
         404: Deck not found
         400: Validation error in deck composition
     """
-    deck = Deck.query.get(deck_id)
+    deck = db.session.get(Deck, deck_id)
     if not deck:
         return jsonify({'error': 'Deck not found'}), 404
 

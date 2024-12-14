@@ -59,7 +59,8 @@ def get_formats():
     Returns:
         200: List of all formats
     """
-    formats = Format.query.all()
+    stmt = db.select(Format)
+    formats = db.session.scalars(stmt).all()
     return jsonify([format.to_dict() for format in formats])
 
 
@@ -75,7 +76,9 @@ def get_format(format_id):
         200: Format details
         404: Format not found
     """
-    format = Format.query.get_or_404(format_id)
+    format = db.session.get(Format, format_id)
+    if not format:
+        return jsonify({'error': 'Format not found'}), 404
     return jsonify(format.to_dict())
 
 
@@ -98,7 +101,8 @@ def create_format():
     if not all(field in data for field in ['name', 'description']):
         return jsonify({'error': 'Missing required fields'}), 400
         
-    if Format.query.filter_by(name=data['name']).first():
+    stmt = db.select(Format).filter_by(name=data['name'])
+    if db.session.scalar(stmt):
         return jsonify({'error': 'Format name already exists'}), 409
 
     new_format = Format(
@@ -129,11 +133,15 @@ def update_format(format_id):
         404: Format not found
         409: Format name already exists
     """
-    format = Format.query.get_or_404(format_id)
+    format = db.session.get(Format, format_id)
+    if not format:
+        return jsonify({'error': 'Format not found'}), 404
+    
     data = request.get_json()
     
     if 'name' in data:
-        existing_format = Format.query.filter_by(name=data['name']).first()
+        stmt = db.select(Format).filter_by(name=data['name'])
+        existing_format = db.session.scalar(stmt)
         if existing_format and existing_format.id != format_id:
             return jsonify({'error': 'Format name already exists'}), 409
     
@@ -157,7 +165,10 @@ def delete_format(format_id):
         200: Format deleted successfully
         404: Format not found
     """
-    format = Format.query.get_or_404(format_id)
+    format = db.session.get(Format, format_id)
+    if not format:
+        return jsonify({'error': 'Format not found'}), 404
+
     db.session.delete(format)
     db.session.commit()
     return jsonify({'message': 'Format deleted successfully'}), 200

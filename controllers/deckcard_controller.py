@@ -41,7 +41,7 @@ def add_cards_to_deck(deck_id):
     """
     data = request.json
 
-    deck = Deck.query.get(deck_id)
+    deck = db.session.get(Deck, deck_id)
     if not deck:
         return jsonify({'error': 'Deck not found'}), 404
 
@@ -52,7 +52,7 @@ def add_cards_to_deck(deck_id):
         card_id = item['card_id']
         quantity = item.get('quantity', 1)
 
-        card = Card.query.get(card_id)
+        card = db.session.get(Card, card_id)
         if not card:
             return jsonify({'error': f'Card with ID {card_id} not found'}), 404
 
@@ -60,7 +60,8 @@ def add_cards_to_deck(deck_id):
             return jsonify({'error': 'Quantity must be at least 1'}), 400
 
         is_basic_energy = BASIC_ENERGY_PATTERN.match(card.name)
-        existing_deckcard = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()
+        stmt = db.select(DeckCard).filter_by(deck_id=deck_id, card_id=card_id)
+        existing_deckcard = db.session.scalar(stmt)
         current_quantity = existing_deckcard.quantity if existing_deckcard else 0
 
         if not is_basic_energy and (current_quantity + quantity) > 4:
@@ -90,11 +91,12 @@ def view_cards_in_deck(deck_id):
         200: List of cards in the deck
         404: Deck not found
     """
-    deck = Deck.query.get(deck_id)
+    deck = db.session.get(Deck, deck_id)
     if not deck:
         return jsonify({'error': 'Deck not found'}), 404
 
-    deckcards = DeckCard.query.filter_by(deck_id=deck_id).all()
+    stmt = db.select(DeckCard).filter_by(deck_id=deck_id)
+    deckcards = db.session.scalars(stmt).all()
     return deckcards_schema.jsonify(deckcards), 200
 
 
@@ -111,7 +113,8 @@ def remove_card_from_deck(deck_id, card_id):
         200: Card removed successfully
         404: Card not found in deck
     """
-    deckcard = DeckCard.query.filter_by(deck_id=deck_id, card_id=card_id).first()
+    stmt = db.select(DeckCard).filter_by(deck_id=deck_id, card_id=card_id)
+    deckcard = db.session.scalar(stmt)
     if not deckcard:
         return jsonify({'error': 'Card not found in the deck'}), 404
 
@@ -136,7 +139,8 @@ def update_deck_cards(deck_id):
     """
     data = request.get_json()
     
-    DeckCard.query.filter_by(deck_id=deck_id).delete()
+    stmt = db.select(DeckCard).filter_by(deck_id=deck_id)
+    db.session.scalars(stmt).all().delete()
     
     for card_data in data['cards']:
         new_deckcard = DeckCard(

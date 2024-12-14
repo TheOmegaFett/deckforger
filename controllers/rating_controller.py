@@ -63,7 +63,7 @@ def add_rating(deck_id):
         400: Invalid score value
         404: Deck not found
     """
-    deck = Deck.query.get(deck_id)
+    deck = db.session.get(Deck, deck_id)
     if not deck:
         return jsonify({'error': 'Deck not found'}), 404
 
@@ -94,11 +94,13 @@ def get_ratings(deck_id):
         200: List of deck ratings
         404: Deck not found
     """
-    deck = Deck.query.get(deck_id)
+    deck = db.session.get(Deck, deck_id)
     if not deck:
         return jsonify({'error': 'Deck not found'}), 404
 
-    return ratings_schema.jsonify(deck.ratings)
+    stmt = db.select(Rating).filter_by(deck_id=deck_id)
+    ratings = db.session.scalars(stmt).all()
+    return ratings_schema.jsonify(ratings)
 
 
 @rating_controller.route('/<int:deck_id>/ratings/average', methods=['GET'])
@@ -113,12 +115,15 @@ def get_average_rating(deck_id):
         200: Average rating value
         404: Deck not found
     """
-    deck = Deck.query.get(deck_id)
+    deck = db.session.get(Deck, deck_id)
     if not deck:
         return jsonify({'error': 'Deck not found'}), 404
 
-    if not deck.ratings:
+    stmt = db.select(Rating).filter_by(deck_id=deck_id)
+    ratings = db.session.scalars(stmt).all()
+    
+    if not ratings:
         return jsonify({'average': 0, 'message': 'No ratings yet.'})
 
-    average = sum(rating.score for rating in deck.ratings) / len(deck.ratings)
+    average = sum(rating.score for rating in ratings) / len(ratings)
     return jsonify({'average': round(average, 2), 'deck_id': deck_id})

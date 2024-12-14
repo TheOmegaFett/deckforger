@@ -32,7 +32,8 @@ def create_set():
     data = request.json
 
     # Check for existing set with same name
-    existing_set = CardSet.query.filter_by(name=data['name']).first()
+    stmt = db.select(CardSet).filter_by(name=data['name'])
+    existing_set = db.session.scalar(stmt)
     if existing_set:
         return jsonify({'error': f'Set \'{data["name"]}\' already exists'}), 409
 
@@ -65,7 +66,8 @@ def get_sets():
     Returns:
         200: List of all sets
     """
-    sets = CardSet.query.all()
+    stmt = db.select(CardSet)
+    sets = db.session.scalars(stmt).all()
     return sets_schema.jsonify(sets)
 
 @cardset_controller.route('/<int:set_id>', methods=['GET'])
@@ -80,7 +82,7 @@ def get_set(set_id):
         200: Set details
         404: Set not found
     """
-    set_ = CardSet.query.get(set_id)
+    set_ = db.session.get(CardSet, set_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
     return set_schema.jsonify(set_)
@@ -103,7 +105,7 @@ def update_set(set_id):
         404: Set not found
         500: Database operation failed
     """
-    set_ = CardSet.query.get(set_id)
+    set_ = db.session.get(CardSet, set_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
 
@@ -126,7 +128,7 @@ def delete_set(set_id):
         200: Set deleted successfully
         404: Set not found
     """
-    set_ = CardSet.query.get(set_id)
+    set_ = db.session.get(CardSet, set_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
 
@@ -146,5 +148,12 @@ def search_sets():
     Returns:
         200: List of matching sets
     """
-    # Implementation for search functionality
-    pass
+    stmt = db.select(CardSet)
+    
+    if name := request.args.get('name'):
+        stmt = stmt.filter(CardSet.name.ilike(f'%{name}%'))
+    if release_date := request.args.get('release_date'):
+        stmt = stmt.filter(CardSet.release_date == release_date)
+        
+    sets = db.session.scalars(stmt).all()
+    return sets_schema.jsonify(sets)
