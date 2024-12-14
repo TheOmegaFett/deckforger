@@ -29,8 +29,8 @@ class RatingSchema(ma.SQLAlchemySchema):
     comment = ma.auto_field()
     created_at = ma.auto_field(dump_only=True)
     
-    # Enhanced relationship with version tracking
-    deck = ma.Nested('DeckSchema', only=['id', 'name', 'version'])
+    # Enhanced relationship
+    deck = ma.Nested('DeckSchema', only=['id', 'name'])
 
 
 rating_schema = RatingSchema()

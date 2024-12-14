@@ -21,7 +21,7 @@ class DeckBox(db.Model):
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
 
-    # Database relationships
+    # Relationships
     decks = db.relationship('Deck', back_populates='deckbox')
 
     def __repr__(self):

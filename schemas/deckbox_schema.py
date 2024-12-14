@@ -31,7 +31,6 @@ class DeckBoxSchema(ma.SQLAlchemySchema):
         'id', 
         'name', 
         'format',
-        'version',
         'created_at'
     ])
 

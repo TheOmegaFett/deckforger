@@ -23,7 +23,7 @@ class CardSet(db.Model):
     release_date = db.Column(db.Date, nullable=True)
     description = db.Column(db.Text, nullable=True)
 
-    # Database relationships
+    # Relationships
     cards = db.relationship('Card', back_populates='sets', lazy=True)
 
     def __repr__(self):

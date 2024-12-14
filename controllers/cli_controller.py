@@ -8,11 +8,8 @@ from flask import current_app
 # Local application imports
 from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
-from models.card import EnergyCard, PokemonCard, TrainerCard
-from models.card_variant import CardVariant
-from models.deck_history import DeckHistory
 from models.format import Format
-from models.format_restriction import FormatRestriction
+
 
 
 cli_controller = Blueprint('cli', __name__)
@@ -57,7 +54,7 @@ def seed_tables():
         db.session.add_all(formats)
         db.session.commit()
         
-        # Seed Sets with Format Restrictions
+        # Seed Sets
         sets = [
             CardSet(name='Shrouded Fable', release_date='2023-01-01', description='A mysterious set featuring dark creatures'),
             CardSet(name='Eclipse Shadow', release_date='2023-06-01', description='Ghost and psychic focused expansion'),
@@ -66,45 +63,30 @@ def seed_tables():
         db.session.add_all(sets)
         db.session.commit()
 
-        # Format Restrictions
-        format_restrictions = [
-            FormatRestriction(format_id=1, set_id=1, valid_from='2023-01-01'),
-            FormatRestriction(format_id=1, set_id=2, valid_from='2023-06-01'),
-            FormatRestriction(format_id=2, set_id=3, valid_from='2023-09-15')
-        ]
-        db.session.add_all(format_restrictions)
-        db.session.commit()
 
         # Seed Cards with Types
         pokemon_cards = [
-            PokemonCard(name='Fezandipiti EX', type='Dark', set_id=1, hp=220, stage='Basic'),
-            PokemonCard(name='Gengar EX', type='Ghost', set_id=2, hp=170, stage='Basic'),
-            PokemonCard(name='Temporal Tyranitar', type='Dark', set_id=3, hp=250, stage='Stage 2')
+            Card(name='Fezandipiti EX', type='Dark', set_id=1),
+            Card(name='Gengar EX', type='Ghost', set_id=2),
+            Card(name='Temporal Tyranitar', type='Dark', set_id=3)
         ]
         
         trainer_cards = [
-            TrainerCard(name='Dark Patch', type='Item', set_id=1, trainer_type='Item'),
-            TrainerCard(name='Time Spiral', type='Item', set_id=3, trainer_type='Item'),
-            TrainerCard(name='Fossil Researcher', type='Supporter', set_id=2, trainer_type='Supporter')
+            Card(name='Dark Patch', type='Item', set_id=1),
+            Card(name='Time Spiral', type='Item', set_id=3),
+            Card(name='Fossil Researcher', type='Supporter', set_id=2)
         ]
         
         energy_cards = [
-            EnergyCard(name='Basic Dark Energy', type='Dark', set_id=1, energy_type='Dark', is_basic=True),
-            EnergyCard(name='Basic Psychic Energy', type='Psychic', set_id=1, energy_type='Psychic', is_basic=True),
-            EnergyCard(name='Crystal Energy', type='Special', set_id=2, energy_type='Special', is_basic=False)
+            Card(name='Basic Dark Energy', type='Dark', set_id=1),
+            Card(name='Basic Psychic Energy', type='Psychic', set_id=1),
+            Card(name='Crystal Energy', type='Special', set_id=2)
         ]
         
         db.session.add_all(pokemon_cards + trainer_cards + energy_cards)
         db.session.commit()
 
-        # Card Variants
-        variants = [
-            CardVariant(card_id=1, rarity='Ultra Rare', collector_number='001/198', is_reverse_holo=False),
-            CardVariant(card_id=2, rarity='Rare', collector_number='045/198', is_reverse_holo=True),
-            CardVariant(card_id=3, rarity='Secret Rare', collector_number='203/198', is_reverse_holo=False)
-        ]
-        db.session.add_all(variants)
-        db.session.commit()
+       
 
         # Seed DeckBoxes
         deckboxes = [
@@ -122,19 +104,12 @@ def seed_tables():
         db.session.add_all(decks)
         db.session.commit()
 
-        # Deck History
-        histories = [
-            DeckHistory(deck_id=1, change_type='CREATE', changes={'action': 'Initial deck creation'}),
-            DeckHistory(deck_id=2, change_type='UPDATE', changes={'action': 'Added energy cards'})
-        ]
-        db.session.add_all(histories)
-        db.session.commit()
 
         # DeckCards with Variants
         deckcards = [
-            DeckCard(deck_id=1, card_id=1, variant_id=1, quantity=4),
-            DeckCard(deck_id=1, card_id=4, variant_id=None, quantity=3),
-            DeckCard(deck_id=2, card_id=2, variant_id=2, quantity=4)
+            DeckCard(deck_id=1, card_id=1, quantity=4),
+            DeckCard(deck_id=1, card_id=4, quantity=3),
+            DeckCard(deck_id=2, card_id=2, quantity=4)
         ]
         db.session.add_all(deckcards)
         db.session.commit()
