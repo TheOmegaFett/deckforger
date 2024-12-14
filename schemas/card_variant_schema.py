@@ -29,7 +29,7 @@ class CardVariantSchema(ma.SQLAlchemySchema):
     created_at = ma.auto_field(dump_only=True)
     
     # Nested relationship
-    card = ma.Nested('CardSchema', only=['id', 'name'])
+    cards = ma.Nested('CardSchema', only=['id', 'name'])
 
 # Schema instances
 variant_schema = CardVariantSchema()

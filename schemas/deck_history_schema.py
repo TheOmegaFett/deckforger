@@ -27,7 +27,7 @@ class DeckHistorySchema(ma.SQLAlchemySchema):
     created_at = ma.auto_field(dump_only=True)
     
     # Nested relationship
-    deck = ma.Nested('DeckSchema', only=['id', 'name'])
+    decks = ma.Nested('DeckSchema', only=['id', 'name'])
 
 # Schema instances
 history_schema = DeckHistorySchema()

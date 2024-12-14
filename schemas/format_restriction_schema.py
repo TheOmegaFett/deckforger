@@ -27,7 +27,7 @@ class FormatRestrictionSchema(ma.SQLAlchemySchema):
     valid_until = ma.auto_field()
     
     # Nested relationships
-    format = ma.Nested('FormatSchema', only=['id', 'name'])
+    formats = ma.Nested('FormatSchema', only=['id', 'name'])
     card_set = ma.Nested('SetSchema', only=['id', 'name'])
 
 # Schema instances
