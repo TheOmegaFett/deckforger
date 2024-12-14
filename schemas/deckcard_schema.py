@@ -1,7 +1,25 @@
+'''Schema for serializing and deserializing Pokemon TCG deck card associations'''
+
+# Third-party imports
 from init import ma
+
+# Local application imports
 from models.deckcard import DeckCard
 
+
 class DeckCardSchema(ma.SQLAlchemySchema):
+    """
+    Schema for DeckCard model serialization.
+    
+    Attributes:
+        id: DeckCard identifier
+        deck_id: Reference to parent deck
+        card_id: Reference to associated card
+        quantity: Number of copies of the card
+        deck: Nested deck relationship
+        card: Nested card relationship
+    """
+    
     class Meta:
         model = DeckCard
 
@@ -12,3 +30,6 @@ class DeckCardSchema(ma.SQLAlchemySchema):
     deck = ma.Nested('DeckSchema', only=['id', 'name'])
     card = ma.Nested('CardSchema', only=['id', 'name', 'type'])
 
+
+deckcard_schema = DeckCardSchema()
+deckcards_schema = DeckCardSchema(many=True)

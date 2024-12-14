@@ -43,7 +43,19 @@ def validate_set_id(self, value):
 
 @card_controller.route('/', methods=['POST'])
 def create_card():
-    """Create a new card"""
+    """
+    Create a new Pokemon card.
+    
+    Request Body:
+        name (str): Name of the card
+        type (str): Type of the card (grass, fire, water, etc.)
+        set_id (int): ID of the set this card belongs to
+        
+    Returns:
+        201: Card created successfully
+        400: Missing required fields
+        409: Card already exists in set
+    """
     data = request.json
 
     if not data.get('name') or not data.get('type') or not data.get('set_id'):
@@ -69,14 +81,28 @@ def create_card():
 
 @card_controller.route('/', methods=['GET'])
 def get_all_cards():
-    """Retrieve all cards"""
+    """
+    Retrieve all Pokemon cards.
+    
+    Returns:
+        200: List of all cards
+    """
     cards = Card.query.all()
     return cards_schema.jsonify(cards), 200
 
 
 @card_controller.route('/<int:card_id>', methods=['GET'])
 def get_one_card(card_id):
-    """Retrieve a specific card by ID"""
+    """
+    Retrieve a specific Pokemon card by ID.
+    
+    Parameters:
+        card_id (int): ID of the card to retrieve
+        
+    Returns:
+        200: Card details
+        404: Card not found
+    """
     card = Card.query.get(card_id)
     if not card:
         return jsonify({'error': 'Card not found'}), 404
@@ -85,7 +111,22 @@ def get_one_card(card_id):
 
 @card_controller.route('/<int:card_id>', methods=['PUT'])
 def update_card(card_id):
-    """Update a specific card"""
+    """
+    Update a specific Pokemon card.
+    
+    Parameters:
+        card_id (int): ID of the card to update
+        
+    Request Body:
+        name (str, optional): New name for the card
+        type (str, optional): New type for the card
+        set_id (int, optional): New set ID for the card
+        
+    Returns:
+        200: Card updated successfully
+        404: Card not found
+        500: Database operation failed
+    """
     card = Card.query.get(card_id)
     if not card:
         return jsonify({'error': 'Card not found'}), 404
@@ -108,7 +149,16 @@ def update_card(card_id):
 
 @card_controller.route('/<int:card_id>', methods=['DELETE'])
 def delete_card(card_id):
-    """Delete a specific card"""
+    """
+    Delete a specific Pokemon card.
+    
+    Parameters:
+        card_id (int): ID of the card to delete
+        
+    Returns:
+        200: Card deleted successfully
+        404: Card not found
+    """
     card = Card.query.get(card_id)
     if not card:
         return jsonify({'error': 'Card not found'}), 404
@@ -120,7 +170,17 @@ def delete_card(card_id):
 
 @card_controller.route('/search', methods=['GET'])
 def search_cards():
-    """Search cards by name, type, and set_id"""
+    """
+    Search for Pokemon cards using filters.
+    
+    Query Parameters:
+        name (str, optional): Card name to search for
+        type (str, optional): Card type to filter by
+        set_id (int, optional): Set ID to filter by
+        
+    Returns:
+        200: List of matching cards
+    """
     name = request.args.get('name', '')
     card_type = request.args.get('type', '')
     set_id = request.args.get('set_id')

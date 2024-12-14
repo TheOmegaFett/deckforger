@@ -8,7 +8,11 @@ from flask import current_app
 # Local application imports
 from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
+from models.card import EnergyCard, PokemonCard, TrainerCard
+from models.card_variant import CardVariant
+from models.deck_history import DeckHistory
 from models.format import Format
+from models.format_restriction import FormatRestriction
 
 
 cli_controller = Blueprint('cli', __name__)
@@ -41,19 +45,7 @@ def drop_tables():
 @cli_controller.route('/run/seed', methods=['POST'])
 def seed_tables():
     """
-    Seed database with initial data.
-    
-    Populates the database with:
-        - Game formats
-        - Card sets
-        - Deck boxes
-        - Cards
-        - Decks
-        - Deck-card associations
-    
-    Returns:
-        200: Database seeded successfully
-        500: Seeding operation failed
+    Seed database with initial data including enhanced card types and tracking.
     """
     try:
         # Seed Formats
@@ -65,71 +57,96 @@ def seed_tables():
         db.session.add_all(formats)
         db.session.commit()
         
-        # Seed Sets
+        # Seed Sets with Format Restrictions
         sets = [
             CardSet(name='Shrouded Fable', release_date='2023-01-01', description='A mysterious set featuring dark creatures'),
             CardSet(name='Eclipse Shadow', release_date='2023-06-01', description='Ghost and psychic focused expansion'),
-            CardSet(name='Temporal Forces', release_date='2023-09-15', description='Time-themed Pokemon expansion'),
-            CardSet(name='Crystal Storm', release_date='2023-03-20', description='Featuring powerful crystal-type Pokemon'),
-            CardSet(name='Ancient Legends', release_date='2022-11-30', description='Prehistoric and legendary Pokemon')
+            CardSet(name='Temporal Forces', release_date='2023-09-15', description='Time-themed Pokemon expansion')
         ]
         db.session.add_all(sets)
+        db.session.commit()
+
+        # Format Restrictions
+        format_restrictions = [
+            FormatRestriction(format_id=1, set_id=1, valid_from='2023-01-01'),
+            FormatRestriction(format_id=1, set_id=2, valid_from='2023-06-01'),
+            FormatRestriction(format_id=2, set_id=3, valid_from='2023-09-15')
+        ]
+        db.session.add_all(format_restrictions)
+        db.session.commit()
+
+        # Seed Cards with Types
+        pokemon_cards = [
+            PokemonCard(name='Fezandipiti EX', type='Dark', set_id=1, hp=220, stage='Basic'),
+            PokemonCard(name='Gengar EX', type='Ghost', set_id=2, hp=170, stage='Basic'),
+            PokemonCard(name='Temporal Tyranitar', type='Dark', set_id=3, hp=250, stage='Stage 2')
+        ]
+        
+        trainer_cards = [
+            TrainerCard(name='Dark Patch', type='Item', set_id=1, trainer_type='Item'),
+            TrainerCard(name='Time Spiral', type='Item', set_id=3, trainer_type='Item'),
+            TrainerCard(name='Fossil Researcher', type='Supporter', set_id=2, trainer_type='Supporter')
+        ]
+        
+        energy_cards = [
+            EnergyCard(name='Basic Dark Energy', type='Dark', set_id=1, energy_type='Dark', is_basic=True),
+            EnergyCard(name='Basic Psychic Energy', type='Psychic', set_id=1, energy_type='Psychic', is_basic=True),
+            EnergyCard(name='Crystal Energy', type='Special', set_id=2, energy_type='Special', is_basic=False)
+        ]
+        
+        db.session.add_all(pokemon_cards + trainer_cards + energy_cards)
+        db.session.commit()
+
+        # Card Variants
+        variants = [
+            CardVariant(card_id=1, rarity='Ultra Rare', collector_number='001/198', is_reverse_holo=False),
+            CardVariant(card_id=2, rarity='Rare', collector_number='045/198', is_reverse_holo=True),
+            CardVariant(card_id=3, rarity='Secret Rare', collector_number='203/198', is_reverse_holo=False)
+        ]
+        db.session.add_all(variants)
         db.session.commit()
 
         # Seed DeckBoxes
         deckboxes = [
             DeckBox(name='Competitive Decks', description='Top tier tournament decks'),
-            DeckBox(name='Casual Decks', description='Fun and experimental decks'),
-            DeckBox(name='Theme Decks', description='Type-focused themed decks'),
-            DeckBox(name='Legacy Decks', description='Classic deck builds from past formats')
+            DeckBox(name='Casual Decks', description='Fun and experimental decks')
         ]
         db.session.add_all(deckboxes)
         db.session.commit()
 
-        # Seed Cards
-        cards = [
-            Card(name='Fezandipiti EX', type='Dark', set_id=1),
-            Card(name='Dark Patch', type='Item', set_id=1),
-            Card(name='Gengar EX', type='Ghost', set_id=2),
-            Card(name='Temporal Tyranitar', type='Dark', set_id=3),
-            Card(name='Crystal Charizard', type='Fire', set_id=4),
-            Card(name='Ancient Aerodactyl', type='Fighting', set_id=5),
-            Card(name='Time Spiral', type='Item', set_id=3),
-            Card(name='Crystal Energy', type='Energy', set_id=4),
-            Card(name='Fossil Researcher', type='Supporter', set_id=5),
-            Card(name='Shadow Rider', type='Ghost', set_id=2)
-        ]
-        db.session.add_all(cards)
-        db.session.commit()
-
-        # Seed Decks
+        # Seed Decks with History
         decks = [
             Deck(name='Dark Moon EX', description='A strong dark-themed deck', format_id=1, deckbox_id=1),
-            Deck(name='Ghost Control', description='Ghost-type control deck', format_id=2, deckbox_id=1),
-            Deck(name='Crystal Power', description='Crystal-type aggro deck', format_id=1, deckbox_id=1)
+            Deck(name='Ghost Control', description='Ghost-type control deck', format_id=2, deckbox_id=1)
         ]
         db.session.add_all(decks)
         db.session.commit()
 
-        # Seed DeckCards
+        # Deck History
+        histories = [
+            DeckHistory(deck_id=1, change_type='CREATE', changes={'action': 'Initial deck creation'}),
+            DeckHistory(deck_id=2, change_type='UPDATE', changes={'action': 'Added energy cards'})
+        ]
+        db.session.add_all(histories)
+        db.session.commit()
+
+        # DeckCards with Variants
         deckcards = [
-            DeckCard(deck_id=1, card_id=1, quantity=4),
-            DeckCard(deck_id=1, card_id=2, quantity=3),
-            DeckCard(deck_id=2, card_id=3, quantity=4),
-            DeckCard(deck_id=3, card_id=5, quantity=3)
+            DeckCard(deck_id=1, card_id=1, variant_id=1, quantity=4),
+            DeckCard(deck_id=1, card_id=4, variant_id=None, quantity=3),
+            DeckCard(deck_id=2, card_id=2, variant_id=2, quantity=4)
         ]
         db.session.add_all(deckcards)
         db.session.commit()
 
-        return jsonify({'message': 'Database seeded successfully!'})
+        return jsonify({'message': 'Database seeded successfully with enhanced card types and tracking!'})
 
     except Exception as e:
         db.session.rollback()
         return jsonify({
-            'error': 'Seeding failed',
+            'error': 'Enhanced seeding failed',
             'details': str(e)
         }), 500
-
 
 @cli_controller.route('/run/cleanup', methods=['POST'])
 def cleanup_database():

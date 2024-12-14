@@ -24,6 +24,6 @@ class FormatSchema(ma.SQLAlchemySchema):
     name = ma.auto_field()
     description = ma.auto_field()
 
-
-format_schema = FormatSchema()
-formats_schema = FormatSchema(many=True)
+    # relationships
+    restrictions = ma.Nested('FormatRestrictionSchema', many=True)
+    decks = ma.Nested('DeckSchema', many=True, only=['id', 'name'])

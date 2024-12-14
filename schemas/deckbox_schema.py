@@ -2,6 +2,7 @@
 
 # Third-party imports
 from init import ma
+from marshmallow import validates, ValidationError
 
 # Local application imports
 from models.deckbox import DeckBox
@@ -24,7 +25,15 @@ class DeckBoxSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     name = ma.auto_field(required=True)
     description = ma.auto_field(required=True)
-    decks = ma.Nested('DeckSchema', many=True, only=['id', 'name', 'format'])
+    
+    # Enhanced relationships with version tracking
+    decks = ma.Nested('DeckSchema', many=True, only=[
+        'id', 
+        'name', 
+        'format',
+        'version',
+        'created_at'
+    ])
 
 
 deckbox_schema = DeckBoxSchema()
