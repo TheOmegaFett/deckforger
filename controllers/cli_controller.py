@@ -42,7 +42,7 @@ def drop_tables():
 @cli_controller.route('/run/seed', methods=['POST'])
 def seed_tables():
     """
-    Seed database with initial data including enhanced card types and tracking.
+    Seed database with initial data.
     """
     try:
         # Seed Formats

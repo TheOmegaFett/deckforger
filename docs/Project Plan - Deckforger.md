@@ -52,6 +52,7 @@ This project focuses on building a RESTful API to manage Pokémon TCG cards, dec
 | Version Control  | GitHub                |
 | API Testing      | Insomnia / curl       |
 | Validation Logic | Custom (Flask models) |
+| Documentation    | Sphinx                |
 
 ---
 

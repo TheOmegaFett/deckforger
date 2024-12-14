@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Schemas &#8212; Deckforger Initial documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=3499406b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Application Setup" href="init.html" />
+    <link rel="prev" title="Models" href="models.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="schemas">
+<h1>Schemas<a class="headerlink" href="#schemas" title="Link to this heading">¶</a></h1>
+<section id="module-schemas.card_schema">
+<span id="card-schema"></span><h2>Card Schema<a class="headerlink" href="#module-schemas.card_schema" title="Link to this heading">¶</a></h2>
+<p>Schema for serializing and deserializing Pokemon TCG cards</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.card_schema.CardSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">schemas.card_schema.</span></span><span class="sig-name descname"><span class="pre">CardSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/schemas/card_schema.html#CardSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.card_schema.CardSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SQLAlchemySchema</span></code></p>
+<p>Base schema for Card model serialization</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.card_schema.CardSchema.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/schemas/card_schema.html#CardSchema.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.card_schema.CardSchema.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.card_schema.CardSchema.Meta.include_fk">
+<span class="sig-name descname"><span class="pre">include_fk</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#schemas.card_schema.CardSchema.Meta.include_fk" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.card_schema.CardSchema.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#schemas.card_schema.CardSchema.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Card</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.card_schema.CardSchema.Meta.sqla_session">
+<span class="sig-name descname"><span class="pre">sqla_session</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.DummySession</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.card_schema.CardSchema.Meta.sqla_session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.card_schema.CardSchema.opts">
+<span class="sig-name descname"><span class="pre">opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SchemaOpts</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.SQLAlchemySchemaOpts</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.card_schema.CardSchema.opts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-schemas.deck_schema">
+<span id="deck-schema"></span><h2>Deck Schema<a class="headerlink" href="#module-schemas.deck_schema" title="Link to this heading">¶</a></h2>
+<p>Schema for serializing and deserializing Pokemon TCG decks</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">schemas.deck_schema.</span></span><span class="sig-name descname"><span class="pre">DeckSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/schemas/deck_schema.html#DeckSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.deck_schema.DeckSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SQLAlchemySchema</span></code></p>
+<p>Schema for Deck model serialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.id" title="Link to this definition">¶</a></dt>
+<dd><p>Deck identifier</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.name" title="Link to this definition">¶</a></dt>
+<dd><p>Deck name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.description" title="Link to this definition">¶</a></dt>
+<dd><p>Deck description</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.format_id">
+<span class="sig-name descname"><span class="pre">format_id</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.format_id" title="Link to this definition">¶</a></dt>
+<dd><p>Reference to deck format</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.created_at">
+<span class="sig-name descname"><span class="pre">created_at</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.created_at" title="Link to this definition">¶</a></dt>
+<dd><p>Timestamp of deck creation</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.updated_at">
+<span class="sig-name descname"><span class="pre">updated_at</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.updated_at" title="Link to this definition">¶</a></dt>
+<dd><p>Timestamp of last deck update</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.cards">
+<span class="sig-name descname"><span class="pre">cards</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.cards" title="Link to this definition">¶</a></dt>
+<dd><p>Nested relationship to cards in deck</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.deckbox">
+<span class="sig-name descname"><span class="pre">deckbox</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.deckbox" title="Link to this definition">¶</a></dt>
+<dd><p>Nested relationship to deck box</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.ratings">
+<span class="sig-name descname"><span class="pre">ratings</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.ratings" title="Link to this definition">¶</a></dt>
+<dd><p>Nested relationship to deck ratings</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/schemas/deck_schema.html#DeckSchema.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.deck_schema.DeckSchema.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#schemas.deck_schema.DeckSchema.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Deck</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.Meta.sqla_session">
+<span class="sig-name descname"><span class="pre">sqla_session</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.DummySession</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.deck_schema.DeckSchema.Meta.sqla_session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deck_schema.DeckSchema.opts">
+<span class="sig-name descname"><span class="pre">opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SchemaOpts</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.SQLAlchemySchemaOpts</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.deck_schema.DeckSchema.opts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-schemas.deckbox_schema">
+<span id="deckbox-schema"></span><h2>DeckBox Schema<a class="headerlink" href="#module-schemas.deckbox_schema" title="Link to this heading">¶</a></h2>
+<p>Schema for serializing and deserializing Pokemon TCG deck boxes</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">schemas.deckbox_schema.</span></span><span class="sig-name descname"><span class="pre">DeckBoxSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/schemas/deckbox_schema.html#DeckBoxSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SQLAlchemySchema</span></code></p>
+<p>Schema for DeckBox model serialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.id" title="Link to this definition">¶</a></dt>
+<dd><p>DeckBox identifier</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.name" title="Link to this definition">¶</a></dt>
+<dd><p>DeckBox name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.description" title="Link to this definition">¶</a></dt>
+<dd><p>DeckBox description</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.decks">
+<span class="sig-name descname"><span class="pre">decks</span></span><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.decks" title="Link to this definition">¶</a></dt>
+<dd><p>Nested relationship to stored decks</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/schemas/deckbox_schema.html#DeckBoxSchema.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">DeckBox</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.Meta.sqla_session">
+<span class="sig-name descname"><span class="pre">sqla_session</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.DummySession</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.Meta.sqla_session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckbox_schema.DeckBoxSchema.opts">
+<span class="sig-name descname"><span class="pre">opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SchemaOpts</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.SQLAlchemySchemaOpts</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.deckbox_schema.DeckBoxSchema.opts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-schemas.deckcard_schema">
+<span id="deckcard-schema"></span><h2>DeckCard Schema<a class="headerlink" href="#module-schemas.deckcard_schema" title="Link to this heading">¶</a></h2>
+<p>Schema for serializing and deserializing Pokemon TCG deck card associations</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">schemas.deckcard_schema.</span></span><span class="sig-name descname"><span class="pre">DeckCardSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/schemas/deckcard_schema.html#DeckCardSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SQLAlchemySchema</span></code></p>
+<p>Schema for DeckCard model serialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.id" title="Link to this definition">¶</a></dt>
+<dd><p>DeckCard identifier</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.deck_id">
+<span class="sig-name descname"><span class="pre">deck_id</span></span><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.deck_id" title="Link to this definition">¶</a></dt>
+<dd><p>Reference to parent deck</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.card_id">
+<span class="sig-name descname"><span class="pre">card_id</span></span><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.card_id" title="Link to this definition">¶</a></dt>
+<dd><p>Reference to associated card</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.quantity">
+<span class="sig-name descname"><span class="pre">quantity</span></span><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.quantity" title="Link to this definition">¶</a></dt>
+<dd><p>Number of copies of the card</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.deck">
+<span class="sig-name descname"><span class="pre">deck</span></span><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.deck" title="Link to this definition">¶</a></dt>
+<dd><p>Nested deck relationship</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.card">
+<span class="sig-name descname"><span class="pre">card</span></span><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.card" title="Link to this definition">¶</a></dt>
+<dd><p>Nested card relationship</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/schemas/deckcard_schema.html#DeckCardSchema.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">DeckCard</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.Meta.sqla_session">
+<span class="sig-name descname"><span class="pre">sqla_session</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.DummySession</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.Meta.sqla_session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.deckcard_schema.DeckCardSchema.opts">
+<span class="sig-name descname"><span class="pre">opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SchemaOpts</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.SQLAlchemySchemaOpts</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.deckcard_schema.DeckCardSchema.opts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-schemas.cardset_schema">
+<span id="cardset-schema"></span><h2>CardSet Schema<a class="headerlink" href="#module-schemas.cardset_schema" title="Link to this heading">¶</a></h2>
+<p>Schema for serializing and deserializing Pokemon TCG card sets</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">schemas.cardset_schema.</span></span><span class="sig-name descname"><span class="pre">SetSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/schemas/cardset_schema.html#SetSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.cardset_schema.SetSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SQLAlchemySchema</span></code></p>
+<p>Schema for CardSet model serialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#schemas.cardset_schema.SetSchema.id" title="Link to this definition">¶</a></dt>
+<dd><p>Set identifier</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#schemas.cardset_schema.SetSchema.name" title="Link to this definition">¶</a></dt>
+<dd><p>Set name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.release_date">
+<span class="sig-name descname"><span class="pre">release_date</span></span><a class="headerlink" href="#schemas.cardset_schema.SetSchema.release_date" title="Link to this definition">¶</a></dt>
+<dd><p>Set release date</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#schemas.cardset_schema.SetSchema.description" title="Link to this definition">¶</a></dt>
+<dd><p>Set description</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.cards">
+<span class="sig-name descname"><span class="pre">cards</span></span><a class="headerlink" href="#schemas.cardset_schema.SetSchema.cards" title="Link to this definition">¶</a></dt>
+<dd><p>Nested relationship to cards in set</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/schemas/cardset_schema.html#SetSchema.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.cardset_schema.SetSchema.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.Meta.load_instance">
+<span class="sig-name descname"><span class="pre">load_instance</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#schemas.cardset_schema.SetSchema.Meta.load_instance" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#schemas.cardset_schema.SetSchema.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CardSet</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.Meta.sqla_session">
+<span class="sig-name descname"><span class="pre">sqla_session</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.DummySession</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.cardset_schema.SetSchema.Meta.sqla_session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.cardset_schema.SetSchema.opts">
+<span class="sig-name descname"><span class="pre">opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SchemaOpts</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.SQLAlchemySchemaOpts</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.cardset_schema.SetSchema.opts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-schemas.format_schema">
+<span id="format-schema"></span><h2>Format Schema<a class="headerlink" href="#module-schemas.format_schema" title="Link to this heading">¶</a></h2>
+<p>Schema for serializing and deserializing Pokemon TCG game formats</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">schemas.format_schema.</span></span><span class="sig-name descname"><span class="pre">FormatSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/schemas/format_schema.html#FormatSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.format_schema.FormatSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SQLAlchemySchema</span></code></p>
+<p>Schema for Format model serialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#schemas.format_schema.FormatSchema.id" title="Link to this definition">¶</a></dt>
+<dd><p>Format identifier</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#schemas.format_schema.FormatSchema.name" title="Link to this definition">¶</a></dt>
+<dd><p>Format name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#schemas.format_schema.FormatSchema.description" title="Link to this definition">¶</a></dt>
+<dd><p>Format rules description</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="_modules/schemas/format_schema.html#FormatSchema.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#schemas.format_schema.FormatSchema.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#schemas.format_schema.FormatSchema.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#models.format.Format" title="models.format.Format"><code class="xref py py-class docutils literal notranslate"><span class="pre">Format</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema.Meta.sqla_session">
+<span class="sig-name descname"><span class="pre">sqla_session</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.DummySession</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.format_schema.FormatSchema.Meta.sqla_session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="schemas.format_schema.FormatSchema.opts">
+<span class="sig-name descname"><span class="pre">opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SchemaOpts</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;flask_marshmallow.sqla.SQLAlchemySchemaOpts</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#schemas.format_schema.FormatSchema.opts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Deckforger</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="controllers.html">Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Schemas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-schemas.card_schema">Card Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-schemas.deck_schema">Deck Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-schemas.deckbox_schema">DeckBox Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-schemas.deckcard_schema">DeckCard Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-schemas.cardset_schema">CardSet Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-schemas.format_schema">Format Schema</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Application Setup</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="models.html" title="previous chapter">Models</a></li>
+      <li>Next: <a href="init.html" title="next chapter">Application Setup</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Shane W Miller.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/schemas.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
