@@ -29,3 +29,5 @@ class Format(db.Model):
 
     def __repr__(self):
         return f'<Format {self.name}>'
+
+restrictions = db.relationship('FormatRestriction', back_populates='format')

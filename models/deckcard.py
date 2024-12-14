@@ -3,22 +3,7 @@
 # Third-party imports
 from init import db
 
-
 class DeckCard(db.Model):
-    """
-    Represents the association between Pokemon TCG cards and decks.
-    
-    Attributes:
-        deck_id (int): Foreign key reference to the deck, part of primary key
-        card_id (int): Foreign key reference to the card, part of primary key
-        variant_id (int): Foreign key reference to the card variant
-        quantity (int): Number of copies of the card in the deck
-        created_at (DateTime): Timestamp of when the association was created
-        deck (relationship): Relationship to the parent deck
-        card (relationship): Relationship to the associated card
-        variant (relationship): Relationship to the associated card variant
-    """
-    
     __tablename__ = 'deckcards'
 
     deck_id = db.Column(db.Integer, db.ForeignKey('decks.id'), primary_key=True)
@@ -28,9 +13,9 @@ class DeckCard(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     # Database relationships
-    decks = db.relationship('Deck', back_populates='deck_cards')
-    cards = db.relationship('Card', back_populates='decks')
+    deck = db.relationship('Deck', back_populates='deck_cards')
+    card = db.relationship('Card', backref='deck_cards')
     variant = db.relationship('CardVariant')
-
+    
     def __repr__(self):
         return f'<DeckCard {self.deck_id}:{self.card_id}>'

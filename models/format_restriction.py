@@ -9,5 +9,5 @@ class FormatRestriction(db.Model):
     valid_from = db.Column(db.Date, nullable=False)
     valid_until = db.Column(db.Date)
     
-    formats = db.relationship('Format', back_populates='restrictions')
-    card_sets = db.relationship('CardSet', back_populates='format_restrictions')
+    format = db.relationship('Format', back_populates='restrictions')
+    card_set = db.relationship('CardSet', back_populates='format_restrictions')

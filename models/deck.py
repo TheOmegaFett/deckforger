@@ -41,10 +41,10 @@ class Deck(db.Model):
 
     # Database relationships
     deck_cards = db.relationship('DeckCard', back_populates='deck', lazy=True)
-    formats = db.relationship('Format', backref='decks')
-    deckboxes = db.relationship('DeckBox', back_populates='decks')
-    ratings = db.relationship('Rating', back_populates='deck', lazy='dynamic')
-    histories = db.relationship('DeckHistory', back_populates='deck')
+    format = db.relationship('Format', backref='decks')
+    deckbox = db.relationship('DeckBox', back_populates='decks')
+    rating = db.relationship('Rating', back_populates='deck', lazy='dynamic')
+    history = db.relationship('DeckHistory', back_populates='deck')
 
     def __repr__(self):
         return f'<Deck {self.name}>'

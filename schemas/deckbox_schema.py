@@ -27,7 +27,7 @@ class DeckBoxSchema(ma.SQLAlchemySchema):
     description = ma.auto_field(required=True)
     
     # Enhanced relationships with version tracking
-    decks = ma.Nested('DeckSchema', many=True, only=[
+    deck = ma.Nested('DeckSchema', many=True, only=[
         'id', 
         'name', 
         'format',

@@ -22,7 +22,7 @@ class DeckBox(db.Model):
     description = db.Column(db.String(200))
 
     # Database relationships
-    decks = db.relationship('Deck', back_populates='deckboxes', lazy='dynamic')
+    decks = db.relationship('Deck', back_populates='deckbox')
 
     def __repr__(self):
         return f'<DeckBox {self.name}>'

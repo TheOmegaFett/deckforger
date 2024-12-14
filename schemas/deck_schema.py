@@ -39,9 +39,9 @@ class DeckSchema(ma.SQLAlchemySchema):
     
     # Enhanced relationships
     cards = ma.Nested('DeckCardSchema', many=True)
-    formats = ma.Nested('FormatSchema', only=['id', 'name'])
-    deckboxes = ma.Nested('DeckBoxSchema', only=['id', 'name'])
-    histories = ma.Nested('DeckHistorySchema', many=True)
+    format = ma.Nested('FormatSchema', only=['id', 'name'])
+    deckbox = ma.Nested('DeckBoxSchema', only=['id', 'name'])
+    history = ma.Nested('DeckHistorySchema', many=True)
     ratings = ma.Nested('RatingSchema', many=True)
 
 
