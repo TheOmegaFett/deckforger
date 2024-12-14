@@ -11,5 +11,5 @@ class CardVariant(db.Model):
     is_reverse_holo = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    card = db.relationship('Card', back_populates='variants')
+    cards = db.relationship('Card', back_populates='variants')
 

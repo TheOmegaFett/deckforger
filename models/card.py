@@ -32,7 +32,7 @@ class Card(db.Model):
         'polymorphic_on': card_type
     }
     
-    set = db.relationship(CardSet, back_populates='cards')
+    sets = db.relationship(CardSet, back_populates='cards')
     decks = db.relationship('DeckCard', back_populates='card', lazy='dynamic')
     variants = db.relationship('CardVariant', back_populates='card')
 

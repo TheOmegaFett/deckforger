@@ -28,8 +28,8 @@ class DeckCard(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     # Database relationships
-    deck = db.relationship('Deck', back_populates='deck_cards')
-    card = db.relationship('Card', back_populates='decks')
+    decks = db.relationship('Deck', back_populates='deck_cards')
+    cards = db.relationship('Card', back_populates='decks')
     variant = db.relationship('CardVariant')
 
     def __repr__(self):
