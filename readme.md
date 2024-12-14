@@ -38,25 +38,68 @@ flask run/seed
 
 ## API Endpoints
 
-Decks
+### CLI Operations
 
-- GET /api/decks - List all decks
-- POST /api/decks - Create new deck
-- GET /api/decks/{id} - Get deck details
-- PUT /api/decks/{id} - Update deck
-- DELETE /api/decks/{id} - Delete deck
-  Cards
-- GET /api/cards - List all cards
-- POST /api/cards - Add new card
-- GET /api/cards/{id} - Get card details
-- PUT /api/cards/{id} - Update card
-- DELETE /api/cards/{id} - Delete card
+- POST /run/create - Create database tables
+- POST /run/drop - Drop database tables
+- POST /run/seed - Seed database with initial data
+- POST /run/cleanup - Clean up database
+- GET /health - Check API health
+- GET /routes - List all available routes
 
-[Additional endpoint sections...]
+### Decks
+
+- POST /api/decks/ - Create new deck
+- PUT /api/decks/{deck_id} - Update deck
+- GET /api/decks/validate/{deck_id} - Validate deck rules
+
+### Deck Boxes
+
+- POST /api/deckboxes/ - Create deck box
+- GET /api/deckboxes/ - List all deck boxes
+- GET /api/deckboxes/{deckbox_id} - Get specific deck box
+- PUT /api/deckboxes/{deckbox_id} - Update deck box
+- DELETE /api/deckboxes/{deckbox_id} - Delete deck box
+- GET /api/deckboxes/{deckbox_id}/decks - List decks in box
+- POST /api/deckboxes/{deckbox_id}/decks - Add deck to box
+- DELETE /api/deckboxes/{deckbox_id}/decks/{deck_id} - Remove deck from box
+
+### Cards
+
+- POST /api/cards/ - Create card
+- GET /api/cards/ - List all cards
+- GET /api/cards/{card_id} - Get specific card
+- PUT /api/cards/{card_id} - Update card
+- DELETE /api/cards/{card_id} - Delete card
+- GET /api/cards/search - Search cards
+
+### Deck Cards
+
+- POST /api/deckcards/{deck_id}/cards - Add cards to deck
+- GET /api/deckcards/{deck_id}/cards - View cards in deck
+- DELETE /api/deckcards/{deck_id}/cards/{card_id} - Remove card from deck
+- PUT /api/deckcards/{deck_id} - Update deck cards
+
+### Card Sets
+
+- POST /api/cardsets/ - Create set
+- GET /api/cardsets/ - List all sets
+- GET /api/cardsets/{set_id} - Get specific set
+- PUT /api/cardsets/{set_id} - Update set
+- DELETE /api/cardsets/{set_id} - Delete set
+- GET /api/cardsets/search - Search sets
+
+### Formats
+
+- GET /api/formats/ - List all formats
+- GET /api/formats/{format_id} - Get specific format
+- POST /api/formats/ - Create format
+- PUT /api/formats/{format_id} - Update format
+- DELETE /api/formats/{format_id} - Delete format
 
 ## Database Schema
 
-![Pokemon TCG Deck Builder ERD](docs/erd2.png)
+![Pokemon TCG Deck Builder ERD](docs/ERD_Plan.png)
 
 ## Usage Examples
 
@@ -155,4 +198,4 @@ All other rights are reserved. This software may not be:
 
 Any use of this software must maintain this copyright notice and license terms.
 
-For permissions beyond educational use, contact [Your Contact Information].
+For permissions beyond educational use, contact shanemiller@iinet.net.au .
