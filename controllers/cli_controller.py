@@ -96,7 +96,7 @@ def seed_tables():
         db.session.add_all(deckboxes)
         db.session.commit()
 
-        # Seed Decks with History
+        # Seed Decks
         decks = [
             Deck(name='Dark Moon EX', description='A strong dark-themed deck', format_id=1, deckbox_id=1),
             Deck(name='Ghost Control', description='Ghost-type control deck', format_id=2, deckbox_id=1)
@@ -105,10 +105,12 @@ def seed_tables():
         db.session.commit()
 
 
-        # DeckCards with Variants
+        # DeckCards
         deckcards = [
             DeckCard(deck_id=1, card_id=1, quantity=4),
             DeckCard(deck_id=1, card_id=4, quantity=3),
+            DeckCard(deck_id=1, card_id=7, quantity=15),  # Basic Dark Energy
+            DeckCard(deck_id=1, card_id=8, quantity=38),  # Basic Psychic Energy
             DeckCard(deck_id=2, card_id=2, quantity=4)
         ]
         db.session.add_all(deckcards)
