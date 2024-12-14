@@ -63,26 +63,35 @@ def seed_tables():
         db.session.add_all(sets)
         db.session.commit()
 
-
         # Seed Cards with Types
         pokemon_cards = [
             Card(name='Fezandipiti EX', type='Dark', set_id=1),
             Card(name='Gengar EX', type='Ghost', set_id=2),
-            Card(name='Temporal Tyranitar', type='Dark', set_id=3)
+            Card(name='Temporal Tyranitar', type='Dark', set_id=3),
+            Card(name='Mewtwo VMAX', type='Psychic', set_id=2),
+            Card(name='Darkrai VSTAR', type='Dark', set_id=1),
+            Card(name='Zoroark GX', type='Dark', set_id=3),
+            Card(name='Lunala V', type='Psychic', set_id=2)
         ]
-        
+    
         trainer_cards = [
             Card(name='Dark Patch', type='Item', set_id=1),
             Card(name='Time Spiral', type='Item', set_id=3),
-            Card(name='Fossil Researcher', type='Supporter', set_id=2)
+            Card(name='Fossil Researcher', type='Supporter', set_id=2),
+            Card(name='Professor Research', type='Supporter', set_id=1),
+            Card(name='Boss Orders', type='Supporter', set_id=2),
+            Card(name='Quick Ball', type='Item', set_id=3),
+            Card(name='Ultra Ball', type='Item', set_id=1)
         ]
-        
+    
         energy_cards = [
             Card(name='Basic Dark Energy', type='Dark', set_id=1),
             Card(name='Basic Psychic Energy', type='Psychic', set_id=1),
-            Card(name='Crystal Energy', type='Special', set_id=2)
+            Card(name='Crystal Energy', type='Special', set_id=2),
+            Card(name='Double Dragon Energy', type='Special', set_id=3),
+            Card(name='Horror Energy', type='Special', set_id=2)
         ]
-        
+    
         db.session.add_all(pokemon_cards + trainer_cards + energy_cards)
         db.session.commit()
 
@@ -91,7 +100,8 @@ def seed_tables():
         # Seed DeckBoxes
         deckboxes = [
             DeckBox(name='Competitive Decks', description='Top tier tournament decks'),
-            DeckBox(name='Casual Decks', description='Fun and experimental decks')
+            DeckBox(name='Casual Decks', description='Fun and experimental decks'),
+            DeckBox(name='Testing Decks', description='Decks in development and testing')
         ]
         db.session.add_all(deckboxes)
         db.session.commit()
@@ -99,11 +109,13 @@ def seed_tables():
         # Seed Decks
         decks = [
             Deck(name='Dark Moon EX', description='A strong dark-themed deck', format_id=1, deckbox_id=1),
-            Deck(name='Ghost Control', description='Ghost-type control deck', format_id=2, deckbox_id=1)
+            Deck(name='Ghost Control', description='Ghost-type control deck', format_id=2, deckbox_id=1),
+            Deck(name='Psychic Control', description='Mewtwo VMAX focused control deck', format_id=1, deckbox_id=1),
+            Deck(name='Dark Box', description='Multiple Dark-type attackers', format_id=2, deckbox_id=1),
+            Deck(name='Test Dragons', description='Dragon type testing deck', format_id=2, deckbox_id=3)
         ]
         db.session.add_all(decks)
         db.session.commit()
-
 
         # DeckCards
         deckcards = [
@@ -116,12 +128,47 @@ def seed_tables():
         db.session.add_all(deckcards)
         db.session.commit()
 
-        return jsonify({'message': 'Database seeded successfully with enhanced card types and tracking!'})
+        # Psychic Control deck (60 cards)
+        psychic_control_cards = [
+            DeckCard(deck_id=3, card_id=10, quantity=4),  # Mewtwo VMAX
+            DeckCard(deck_id=3, card_id=13, quantity=4),  # Professor Research
+            DeckCard(deck_id=3, card_id=14, quantity=4),  # Boss Orders
+            DeckCard(deck_id=3, card_id=15, quantity=4),  # Quick Ball
+            DeckCard(deck_id=3, card_id=16, quantity=4),  # Ultra Ball
+            DeckCard(deck_id=3, card_id=8, quantity=40),  # Basic Psychic Energy
+        ]
+
+        # Dark Box deck (60 cards)
+        dark_box_cards = [
+            DeckCard(deck_id=4, card_id=11, quantity=3),  # Darkrai VSTAR
+            DeckCard(deck_id=4, card_id=12, quantity=3),  # Zoroark GX
+            DeckCard(deck_id=4, card_id=13, quantity=4),  # Professor Research
+            DeckCard(deck_id=4, card_id=14, quantity=4),  # Boss Orders
+            DeckCard(deck_id=4, card_id=15, quantity=4),  # Quick Ball
+            DeckCard(deck_id=4, card_id=18, quantity=2),  # Horror Energy
+            DeckCard(deck_id=4, card_id=7, quantity=40),  # Basic Dark Energy
+        ]
+
+        # Test Dragons deck (60 cards)
+        test_dragons_cards = [
+            DeckCard(deck_id=5, card_id=12, quantity=4),  # Zoroark GX
+            DeckCard(deck_id=5, card_id=13, quantity=4),  # Professor Research
+            DeckCard(deck_id=5, card_id=15, quantity=4),  # Quick Ball
+            DeckCard(deck_id=5, card_id=16, quantity=4),  # Ultra Ball
+            DeckCard(deck_id=5, card_id=17, quantity=4),  # Double Dragon Energy
+            DeckCard(deck_id=5, card_id=7, quantity=20),  # Basic Dark Energy
+            DeckCard(deck_id=5, card_id=8, quantity=20),  # Basic Psychic Energy
+        ]
+
+        db.session.add_all(psychic_control_cards + dark_box_cards + test_dragons_cards)
+        db.session.commit()       
+        
+        return jsonify({'message': 'Database seeded successfully!'})
 
     except Exception as e:
         db.session.rollback()
         return jsonify({
-            'error': 'Enhanced seeding failed',
+            'error': 'seeding failed',
             'details': str(e)
         }), 500
 
