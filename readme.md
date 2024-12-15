@@ -196,7 +196,7 @@ GET /api/decks/validate/{deck_id}
 
 ## Contributing
 
-Development is ongoing. Contributions are welcome! But please allow for grading before accept pull requests.
+Development is ongoing. Contributions are welcome! But please allow for grading before I accept pull requests.
 
 Main Developer: Shane W Miller
 
