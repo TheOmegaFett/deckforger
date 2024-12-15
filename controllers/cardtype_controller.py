@@ -93,16 +93,17 @@ def get_type_popularity():
                 func.count(DeckCard.id).label('usage_count')
             )
             .select_from(CardType)
-            .join(Card, Card.cardtype_id == CardType.id)
-            .join(DeckCard, DeckCard.card_id == Card.id)            .group_by(CardType.id)
+            .join(Card, Card.type_id == CardType.id)
+            .join(DeckCard, DeckCard.card_id == Card.id)
+            .group_by(CardType.id, CardType.name)
             .order_by(desc('usage_count'))
         )
         
         results = popularity_query.all()
         return jsonify([{
-            'card_type': cardtype.name,
-            'usage_count': count
-        } for type, count in results]), 200
+            'card_type': cardtype[0].name,
+            'usage_count': cardtype[1]
+        } for cardtype in results]), 200    
     except Exception as e:
         return jsonify({'error': 'Failed to calculate type popularity', 'details': str(e)}), 500
 
