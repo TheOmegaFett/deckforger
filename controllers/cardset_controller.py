@@ -154,27 +154,37 @@ def get_card_distribution():
     
     Returns:
         200: Card distribution statistics per set
+        500: Server error with details
     """
-    stmt = (
-        db.select(
-            CardSet.name.label('set_name'),
-            CardType.name.label('type_name'),
-            func.count(Card.id).label('count')
+    try:
+        stmt = (
+            db.select(
+                CardSet.name.label('set_name'),
+                CardType.name.label('type_name'),
+                func.count(Card.id).label('count')
+            )
+            .select_from(CardSet)
+            .join(Card)
+            .join(CardType)
+            .group_by(CardSet.name, CardType.name)
+            .order_by(CardSet.name)
         )
-        .select_from(CardSet)
-        .join(Card, CardSet.cards)
-        .join(CardType, Card.cardtype)
-        .group_by(CardSet.name, CardType.name)
-        .order_by(CardSet.name)
-    )
-    
-    results = db.session.execute(stmt).all()
-    
-    distribution = {}
-    for result in results:
-        set_name = result.set_name
-        if set_name not in distribution:
-            distribution[set_name] = {'types': {}}
-        distribution[set_name]['types'][result.type_name] = result.count
+        
+        results = db.session.execute(stmt).all()
+        
+        distribution = {}
+        for result in results:
+            set_name = result.set_name
+            if set_name not in distribution:
+                distribution[set_name] = {'types': {}}
+            distribution[set_name]['types'][result.type_name] = result.count
+            
+        return jsonify(distribution), 200
+        
+    except Exception as e:
+        return jsonify({
+            'message': 'Database query failed',
+            'error': str(e)
+        }), 500
         
     return jsonify(distribution), 200
