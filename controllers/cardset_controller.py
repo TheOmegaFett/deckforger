@@ -15,40 +15,48 @@ from schemas.cardset_schema import cardset_schema, cardsets_schema
 
 cardset_controller = Blueprint('cardsets', __name__, url_prefix='/cardsets')
 
-@validates('name')
-def validate_name(self, value):
-    if len(value) < 1:
-        raise ValidationError('Set name must not be empty')
-    if len(value) > 100:
-        raise ValidationError('Set name must be less than 100 characters')
-
-@validates('release_date')
-def validate_release_date(self, value):
-    try:
-        release_date = datetime.strptime(value, '%Y-%m-%d')
-    except (ValueError, TypeError):
-        raise ValidationError('Invalid date format. Use YYYY-MM-DD')
-
 @cardset_controller.route('/', methods=['GET'])
 def get_all_sets():
-    """Get all card sets"""
-    stmt = db.select(CardSet)
-    sets = db.session.scalars(stmt).all()
-    return cardsets_schema.dump(sets)
+    """
+    Retrieve all card sets.
+    
+    Returns:
+        200: List of all sets
+        500: Database query failed
+    """
+    try:
+        stmt = db.select(CardSet)
+        sets = db.session.scalars(stmt).all()
+        return cardsets_schema.dump(sets), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve sets', 'details': str(e)}), 500
 
 @cardset_controller.route('/<int:cardset_id>', methods=['GET'])
 def get_set(cardset_id):
-    """Get a specific set by ID"""
-    stmt = db.select(CardSet).filter_by(id=cardset_id)
-    set = db.session.scalar(stmt)
-    if not set:
-        return {'error': 'Set not found'}, 404
-    return cardset_schema.dump(set)
+    """
+    Retrieve a specific set by ID.
+    
+    Parameters:
+        cardset_id (int): ID of the set to retrieve
+        
+    Returns:
+        200: Set details
+        404: Set not found
+        500: Database query failed
+    """
+    try:
+        stmt = db.select(CardSet).filter_by(id=cardset_id)
+        set = db.session.scalar(stmt)
+        if not set:
+            return jsonify({'error': 'Set not found'}), 404
+        return cardset_schema.dump(set), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve set', 'details': str(e)}), 500
 
 @cardset_controller.route('/', methods=['POST'])
 def create_set():
     """
-    Create a new Pokemon card set.
+    Create a new card set.
     
     Request Body:
         name (str): Name of the set
@@ -57,31 +65,31 @@ def create_set():
         
     Returns:
         201: Set created successfully
-        400: Missing required fields
         409: Set with name already exists
+        500: Database operation failed
     """
-    data = request.json
+    try:
+        data = request.json
+        stmt = db.select(CardSet).filter_by(name=data['name'])
+        if db.session.scalar(stmt):
+            return jsonify({'error': f'Set \'{data["name"]}\' already exists'}), 409
 
-    # Check for existing set with same name
-    stmt = db.select(CardSet).filter_by(name=data['name'])
-    existing_set = db.session.scalar(stmt)
-    if existing_set:
-        return jsonify({'error': f'Set \'{data["name"]}\' already exists'}), 409
-
-    new_set = CardSet(
-        name=data['name'],
-        release_date=data.get('release_date'),
-        description=data.get('description')
-    )
-    db.session.add(new_set)
-    db.session.commit()
-    return cardset_schema.jsonify(new_set), 201
-
+        new_set = CardSet(
+            name=data['name'],
+            release_date=data.get('release_date'),
+            description=data.get('description')
+        )
+        db.session.add(new_set)
+        db.session.commit()
+        return cardset_schema.jsonify(new_set), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create set', 'details': str(e)}), 500
 
 @cardset_controller.route('/<int:cardset_id>', methods=['PUT'])
 def update_set(cardset_id):
     """
-    Update a specific Pokemon card set.
+    Update a specific card set.
     
     Parameters:
         cardset_id (int): ID of the set to update
@@ -96,16 +104,21 @@ def update_set(cardset_id):
         404: Set not found
         500: Database operation failed
     """
-    set_ = db.session.get(CardSet, cardset_id)
-    if not set_:
-        return jsonify({'error': 'Set not found'}), 404
+    try:
+        set_ = db.session.get(CardSet, cardset_id)
+        if not set_:
+            return jsonify({'error': 'Set not found'}), 404
 
-    data = request.json
-    set_.name = data.get('name', set_.name)
-    set_.release_date = data.get('release_date', set_.release_date)
-    set_.description = data.get('description', set_.description)
-    db.session.commit()
-    return cardset_schema.jsonify(set_)
+        data = request.json
+        set_.name = data.get('name', set_.name)
+        set_.release_date = data.get('release_date', set_.release_date)
+        set_.description = data.get('description', set_.description)
+        
+        db.session.commit()
+        return cardset_schema.jsonify(set_), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update set', 'details': str(e)}), 500
 
 @cardset_controller.route('/<int:cardset_id>', methods=['DELETE'])
 def delete_set(cardset_id):
@@ -147,8 +160,6 @@ def get_cards_in_set(cardset_id):
         'cardtype': card.cardtype.name
     } for card in cardset.cards])
 
-
-
 @cardset_controller.route('/stats/card-distribution', methods=['GET'])
 def get_card_distribution():
     """
@@ -156,7 +167,7 @@ def get_card_distribution():
     
     Returns:
         200: Card distribution statistics per set
-        500: Server error with details
+        500: Database query failed
     """
     try:
         stmt = (
@@ -187,5 +198,4 @@ def get_card_distribution():
         return jsonify({
             'message': 'Database query failed',
             'error': str(e)
-        }), 500        
-    return jsonify(distribution), 200
+        }), 500    return jsonify(distribution), 200

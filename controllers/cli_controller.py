@@ -11,10 +11,7 @@ from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format
 from models.cardtype import CardType
 
-
-
 cli_controller = Blueprint('cli', __name__)
-
 
 @cli_controller.route('/run/create', methods=['POST'])
 def create_tables():
@@ -23,10 +20,16 @@ def create_tables():
     
     Returns:
         200: Tables created successfully
+        500: Table creation failed
     """
-    db.create_all()
-    return jsonify({'message': 'Tables created successfully!'})
-
+    try:
+        db.create_all()
+        return jsonify({'message': 'Tables created successfully!'}), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to create tables',
+            'details': str(e)
+        }), 500
 
 @cli_controller.route('/run/drop', methods=['POST'])
 def drop_tables():
@@ -35,15 +38,25 @@ def drop_tables():
     
     Returns:
         200: Tables dropped successfully
+        500: Table drop operation failed
     """
-    db.drop_all()
-    return jsonify({'message': 'Tables dropped successfully!'})
-
+    try:
+        db.drop_all()
+        return jsonify({'message': 'Tables dropped successfully!'}), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to drop tables',
+            'details': str(e)
+        }), 500
 
 @cli_controller.route('/run/seed', methods=['POST'])
 def seed_tables():
     """
     Seed database with initial data.
+    
+    Returns:
+        200: Database seeded successfully
+        500: Seeding operation failed
     """
     try:
         # Seed Formats
@@ -184,12 +197,11 @@ def seed_tables():
         db.session.add_all(psychic_control_cards + dark_box_cards + test_dragons_cards)
         db.session.commit()       
         
-        return jsonify({'message': 'Database seeded successfully!'})
-
+        return jsonify({'message': 'Database seeded successfully!'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({
-            'error': 'seeding failed',
+            'error': 'Seeding failed',
             'details': str(e)
         }), 500
 
@@ -197,10 +209,6 @@ def seed_tables():
 def cleanup_database():
     """
     Clean up duplicate entries in database.
-    
-    Removes duplicate:
-        - Cards with same name and cardset_id
-        - Sets with same name
     
     Returns:
         200: Cleanup completed successfully with count of removed items
@@ -246,7 +254,6 @@ def cleanup_database():
             'cards_removed': cards_deleted,
             'sets_removed': sets_deleted
         }), 200
-
     except Exception as e:
         db.session.rollback()
         return jsonify({
@@ -254,17 +261,18 @@ def cleanup_database():
             'details': str(e)
         }), 500
 
-
 @cli_controller.route('/health')
 def health_check():
     """
     Check API health status.
     
     Returns:
-        200: API is running
+        200: API is running with timestamp
     """
-    return jsonify({'status': 'API is running!'}), 200
-
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat()
+    }), 200
 
 @cli_controller.route('/routes', methods=['GET'])
 def list_routes():
@@ -274,15 +282,21 @@ def list_routes():
     Returns:
         200: List of all registered routes and their methods
     """
-    routes = []
-    for rule in current_app.url_map.iter_rules():
-        routes.append({
-            'endpoint': rule.endpoint,
-            'methods': list(rule.methods),
-            'path': str(rule)
-        })
-    
-    return jsonify({
-        'available_routes': routes,
-        'total_routes': len(routes)
-    }), 200
+    try:
+        routes = []
+        for rule in current_app.url_map.iter_rules():
+            routes.append({
+                'endpoint': rule.endpoint,
+                'methods': list(rule.methods),
+                'path': str(rule)
+            })
+        
+        return jsonify({
+            'available_routes': routes,
+            'total_routes': len(routes)
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to list routes',
+            'details': str(e)
+        }), 500

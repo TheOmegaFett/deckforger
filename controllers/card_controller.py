@@ -53,34 +53,30 @@ def create_card():
     
     Request Body:
         name (str): Name of the card
-        type (str): Type of the card (grass, fire, water, etc.)
+        cardtype_id (int): ID of the card type
         cardset_id (int): ID of the set this card belongs to
         
     Returns:
         201: Card created successfully
         400: Missing required fields
-        409: Card already exists in set
+        500: Database operation failed
     """
-    data = request.json
+    try:
+        data = request.json
+        if not all(key in data for key in ['name', 'cardtype_id', 'cardset_id']):
+            return jsonify({'error': 'Missing required fields'}), 400
 
-    if not data.get('name') or not data.get('cardtype') or not data.get('cardset_id'):
-        return jsonify({'error': 'Name, cardtype, and cardset_id are required fields.'}), 400
-
-    stmt = db.select(Card).filter_by(name=data['name'], cardset_id=data['cardset_id'])
-    existing_card = db.session.scalar(stmt)
-
-    if existing_card:
-        return jsonify({'error': f'Card \'{data["name"]}\' already exists in this set'}), 409
-
-    card = Card(
-        name=data['name'],
-        cardtype=data['cardtype'],
-        cardset_id=data['cardset_id']
-    )
-    db.session.add(card)
-    db.session.commit()
-    return card_schema.jsonify(card), 201
-
+        card = Card(
+            name=data['name'],
+            cardtype_id=data['cardtype_id'],
+            cardset_id=data['cardset_id']
+        )
+        db.session.add(card)
+        db.session.commit()
+        return card_schema.jsonify(card), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create card', 'details': str(e)}), 500
 
 @card_controller.route('/', methods=['GET'])
 def get_all_cards():
@@ -89,11 +85,14 @@ def get_all_cards():
     
     Returns:
         200: List of all cards
+        500: Database query failed
     """
-    stmt = db.select(Card)
-    cards = db.session.scalars(stmt).all()
-    return cards_schema.jsonify(cards), 200
-
+    try:
+        stmt = db.select(Card)
+        cards = db.session.scalars(stmt).all()
+        return cards_schema.jsonify(cards), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve cards', 'details': str(e)}), 500
 
 @card_controller.route('/<int:card_id>', methods=['GET'])
 def get_one_card(card_id):
@@ -106,12 +105,15 @@ def get_one_card(card_id):
     Returns:
         200: Card details
         404: Card not found
+        500: Database query failed
     """
-    card = db.session.get(Card, card_id)
-    if not card:
-        return jsonify({'error': 'Card not found'}), 404
-    return card_schema.jsonify(card), 200
-
+    try:
+        card = db.session.get(Card, card_id)
+        if not card:
+            return jsonify({'error': 'Card not found'}), 404
+        return card_schema.jsonify(card), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve card', 'details': str(e)}), 500
 
 @card_controller.route('/<int:card_id>', methods=['PUT'])
 def update_card(card_id):
@@ -123,7 +125,7 @@ def update_card(card_id):
         
     Request Body:
         name (str, optional): New name for the card
-        cardtype (str, optional): New type for the card
+        cardtype_id (int, optional): New type ID for the card
         cardset_id (int, optional): New set ID for the card
         
     Returns:
@@ -131,25 +133,21 @@ def update_card(card_id):
         404: Card not found
         500: Database operation failed
     """
-    card = db.session.get(Card, card_id)
-    if not card:
-        return jsonify({'error': 'Card not found'}), 404
-
-    data = request.json
-    card.name = data.get('name', card.name)
-    card.cardtype = data.get('cardtype', card.cardtype)
-    card.cardset_id = data.get('cardset_id', card.cardset_id)
-
     try:
+        card = db.session.get(Card, card_id)
+        if not card:
+            return jsonify({'error': 'Card not found'}), 404
+
+        data = request.json
+        card.name = data.get('name', card.name)
+        card.cardtype_id = data.get('cardtype_id', card.cardtype_id)
+        card.cardset_id = data.get('cardset_id', card.cardset_id)
+
         db.session.commit()
+        return card_schema.jsonify(card), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({
-            'error': 'Database operation failed',
-            'details': str(e)
-        }), 500
-    return card_schema.jsonify(card), 200
-
+        return jsonify({'error': 'Failed to update card', 'details': str(e)}), 500
 
 @card_controller.route('/<int:card_id>', methods=['DELETE'])
 def delete_card(card_id):
@@ -162,59 +160,19 @@ def delete_card(card_id):
     Returns:
         200: Card deleted successfully
         404: Card not found
+        500: Database operation failed
     """
-    card = db.session.get(Card, card_id)
-    if not card:
-        return jsonify({'error': 'Card not found'}), 404
+    try:
+        card = db.session.get(Card, card_id)
+        if not card:
+            return jsonify({'error': 'Card not found'}), 404
 
-    db.session.delete(card)
-    db.session.commit()
-    return jsonify({'message': 'Card deleted successfully!'}), 200
-
-
-@card_controller.route('/search', methods=['GET'])
-def search_cards():
-    """
-    Search for Pokemon cards using filters.
-    
-    Search Parameters:
-        name (str, optional): Card name to search for
-        type (str, optional): Card type to filter by
-        cardset_id (int, optional): Set ID to filter by
-        
-    Returns:
-        200: List of matching cards
-    """
-    stmt = db.select(Card)
-    
-    if name := request.args.get('name'):
-        stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
-    if card_type := request.args.get('cardtype'):
-        stmt = stmt.filter(Card.cardtype.ilike(f'%{card_type}%'))
-    if cardset_id := request.args.get('cardset_id'):
-        stmt = stmt.filter(Card.cardset_id == cardset_id)
-        
-    cards = db.session.scalars(stmt).all()
-    return cards_schema.jsonify(cards), 200
-
-@card_controller.route('/filter/by-multiple-sets', methods=['GET'])
-def filter_by_multiple_sets():
-    """
-    Filter cards by multiple set IDs.
-    
-    Query Parameters:
-        sets (str): Comma-separated list of set IDs
-        
-    Returns:
-        200: List of cards from specified sets
-    """
-    if set_ids := request.args.get('sets'):
-        set_id_list = [int(id) for id in set_ids.split(',')]
-        stmt = db.select(Card).filter(Card.cardset_id.in_(set_id_list))
-        cards = db.session.scalars(stmt).all()
-        return cards_schema.jsonify(cards), 200
-    
-    return jsonify({'error': 'No set IDs provided'}), 400
+        db.session.delete(card)
+        db.session.commit()
+        return jsonify({'message': 'Card deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete card', 'details': str(e)}), 500
 
 @card_controller.route('/filter/by-multiple-types', methods=['GET'])
 def filter_by_multiple_types():
@@ -226,21 +184,38 @@ def filter_by_multiple_types():
         
     Returns:
         200: List of cards matching the specified types
-        {
-            "cards": [
-                {
-                    "id": 1,
-                    "name": "Charizard",
-                    "cardtype": {"name": "Fire"},
-                    "cardset": {"name": "Base Set"}
-                }
-            ]
-        }
+        400: No types provided
+        500: Filter operation failed
     """
-    if type_names := request.args.get('types'):
-        type_list = [type_name.strip().capitalize() for type_name in type_names.split(',')]
-        stmt = db.select(Card).join(CardType).filter(CardType.name.in_(type_list))
-        cards = db.session.scalars(stmt).all()
-        return cards_schema.jsonify(cards), 200
+    try:
+        if type_names := request.args.get('types'):
+            type_list = [type_name.strip().capitalize() for type_name in type_names.split(',')]
+            stmt = db.select(Card).join(CardType).filter(CardType.name.in_(type_list))
+            cards = db.session.scalars(stmt).all()
+            return cards_schema.jsonify(cards), 200
+        return jsonify({'error': 'No types provided'}), 400
+    except Exception as e:
+        return jsonify({'error': 'Failed to filter cards', 'details': str(e)}), 500
+
+@card_controller.route('/filter/by-multiple-sets', methods=['GET'])
+def filter_by_multiple_sets():
+    """
+    Filter cards by multiple set IDs.
     
-    return jsonify({'message': 'Please provide card types to filter by'}), 400
+    Query Parameters:
+        sets (str): Comma-separated list of set IDs
+        
+    Returns:
+        200: List of cards from specified sets
+        400: No set IDs provided
+        500: Filter operation failed
+    """
+    try:
+        if set_ids := request.args.get('sets'):
+            set_id_list = [int(id) for id in set_ids.split(',')]
+            stmt = db.select(Card).filter(Card.cardset_id.in_(set_id_list))
+            cards = db.session.scalars(stmt).all()
+            return cards_schema.jsonify(cards), 200
+        return jsonify({'error': 'No set IDs provided'}), 400
+    except Exception as e:
+        return jsonify({'error': 'Failed to filter cards', 'details': str(e)}), 500

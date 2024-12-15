@@ -11,31 +11,12 @@ from models.deck import Deck
 from schemas.deckbox_schema import DeckBoxSchema
 from schemas.deck_schema import DeckSchema
 
-
 # Blueprint and Schema Setup
 deckbox_controller = Blueprint('deckbox_controller', __name__)
 deckbox_schema = DeckBoxSchema()
 deckboxes_schema = DeckBoxSchema(many=True)
 deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
-
-
-@validates('name')
-def validate_name(self, value):
-    """
-    Validate deckbox name length.
-    
-    Parameters:
-        value (str): Name to validate
-        
-    Raises:
-        ValidationError: If name is empty or too long
-    """
-    if len(value) < 1:
-        raise ValidationError('Deckbox name must not be empty')
-    if len(value) > 50:
-        raise ValidationError('Deckbox name must be less than 50 characters')
-
 
 @deckbox_controller.route('/', methods=['POST'])
 def create_deckbox():
@@ -49,16 +30,20 @@ def create_deckbox():
     Returns:
         201: Deck box created successfully
         400: Invalid input data
+        500: Database operation failed
     """
-    data = request.json
-    deckbox = DeckBox(
-        name=data['name'],
-        description=data.get('description', '')
-    )
-    db.session.add(deckbox)
-    db.session.commit()
-    return deckbox_schema.jsonify(deckbox), 201
-
+    try:
+        data = request.json
+        deckbox = DeckBox(
+            name=data['name'],
+            description=data.get('description', '')
+        )
+        db.session.add(deckbox)
+        db.session.commit()
+        return deckbox_schema.jsonify(deckbox), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create deckbox', 'details': str(e)}), 500
 
 @deckbox_controller.route('/', methods=['GET'])
 def read_all_deckboxes():
@@ -67,11 +52,14 @@ def read_all_deckboxes():
     
     Returns:
         200: List of all deck boxes
+        500: Database query failed
     """
-    stmt = db.select(DeckBox)
-    deckboxes = db.session.scalars(stmt).all()
-    return deckboxes_schema.jsonify(deckboxes)
-
+    try:
+        stmt = db.select(DeckBox)
+        deckboxes = db.session.scalars(stmt).all()
+        return deckboxes_schema.jsonify(deckboxes), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve deckboxes', 'details': str(e)}), 500
 
 @deckbox_controller.route('/<int:deckbox_id>', methods=['GET'])
 def read_one_deckbox(deckbox_id):
@@ -84,12 +72,15 @@ def read_one_deckbox(deckbox_id):
     Returns:
         200: Deck box details
         404: Deck box not found
+        500: Database query failed
     """
-    deckbox = db.session.get(DeckBox, deckbox_id)
-    if not deckbox:
-        return jsonify({'error': 'DeckBox not found'}), 404
-    return deckbox_schema.jsonify(deckbox)
-
+    try:
+        deckbox = db.session.get(DeckBox, deckbox_id)
+        if not deckbox:
+            return jsonify({'error': 'DeckBox not found'}), 404
+        return deckbox_schema.jsonify(deckbox), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve deckbox', 'details': str(e)}), 500
 
 @deckbox_controller.route('/<int:deckbox_id>', methods=['PUT'])
 def update_deckbox(deckbox_id):
@@ -106,17 +97,21 @@ def update_deckbox(deckbox_id):
     Returns:
         200: Deck box updated successfully
         404: Deck box not found
+        500: Database operation failed
     """
-    deckbox = db.session.get(DeckBox, deckbox_id)
-    if not deckbox:
-        return jsonify({'error': 'DeckBox not found'}), 404
+    try:
+        deckbox = db.session.get(DeckBox, deckbox_id)
+        if not deckbox:
+            return jsonify({'error': 'DeckBox not found'}), 404
 
-    data = request.json
-    deckbox.name = data.get('name', deckbox.name)
-    deckbox.description = data.get('description', deckbox.description)
-    db.session.commit()
-    return deckbox_schema.jsonify(deckbox)
-
+        data = request.json
+        deckbox.name = data.get('name', deckbox.name)
+        deckbox.description = data.get('description', deckbox.description)
+        db.session.commit()
+        return deckbox_schema.jsonify(deckbox), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update deckbox', 'details': str(e)}), 500
 
 @deckbox_controller.route('/<int:deckbox_id>', methods=['DELETE'])
 def delete_deckbox(deckbox_id):
@@ -129,15 +124,19 @@ def delete_deckbox(deckbox_id):
     Returns:
         200: Deck box deleted successfully
         404: Deck box not found
+        500: Database operation failed
     """
-    deckbox = db.session.get(DeckBox, deckbox_id)
-    if not deckbox:
-        return jsonify({'error': 'DeckBox not found'}), 404
+    try:
+        deckbox = db.session.get(DeckBox, deckbox_id)
+        if not deckbox:
+            return jsonify({'error': 'DeckBox not found'}), 404
 
-    db.session.delete(deckbox)
-    db.session.commit()
-    return jsonify({'message': 'DeckBox deleted successfully!'})
-
+        db.session.delete(deckbox)
+        db.session.commit()
+        return jsonify({'message': 'DeckBox deleted successfully!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete deckbox', 'details': str(e)}), 500
 
 @deckbox_controller.route('/<int:deckbox_id>/decks', methods=['GET'])
 def show_decks_in_deckbox(deckbox_id):
@@ -150,13 +149,15 @@ def show_decks_in_deckbox(deckbox_id):
     Returns:
         200: List of decks in the deck box
         404: Deck box not found
+        500: Database query failed
     """
-    deckbox = db.session.get(DeckBox, deckbox_id)
-    if not deckbox:
-        return jsonify({'error': 'DeckBox not found'}), 404
-
-    return decks_schema.jsonify(deckbox.decks)
-
+    try:
+        deckbox = db.session.get(DeckBox, deckbox_id)
+        if not deckbox:
+            return jsonify({'error': 'DeckBox not found'}), 404
+        return decks_schema.jsonify(deckbox.decks), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve decks', 'details': str(e)}), 500
 
 @deckbox_controller.route('/<int:deckbox_id>/decks', methods=['POST'])
 def add_deck_to_deckbox(deckbox_id):
@@ -174,49 +175,26 @@ def add_deck_to_deckbox(deckbox_id):
     Returns:
         201: Deck added successfully
         404: Deck box not found
+        500: Database operation failed
     """
-    deckbox = db.session.get(DeckBox, deckbox_id)
-    if not deckbox:
-        return jsonify({'error': 'DeckBox not found'}), 404
+    try:
+        deckbox = db.session.get(DeckBox, deckbox_id)
+        if not deckbox:
+            return jsonify({'error': 'DeckBox not found'}), 404
 
-    data = request.json
-    deck = Deck(
-        name=data['name'],
-        description=data.get('description', ''),
-        format=data.get('format', 'Standard'),
-        deckbox_id=deckbox_id
-    )
-    db.session.add(deck)
-    db.session.commit()
-
-    return deck_schema.jsonify(deck), 201
-
-
-@deckbox_controller.route('/<int:deckbox_id>/decks/<int:deck_id>', methods=['DELETE'])
-def remove_deck_from_deckbox(deckbox_id, deck_id):
-    """
-    Remove a deck from a deck box.
-    
-    Parameters:
-        deckbox_id (int): ID of the deck box containing the deck
-        deck_id (int): ID of the deck to remove
-        
-    Returns:
-        200: Deck removed successfully
-        404: Deck box or deck not found
-    """
-    deckbox = db.session.get(DeckBox, deckbox_id)
-    if not deckbox:
-        return jsonify({'error': 'DeckBox not found'}), 404
-
-    stmt = db.select(Deck).filter_by(id=deck_id, deckbox_id=deckbox_id)
-    deck = db.session.scalar(stmt)
-    if not deck:
-        return jsonify({'error': 'Deck not found in this DeckBox'}), 404
-
-    db.session.delete(deck)
-    db.session.commit()
-    return jsonify({'message': 'Deck removed from DeckBox successfully!'})
+        data = request.json
+        deck = Deck(
+            name=data['name'],
+            description=data.get('description', ''),
+            format=data.get('format', 'Standard'),
+            deckbox_id=deckbox_id
+        )
+        db.session.add(deck)
+        db.session.commit()
+        return deck_schema.jsonify(deck), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to add deck', 'details': str(e)}), 500
 
 @deckbox_controller.route('/search', methods=['GET'])
 def search_deckboxes():
@@ -228,14 +206,16 @@ def search_deckboxes():
         
     Returns:
         200: List of matching deckboxes
+        500: Search operation failed
     """
-    stmt = db.select(DeckBox)
-    
-    if name := request.args.get('name'):
-        stmt = stmt.filter(DeckBox.name.ilike(f'%{name}%'))
-        
-    deckboxes = db.session.scalars(stmt).all()
-    return deckboxes_schema.jsonify(deckboxes), 200
+    try:
+        stmt = db.select(DeckBox)
+        if name := request.args.get('name'):
+            stmt = stmt.filter(DeckBox.name.ilike(f'%{name}%'))
+        deckboxes = db.session.scalars(stmt).all()
+        return deckboxes_schema.jsonify(deckboxes), 200
+    except Exception as e:
+        return jsonify({'error': 'Search failed', 'details': str(e)}), 500
 
 @deckbox_controller.route('/<int:deckbox_id>/decks/filter', methods=['GET'])
 def filter_deckbox_decks(deckbox_id):
@@ -250,19 +230,23 @@ def filter_deckbox_decks(deckbox_id):
         name (str): Filter by deck name
         
     Returns:
-        200: Filtered list of decks in the deckbox
+        200: Filtered list of decks
         404: Deckbox not found
+        500: Filter operation failed
     """
-    deckbox = db.session.get(DeckBox, deckbox_id)
-    if not deckbox:
-        return jsonify({'error': 'Deckbox not found'}), 404
+    try:
+        deckbox = db.session.get(DeckBox, deckbox_id)
+        if not deckbox:
+            return jsonify({'error': 'Deckbox not found'}), 404
 
-    stmt = db.select(Deck).filter(Deck.deckbox_id == deckbox_id)
-    
-    if format_name := request.args.get('format'):
-        stmt = stmt.filter(Deck.format.ilike(f'%{format_name}%'))
-    if deck_name := request.args.get('name'):
-        stmt = stmt.filter(Deck.name.ilike(f'%{deck_name}%'))
+        stmt = db.select(Deck).filter(Deck.deckbox_id == deckbox_id)
         
-    decks = db.session.scalars(stmt).all()
-    return decks_schema.jsonify(decks), 200
+        if format_name := request.args.get('format'):
+            stmt = stmt.filter(Deck.format.ilike(f'%{format_name}%'))
+        if deck_name := request.args.get('name'):
+            stmt = stmt.filter(Deck.name.ilike(f'%{deck_name}%'))
+            
+        decks = db.session.scalars(stmt).all()
+        return decks_schema.jsonify(decks), 200
+    except Exception as e:
+        return jsonify({'error': 'Filter failed', 'details': str(e)}), 500
