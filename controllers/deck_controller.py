@@ -72,6 +72,17 @@ def validate_deck(deck_id, format_id):
     if card_count != 60:
         raise ValidationError(f'Deck must contain exactly 60 cards. Current count: {card_count}')
 
+@deck_controller.route('/', methods=['GET'])
+def get_all_decks():
+    """
+    Retrieve all Pokemon TCG decks.
+    
+    Returns:
+        200: List of all decks
+    """
+    stmt = db.select(Deck)
+    decks = db.session.scalars(stmt).all()
+    return decks_schema.jsonify(decks), 200
 
 @deck_controller.route('/', methods=['POST'])
 def create_deck():
@@ -179,3 +190,4 @@ def validate_deck_rules(deck_id):
             'error': str(e),
             'deck_id': deck_id
         }), 500
+
