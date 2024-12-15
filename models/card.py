@@ -16,7 +16,6 @@ class Card(db.Model):
     # Relationships
     cardset = db.relationship('CardSet', back_populates='cards')
     cardtype = db.relationship('CardType', back_populates='cards')
-    formats = db.relationship('Format', back_populates='cards')
 
     def __repr__(self):
         return f'<Card {self.name}>'
