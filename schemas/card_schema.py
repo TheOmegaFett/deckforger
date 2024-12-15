@@ -14,7 +14,7 @@ class CardSchema(ma.Schema):
         ordered = True
     
     # Relationships
-    cardset = db.relationship("CardSet", backref="cards")
+    cardset = ma.relationship("CardSet", backref="cards")
 
 # Schema instances
 card_schema = CardSchema()
