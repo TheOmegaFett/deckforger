@@ -154,34 +154,29 @@ def get_card_distribution():
     
     Returns:
         200: Card distribution statistics per set
-        {
-            "set_name": {
-                "total_cards": count,
-                "types": {
-                    "type_name": count
-                }
-            }
-        }
     """
-    stmt = db.select(
-        CardSet.name,
-        CardType.name.label('type_name'),
-        func.count(Card.id).label('card_count')
-    ).\
-    join(Card).\
-    join(CardType).\
-    group_by(CardSet.name, CardType.name)
+    # Query to get card type distribution per set
+    stmt = (
+        db.select(
+            CardSet.name.label('set_name'),
+            CardType.name.label('type_name'),
+            func.count(Card.id).label('count')
+        )
+        .join(Card, CardSet.id == Card.cardset_id)
+        .join(CardType, Card.cardtype_id == CardType.id)
+        .group_by(CardSet.name, CardType.name)
+        .order_by(CardSet.name)
+    )
     
     results = db.session.execute(stmt).all()
     
+    # Organize results by set
     distribution = {}
     for result in results:
-        if result.name not in distribution:
-            distribution[result.name] = {
-                "total_cards": 0,
-                "types": {}
-            }
-        distribution[result.name]["types"][result.type_name] = result.card_count
-        distribution[result.name]["total_cards"] += result.card_count
-    
+        set_name = result.set_name
+        if set_name not in distribution:
+            distribution[set_name] = {'types': {}}
+        distribution[set_name]['types'][result.type_name] = result.count
+        
+    return jsonify(distribution), 200
     return jsonify(distribution), 200
