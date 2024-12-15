@@ -87,8 +87,8 @@ def get_type_popularity():
         500: Statistics calculation failed
     """
     try:
-        popularity_query = (
-            db.session.query(
+        stmt = (
+            db.select(
                 CardType,
                 func.count(DeckCard.id).label('usage_count')
             )
@@ -99,11 +99,11 @@ def get_type_popularity():
             .order_by(desc('usage_count'))
         )
         
-        results = popularity_query.all()
+        results = db.session.execute(stmt).all()
         return jsonify([{
             'card_type': cardtype[0].name,
             'usage_count': cardtype[1]
-        } for cardtype in results]), 200
+        } for cardtype in results]), 200   
     except Exception as e:
         return jsonify({'error': 'Failed to calculate type popularity', 'details': str(e)}), 500
 
