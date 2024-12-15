@@ -27,7 +27,7 @@ class SetSchema(ma.SQLAlchemySchema):
     release_date = ma.auto_field(required=True)
     description = ma.auto_field(required=True)
     
-    # Enhanced relationships
+    # Relationships
     cards = ma.Nested('CardSchema', many=True, exclude=('set_id',))
 
 cardset_schema = SetSchema()
