@@ -50,7 +50,7 @@ flask run/seed
 ### Decks
 
 - POST /api/decks/ - Create new deck
-- PUT /api/decks/{deck_id} - Update deck
+- PATCH /api/decks/{deck_id} - Update deck
 - GET /api/decks/validate/{deck_id} - Validate deck rules
 
 ### Deck Filtering
@@ -59,12 +59,14 @@ flask run/seed
 - GET /api/decks/filter/by-cardtype - Get decks by card type distribution
 - GET /api/decks/filter/by-cardset - Get decks containing cards from specific sets
 - GET /api/decks/top-rated - Get top rated decks
-- GET /api/decks/filter/by-rating-range?min=4&max=5 - Filter decks by rating range### Deck Boxes
+- GET /api/decks/filter/by-rating-range?min=4&max=5 - Filter decks by rating range
+
+### Deck Boxes
 
 - POST /api/deckboxes/ - Create deck box
 - GET /api/deckboxes/ - List all deck boxes
 - GET /api/deckboxes/{deckbox_id} - Get specific deck box
-- PUT /api/deckboxes/{deckbox_id} - Update deck box
+- PATCH /api/deckboxes/{deckbox_id} - Update deck box
 - DELETE /api/deckboxes/{deckbox_id} - Delete deck box
 - GET /api/deckboxes/{deckbox_id}/decks - List decks in box
 - POST /api/deckboxes/{deckbox_id}/decks - Add deck to box
@@ -75,7 +77,7 @@ flask run/seed
 - POST /api/cards/ - Create card
 - GET /api/cards/ - List all cards
 - GET /api/cards/{card_id} - Get specific card
-- PUT /api/cards/{card_id} - Update card
+- PATCH /api/cards/{card_id} - Update card
 - DELETE /api/cards/{card_id} - Delete card
 - GET /api/cards/search - Search cards
 
@@ -84,14 +86,14 @@ flask run/seed
 - POST /api/deckcards/{deck_id}/cards - Add cards to deck
 - GET /api/deckcards/{deck_id}/cards - View cards in deck
 - DELETE /api/deckcards/{deck_id}/cards/{card_id} - Remove card from deck
-- PUT /api/deckcards/{deck_id} - Update deck cards
+- PATCH /api/deckcards/{deck_id} - Update deck cards
 
 ### Card Sets
 
 - POST /api/cardsets/ - Create set
 - GET /api/cardsets/ - List all sets
 - GET /api/cardsets/{cardset_id} - Get specific set
-- PUT /api/cardsets/{cardset_id} - Update set
+- PATCH /api/cardsets/{cardset_id} - Update set
 - DELETE /api/cardsets/{cardset_id} - Delete set
 - GET /api/cardsets/search - Search sets
 - GET /api/cardsets/stats/card-distribution - Get card type distribution within sets
@@ -102,7 +104,7 @@ flask run/seed
 - GET /api/formats/ - List all formats
 - GET /api/formats/{format_id} - Get specific format
 - POST /api/formats/ - Create format
-- PUT /api/formats/{format_id} - Update format
+- PATCH /api/formats/{format_id} - Update format
 - DELETE /api/formats/{format_id} - Delete format
 
 ### Card Types
@@ -110,7 +112,7 @@ flask run/seed
 - GET /api/cardtypes/ - List all card types
 - GET /api/cardtypes/{cardtype_id} - Get specific card type
 - POST /api/cardtypes/ - Create new card type
-- PUT /api/cardtypes/{type_id} - Update card type
+- PATCH /api/cardtypes/{type_id} - Update card type
 - DELETE /api/cardtypes/{type_id} - Delete card type
 - GET /api/cardtypes/popularity-in-decks - Get popularity of card types in decks
 - GET /api/cardtypes/distribution-by-set - Get distribution of types across sets
@@ -120,7 +122,7 @@ flask run/seed
 - POST /api/ratings/ - Create new rating
 - GET /api/ratings/ - List all ratings
 - GET /api/ratings/{rating_id} - Get specific rating
-- PUT /api/ratings/{rating_id} - Update rating
+- PATCH /api/ratings/{rating_id} - Update rating
 - DELETE /api/ratings/{rating_id} - Delete rating
 
 ## Database Schema

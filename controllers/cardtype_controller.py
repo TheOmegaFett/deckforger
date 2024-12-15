@@ -2,7 +2,7 @@
 
 # Third-party imports
 from flask import Blueprint, jsonify
-from sqlalchemy import func, text
+from sqlalchemy import desc, func, text
 from init import db
 
 # Local application imports
@@ -76,7 +76,7 @@ def get_cards_by_type(cardtype_id):
     except Exception as e:
         return jsonify({'error': 'Failed to retrieve cards', 'details': str(e)}), 500
 
-@cardtype_controller.route('/popularity-in-decks', methods=['GET'])
+@cardtype_controller.route('/popularity-in-decks')
 def get_type_popularity():
     """
     Get popularity statistics of card types across all decks.
@@ -86,19 +86,22 @@ def get_type_popularity():
         500: Statistics calculation failed
     """
     try:
-        stmt = db.select(
-            CardType.name,
-            func.count(DeckCard.id).label('usage_count')
-        ).\
-        join(Card).join(DeckCard).\
-        group_by(CardType.name).\
-        order_by(text('usage_count DESC'))
+        popularity_query = (
+            db.session.query(
+                CardType,
+                func.count(DeckCard.id).label('usage_count')
+            )
+            .select_from(CardType)
+            .join(Card, Card.cardtype_id == CardType.id)
+            .join(DeckCard, DeckCard.card_id == Card.id)            .group_by(CardType.id)
+            .order_by(desc('usage_count'))
+        )
         
-        popularity = db.session.execute(stmt).all()
+        results = popularity_query.all()
         return jsonify([{
-            'type': p.name,
-            'usage_count': p.usage_count
-        } for p in popularity]), 200
+            'card_type': type.name,
+            'usage_count': count
+        } for type, count in results]), 200
     except Exception as e:
         return jsonify({'error': 'Failed to calculate type popularity', 'details': str(e)}), 500
 
