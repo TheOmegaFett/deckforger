@@ -134,12 +134,13 @@ def search_by_name(name):
 
 @cardset_controller.route('/<int:set_id>/cards', methods=['GET'])
 def get_cards_in_set(set_id):
+    """Get all cards in a specific set"""
     stmt = db.select(CardSet).filter_by(id=set_id)
-    set = db.session.scalar(stmt)
-    if not set:
+    cardset = db.session.scalar(stmt)
+    if not cardset:
         return {'error': 'Set not found'}, 404
     return jsonify([{
         'id': card.id,
         'name': card.name,
         'cardtype': card.cardtype.name
-    } for card in set.cards])
+    } for card in cardset.cards])
