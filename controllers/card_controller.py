@@ -24,15 +24,15 @@ def validate_name(self, value):
         raise ValidationError('Name must be less than 100 characters')
 
 
-@validates('type')
+@validates('cardtype')
 def validate_type(self, value):
     try:
        
         if not isinstance(value, str):
             raise ValidationError('Card type must be text')
         # Get valid Pokemon types from database
-        stmt = db.select(Card.type).distinct()
-        valid_types = [type.lower() for type in db.session.scalars(stmt).all()]
+        stmt = db.select(Card.cardtype).distinct()
+        valid_types = [cardtype.lower() for cardtype in db.session.scalars(stmt).all()]
         if value.lower() not in valid_types:
             raise ValidationError('Invalid Pokemon card type')
     except (ValueError, TypeError):
@@ -63,8 +63,8 @@ def create_card():
     """
     data = request.json
 
-    if not data.get('name') or not data.get('type') or not data.get('set_id'):
-        return jsonify({'error': 'Name, type, and set_id are required fields.'}), 400
+    if not data.get('name') or not data.get('cardtype') or not data.get('set_id'):
+        return jsonify({'error': 'Name, cardtype, and set_id are required fields.'}), 400
 
     stmt = db.select(Card).filter_by(name=data['name'], set_id=data['set_id'])
     existing_card = db.session.scalar(stmt)
@@ -74,7 +74,7 @@ def create_card():
 
     card = Card(
         name=data['name'],
-        type=data['type'],
+        cardtype=data['cardtype'],
         set_id=data['set_id']
     )
     db.session.add(card)
@@ -123,7 +123,7 @@ def update_card(card_id):
         
     Request Body:
         name (str, optional): New name for the card
-        type (str, optional): New type for the card
+        cardtype (str, optional): New type for the card
         set_id (int, optional): New set ID for the card
         
     Returns:
@@ -137,7 +137,7 @@ def update_card(card_id):
 
     data = request.json
     card.name = data.get('name', card.name)
-    card.type = data.get('type', card.type)
+    card.cardtype = data.get('cardtype', card.cardtype)
     card.set_id = data.get('set_id', card.set_id)
 
     try:
@@ -189,8 +189,8 @@ def search_cards():
     
     if name := request.args.get('name'):
         stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
-    if card_type := request.args.get('type'):
-        stmt = stmt.filter(Card.type.ilike(f'%{card_type}%'))
+    if card_type := request.args.get('cardtype'):
+        stmt = stmt.filter(Card.cardtype.ilike(f'%{card_type}%'))
     if set_id := request.args.get('set_id'):
         stmt = stmt.filter(Card.set_id == set_id)
         

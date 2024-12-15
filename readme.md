@@ -100,7 +100,7 @@ flask run/seed
 ### Card Types
 
 - GET /api/cardtypes/ - List all card types
-- GET /api/cardtypes/{type_id} - Get specific card type
+- GET /api/cardtypes/{cardtype_id} - Get specific card type
 - POST /api/cardtypes/ - Create new card type
 - PUT /api/cardtypes/{type_id} - Update card type
 - DELETE /api/cardtypes/{type_id} - Delete card type
@@ -163,7 +163,7 @@ POST /api/decks/{deck_id}/ratings
 
 ```python
 # Search for Fire-type cards
-GET /api/cards/search?type=fire
+GET /api/cards/search?cardtype=fire
 
 # Search by set
 GET /api/cards/search?set_id=1

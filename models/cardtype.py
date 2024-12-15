@@ -18,7 +18,7 @@ class CardType(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     
     # Relationships
-    cards = db.relationship('Card', back_populates='type')
+    cards = db.relationship('Card', back_populates='cardtype')
 
     def __repr__(self):
         return f'<CardType {self.name}>'
