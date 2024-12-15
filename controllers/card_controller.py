@@ -215,3 +215,32 @@ def filter_by_multiple_sets():
         return cards_schema.jsonify(cards), 200
     
     return jsonify({'error': 'No set IDs provided'}), 400
+
+@card_controller.route('/filter/by-multiple-types', methods=['GET'])
+def filter_by_multiple_types():
+    """
+    Filter cards by multiple card types.
+    
+    Query Parameters:
+        types (str): Comma-separated list of card types (e.g. fire,water)
+        
+    Returns:
+        200: List of cards matching the specified types
+        {
+            "cards": [
+                {
+                    "id": 1,
+                    "name": "Charizard",
+                    "cardtype": {"name": "Fire"},
+                    "cardset": {"name": "Base Set"}
+                }
+            ]
+        }
+    """
+    if type_names := request.args.get('types'):
+        type_list = [type_name.strip().capitalize() for type_name in type_names.split(',')]
+        stmt = db.select(Card).join(CardType).filter(CardType.name.in_(type_list))
+        cards = db.session.scalars(stmt).all()
+        return cards_schema.jsonify(cards), 200
+    
+    return jsonify({'message': 'Please provide card types to filter by'}), 400

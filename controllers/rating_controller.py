@@ -130,3 +130,73 @@ def get_average_rating(deck_id):
 
     average = sum(rating.score for rating in ratings) / len(ratings)
     return jsonify({'average': round(average, 2), 'deck_id': deck_id})
+
+@rating_controller.route('/decks/top-rated', methods=['GET'])
+def get_top_rated_decks():
+    """
+    Get highest rated decks based on average ratings.
+    
+    Query Parameters:
+        limit (int): Number of decks to return (default 10)
+        
+    Returns:
+        200: List of top rated decks with their average ratings
+    """
+    limit = request.args.get('limit', 10, type=int)
+    
+    stmt = (
+        db.select(
+            Deck,
+            func.avg(Rating.score).label('avg_rating'),
+            func.count(Rating.id).label('rating_count')
+        )
+        .join(Rating)
+        .group_by(Deck)
+        .order_by(text('avg_rating DESC'))
+        .limit(limit)
+    )
+    
+    results = db.session.execute(stmt).all()
+    return jsonify([{
+        'deck_id': result.Deck.id,
+        'name': result.Deck.name,
+        'average_rating': float(result.avg_rating),
+        'total_ratings': result.rating_count
+    } for result in results]), 200
+
+@rating_controller.route('/decks/filter/by-rating-range', methods=['GET'])
+def filter_decks_by_rating():
+    """
+    Filter decks by average rating range.
+    
+    Query Parameters:
+        min (float): Minimum average rating
+        max (float): Maximum average rating
+        
+    Returns:
+        200: List of decks within specified rating range
+    """
+    min_rating = request.args.get('min', type=float)
+    max_rating = request.args.get('max', type=float)
+    
+    stmt = (
+        db.select(
+            Deck,
+            func.avg(Rating.score).label('avg_rating')
+        )
+        .join(Rating)
+        .group_by(Deck)
+        .having(
+            and_(
+                func.avg(Rating.score) >= min_rating if min_rating else true(),
+                func.avg(Rating.score) <= max_rating if max_rating else true()
+            )
+        )
+    )
+    
+    results = db.session.execute(stmt).all()
+    return jsonify([{
+        'deck_id': result.Deck.id,
+        'name': result.Deck.name,
+        'average_rating': float(result.avg_rating)
+    } for result in results]), 200

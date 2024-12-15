@@ -236,3 +236,33 @@ def search_deckboxes():
         
     deckboxes = db.session.scalars(stmt).all()
     return deckboxes_schema.jsonify(deckboxes), 200
+
+@deckbox_controller.route('/<int:deckbox_id>/decks/filter', methods=['GET'])
+def filter_deckbox_decks(deckbox_id):
+    """
+    Filter decks within a specific deckbox.
+    
+    Parameters:
+        deckbox_id (int): ID of the deckbox to filter decks from
+        
+    Query Parameters:
+        format (str): Filter by deck format
+        name (str): Filter by deck name
+        
+    Returns:
+        200: Filtered list of decks in the deckbox
+        404: Deckbox not found
+    """
+    deckbox = db.session.get(DeckBox, deckbox_id)
+    if not deckbox:
+        return jsonify({'error': 'Deckbox not found'}), 404
+
+    stmt = db.select(Deck).filter(Deck.deckbox_id == deckbox_id)
+    
+    if format_name := request.args.get('format'):
+        stmt = stmt.filter(Deck.format.ilike(f'%{format_name}%'))
+    if deck_name := request.args.get('name'):
+        stmt = stmt.filter(Deck.name.ilike(f'%{deck_name}%'))
+        
+    decks = db.session.scalars(stmt).all()
+    return decks_schema.jsonify(decks), 200
