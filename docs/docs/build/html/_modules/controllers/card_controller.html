@@ -105,10 +105,8 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;set_id&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Name, type, and set_id are required fields.&#39;</span><span class="p">}),</span> <span class="mi">400</span>
 
-    <span class="n">existing_card</span> <span class="o">=</span> <span class="n">Card</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
-        <span class="n">set_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;set_id&#39;</span><span class="p">]</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">set_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;set_id&#39;</span><span class="p">])</span>
+    <span class="n">existing_card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">existing_card</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Card </span><span class="se">\&#39;</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1"> already exists in this set&#39;</span><span class="p">}),</span> <span class="mi">409</span>
@@ -134,7 +132,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: List of all cards</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cards</span> <span class="o">=</span> <span class="n">Card</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
+    <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">cards_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">cards</span><span class="p">),</span> <span class="mi">200</span></div>
 
 
@@ -153,7 +152,7 @@
 <span class="sd">        200: Card details</span>
 <span class="sd">        404: Card not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">card</span> <span class="o">=</span> <span class="n">Card</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">card_id</span><span class="p">)</span>
+    <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
     <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">200</span></div>
@@ -180,7 +179,7 @@
 <span class="sd">        404: Card not found</span>
 <span class="sd">        500: Database operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">card</span> <span class="o">=</span> <span class="n">Card</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">card_id</span><span class="p">)</span>
+    <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
@@ -215,7 +214,7 @@
 <span class="sd">        200: Card deleted successfully</span>
 <span class="sd">        404: Card not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">card</span> <span class="o">=</span> <span class="n">Card</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">card_id</span><span class="p">)</span>
+    <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
@@ -232,7 +231,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Search for Pokemon cards using filters.</span>
 <span class="sd">    </span>
-<span class="sd">    Query Parameters:</span>
+<span class="sd">    Search Parameters:</span>
 <span class="sd">        name (str, optional): Card name to search for</span>
 <span class="sd">        type (str, optional): Card type to filter by</span>
 <span class="sd">        set_id (int, optional): Set ID to filter by</span>
@@ -240,17 +239,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: List of matching cards</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="n">card_type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="n">set_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;set_id&#39;</span><span class="p">)</span>
-    
     <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
     
-    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
         <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">card_type</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">card_type</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">):</span>
         <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">card_type</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">set_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">set_id</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;set_id&#39;</span><span class="p">):</span>
         <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">set_id</span> <span class="o">==</span> <span class="n">set_id</span><span class="p">)</span>
         
     <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>

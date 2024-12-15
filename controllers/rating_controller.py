@@ -68,9 +68,12 @@ def add_rating(deck_id):
         return jsonify({'error': 'Deck not found'}), 404
 
     data = request.json
-    score = data.get('score')
-    if not (1 <= score <= 5):
-        return jsonify({'error': 'Score must be between 1 and 5'}), 400
+    try:
+        score = int(data.get('score'))
+        if not (1 <= score <= 5):
+            return jsonify({'error': 'Score must be between 1 and 5'}), 400
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Score must be a number between 1 and 5'}), 400
 
     rating = Rating(
         deck_id=deck_id,

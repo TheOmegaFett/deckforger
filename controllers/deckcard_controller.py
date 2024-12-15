@@ -55,10 +55,12 @@ def add_cards_to_deck(deck_id):
         card = db.session.get(Card, card_id)
         if not card:
             return jsonify({'error': f'Card with ID {card_id} not found'}), 404
-
-        if quantity < 1:
-            return jsonify({'error': 'Quantity must be at least 1'}), 400
-
+        try:
+            quantity = int(item.get('quantity', 1))
+            if quantity < 1:
+                return jsonify({'error': 'Quantity must be a positive number'}), 400
+        except (ValueError, TypeError):
+                  return jsonify({'error': 'Quantity must be a valid number'}), 400
         is_basic_energy = BASIC_ENERGY_PATTERN.match(card.name)
         stmt = db.select(DeckCard).filter_by(deck_id=deck_id, card_id=card_id)
         existing_deckcard = db.session.scalar(stmt)

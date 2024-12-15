@@ -8,7 +8,7 @@ from marshmallow import ValidationError, validates
 from init import db
 from models.card import Card
 from schemas.card_schema import CardSchema
-
+from models.pokemon_types import valid_types
 
 # Blueprint and Schema initialization
 card_controller = Blueprint('card_controller', __name__)
@@ -27,11 +27,13 @@ def validate_name(self, value):
 
 @validates('type')
 def validate_type(self, value):
-    """Validate card type against allowed types"""
-    valid_types = ['grass', 'fire', 'water', 'lightning', 'fighting', 
-                   'psychic', 'colorless', 'darkness', 'metal', 'dragon', 'fairy']
-    if value.lower() not in valid_types:
-        raise ValidationError('Invalid Pokemon card type. Must be one of: ' + ', '.join(valid_types))
+    try:
+        if not isinstance(value, str):
+            raise ValidationError('Card type must be text')
+        if value.lower() not in valid_types:
+            raise ValidationError('Invalid Pokemon card type')
+    except (ValueError, TypeError):
+        raise ValidationError('Invalid card type format')
 
 
 @validates('set_id')
@@ -172,7 +174,7 @@ def search_cards():
     """
     Search for Pokemon cards using filters.
     
-    Query Parameters:
+    Search Parameters:
         name (str, optional): Card name to search for
         type (str, optional): Card type to filter by
         set_id (int, optional): Set ID to filter by

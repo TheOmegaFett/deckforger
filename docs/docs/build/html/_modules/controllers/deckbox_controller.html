@@ -109,7 +109,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: List of all deck boxes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deckboxes</span> <span class="o">=</span> <span class="n">DeckBox</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">DeckBox</span><span class="p">)</span>
+    <span class="n">deckboxes</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">deckboxes_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">deckboxes</span><span class="p">)</span></div>
 
 
@@ -128,7 +129,7 @@
 <span class="sd">        200: Deck box details</span>
 <span class="sd">        404: Deck box not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">DeckBox</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">deckbox_id</span><span class="p">)</span>
+    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DeckBox</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deckbox</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;DeckBox not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
     <span class="k">return</span> <span class="n">deckbox_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">deckbox</span><span class="p">)</span></div>
@@ -153,11 +154,11 @@
 <span class="sd">        200: Deck box updated successfully</span>
 <span class="sd">        404: Deck box not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
-    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">DeckBox</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">deckbox_id</span><span class="p">)</span>
+    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DeckBox</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deckbox</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;DeckBox not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
+    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
     <span class="n">deckbox</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">deckbox</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="n">deckbox</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="n">deckbox</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
     <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
@@ -179,7 +180,7 @@
 <span class="sd">        200: Deck box deleted successfully</span>
 <span class="sd">        404: Deck box not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">DeckBox</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">deckbox_id</span><span class="p">)</span>
+    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DeckBox</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deckbox</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;DeckBox not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
@@ -203,7 +204,7 @@
 <span class="sd">        200: List of decks in the deck box</span>
 <span class="sd">        404: Deck box not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">DeckBox</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">deckbox_id</span><span class="p">)</span>
+    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DeckBox</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deckbox</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;DeckBox not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
@@ -230,11 +231,11 @@
 <span class="sd">        201: Deck added successfully</span>
 <span class="sd">        404: Deck box not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
-    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">DeckBox</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">deckbox_id</span><span class="p">)</span>
+    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DeckBox</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deckbox</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;DeckBox not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
+    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
     <span class="n">deck</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
         <span class="n">description</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
@@ -263,11 +264,12 @@
 <span class="sd">        200: Deck removed successfully</span>
 <span class="sd">        404: Deck box or deck not found</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">DeckBox</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">deckbox_id</span><span class="p">)</span>
+    <span class="n">deckbox</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DeckBox</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deckbox</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;DeckBox not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
-    <span class="n">deck</span> <span class="o">=</span> <span class="n">Deck</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">deck_id</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="o">=</span><span class="n">deckbox_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">deck_id</span><span class="p">,</span> <span class="n">deckbox_id</span><span class="o">=</span><span class="n">deckbox_id</span><span class="p">)</span>
+    <span class="n">deck</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deck</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Deck not found in this DeckBox&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 

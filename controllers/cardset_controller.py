@@ -55,8 +55,10 @@ def validate_name(self, value):
 
 @validates('release_date')
 def validate_release_date(self, value):
-    if value > datetime.now():
-        raise ValidationError('Release date cannot be in the future')
+    try:
+        release_date = datetime.strptime(value, '%Y-%m-%d')
+    except (ValueError, TypeError):
+        raise ValidationError('Invalid date format. Use YYYY-MM-DD')
 
 @cardset_controller.route('/', methods=['GET'])
 def get_sets():
@@ -141,7 +143,7 @@ def search_sets():
     """
     Search for Pokemon card sets using filters.
     
-    Query Parameters:
+    Search Parameters:
         name (str, optional): Set name to search for
         release_date (date, optional): Filter by release date
         

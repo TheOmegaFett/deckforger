@@ -27,6 +27,10 @@ def validate_deck_format(self, format_id):
     Raises:
         ValidationError: If deck contains cards not legal in format
     """
+    try:
+        format_id = int(format_id)
+    except (ValueError, TypeError):
+        raise ValidationError('Format ID must be a valid number')
     stmt = (
         db.select(DeckCard, Card, CardSet)
         .join(Card)

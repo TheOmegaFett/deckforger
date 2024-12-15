@@ -33,7 +33,7 @@
   <h1>Source code for models.format</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Format module for managing Pokemon TCG game formats and their rules.</span>
 
-<span class="sd">This module defines the Format model which represents different play formats</span>
+<span class="sd">This module defines the Format model, which represents different play formats</span>
 <span class="sd">like Standard, Expanded, and Unlimited. Each format has specific rules about</span>
 <span class="sd">which card sets are legal for play.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -44,31 +44,36 @@
 <div class="viewcode-block" id="Format">
 <a class="viewcode-back" href="../../models.html#models.format.Format">[docs]</a>
 <span class="k">class</span> <span class="nc">Format</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a Pokemon Trading Card Game format.</span>
-<span class="sd">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a Pokémon Trading Card Game format.</span>
+
 <span class="sd">    A format defines which cards are legal for tournament play based on </span>
-<span class="sd">    release dates and set legality. Examples include Standard (newest sets),</span>
-<span class="sd">    Expanded (Black &amp; White forward), and Unlimited (all cards).</span>
-<span class="sd">    </span>
+<span class="sd">    release dates and set legality. Examples include:</span>
+
+<span class="sd">        - **Standard**: Newest sets only.</span>
+<span class="sd">        - **Expanded**: Black &amp; White forward.</span>
+<span class="sd">        - **Unlimited**: All cards are legal.</span>
+
 <span class="sd">    Attributes:</span>
-<span class="sd">        id (int): Unique identifier for the format</span>
-<span class="sd">        name (str): Name of the format, must be unique (e.g. &quot;Standard&quot;)</span>
-<span class="sd">        description (str): Detailed rules and set restrictions for the format</span>
+<span class="sd">        id (int): Unique identifier for the format.</span>
+<span class="sd">        name (str): Name of the format, must be unique (e.g., &quot;Standard&quot;).</span>
+<span class="sd">        description (str): Detailed rules and set restrictions for the format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;formats&#39;</span>
 
-    <span class="nb">id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Unique identifier for the format&quot;</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Name of the format (e.g., Standard)&quot;</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">200</span><span class="p">),</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Rules and set restrictions for the format&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;String representation of the Format.</span>
-<span class="sd">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the Format.</span>
+
 <span class="sd">        Returns:</span>
-<span class="sd">            str: Format name in angle brackets</span>
+<span class="sd">            str: The name of the format enclosed in angle brackets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Format </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&gt;&#39;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;Format </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt;&quot;</span></div>
 
 </pre></div>
 
