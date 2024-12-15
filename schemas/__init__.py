@@ -1,5 +1,5 @@
 from schemas.card_schema import CardSchema
-from schemas.cardset_schema import SetSchema
+from schemas.cardset_schema import CardSetSchema
 from schemas.deck_schema import DeckSchema
 from schemas.deckbox_schema import DeckBoxSchema
 from schemas.deckcard_schema import DeckCardSchema
@@ -10,7 +10,7 @@ from schemas.cardtype_schema import CardTypeSchema
 __all__ = [
     'CardTypeSchema',
     'CardSchema',
-    'SetSchema',
+    'CardSetSchema',
     'DeckSchema',
     'DeckBoxSchema',
     'DeckCardSchema',
