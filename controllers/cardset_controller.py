@@ -14,6 +14,37 @@ from schemas.cardset_schema import cardset_schema, cardsets_schema
 cardset_controller = Blueprint('cardsets', __name__, url_prefix='/cardsets')
 
 
+
+@validates('name')
+def validate_name(self, value):
+    if len(value) < 1:
+        raise ValidationError('Set name must not be empty')
+    if len(value) > 100:
+        raise ValidationError('Set name must be less than 100 characters')
+
+@validates('release_date')
+def validate_release_date(self, value):
+    try:
+        release_date = datetime.strptime(value, '%Y-%m-%d')
+    except (ValueError, TypeError):
+        raise ValidationError('Invalid date format. Use YYYY-MM-DD')
+
+@cardset_controller.route('/', methods=['GET'])
+def get_all_sets():
+    """Get all card sets"""
+    stmt = db.select(CardSet)
+    sets = db.session.scalars(stmt).all()
+    return cardsets_schema.dump(sets)
+
+@cardset_controller.route('/<int:set_id>', methods=['GET'])
+def get_set(set_id):
+    """Get a specific set by ID"""
+    stmt = db.select(CardSet).filter_by(id=set_id)
+    set = db.session.scalar(stmt)
+    if not set:
+        return {'error': 'Set not found'}, 404
+    return cardset_schema.dump(set)
+
 @cardset_controller.route('/', methods=['POST'])
 def create_set():
     """
@@ -46,35 +77,6 @@ def create_set():
     db.session.commit()
     return cardset_schema.jsonify(new_set), 201
 
-@validates('name')
-def validate_name(self, value):
-    if len(value) < 1:
-        raise ValidationError('Set name must not be empty')
-    if len(value) > 100:
-        raise ValidationError('Set name must be less than 100 characters')
-
-@validates('release_date')
-def validate_release_date(self, value):
-    try:
-        release_date = datetime.strptime(value, '%Y-%m-%d')
-    except (ValueError, TypeError):
-        raise ValidationError('Invalid date format. Use YYYY-MM-DD')
-
-@cardset_controller.route('/', methods=['GET'])
-def get_all_sets():
-    """Get all card sets"""
-    stmt = db.select(CardSet)
-    sets = db.session.scalars(stmt).all()
-    return cardsets_schema.dump(sets)
-
-@cardset_controller.route('/<int:set_id>', methods=['GET'])
-def get_set(set_id):
-    """Get a specific set by ID"""
-    stmt = db.select(CardSet).filter_by(id=set_id)
-    set = db.session.scalar(stmt)
-    if not set:
-        return {'error': 'Set not found'}, 404
-    return cardset_schema.dump(set)
 
 @cardset_controller.route('/<int:set_id>', methods=['PUT'])
 def update_set(set_id):
