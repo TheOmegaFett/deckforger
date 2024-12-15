@@ -155,22 +155,21 @@ def get_card_distribution():
     Returns:
         200: Card distribution statistics per set
     """
-    # Query to get card type distribution per set
     stmt = (
         db.select(
             CardSet.name.label('set_name'),
             CardType.name.label('type_name'),
             func.count(Card.id).label('count')
         )
-        .join(Card, CardSet.id == Card.cardset_id)
-        .join(CardType, Card.cardtype_id == CardType.id)
+        .select_from(CardSet)
+        .join(Card, CardSet.cards)
+        .join(CardType, Card.cardtype)
         .group_by(CardSet.name, CardType.name)
         .order_by(CardSet.name)
     )
     
     results = db.session.execute(stmt).all()
     
-    # Organize results by set
     distribution = {}
     for result in results:
         set_name = result.set_name
