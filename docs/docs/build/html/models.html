@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Models &#8212; Deckforger Initial documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=3499406b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Schemas" href="schemas.html" />
+    <link rel="prev" title="Controllers" href="controllers.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="models">
+<h1>Models<a class="headerlink" href="#models" title="Link to this heading">¶</a></h1>
+<section id="card">
+<h2>Card<a class="headerlink" href="#card" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.Card">Represents a Pokemon Trading Card Game card.</p>
+<p>This model stores essential information about individual Pokemon cards including
+their name, type, and which set they belong to. It maintains relationships with
+CardType and CardSet models, as well as connecting to decks through DeckCards.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.id">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.Card.id" title="Link to this definition">¶</a></dt>
+<dd><p>Primary key for the card</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.name">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#models.Card.name" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the card</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.cardtype_id">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">cardtype_id</span></span><a class="headerlink" href="#models.Card.cardtype_id" title="Link to this definition">¶</a></dt>
+<dd><p>Foreign key reference to the card type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.cardset_id">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">cardset_id</span></span><a class="headerlink" href="#models.Card.cardset_id" title="Link to this definition">¶</a></dt>
+<dd><p>Foreign key reference to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.cardtype">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">cardtype</span></span><a class="headerlink" href="#models.Card.cardtype" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to the card type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.cardset">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">cardset</span></span><a class="headerlink" href="#models.Card.cardset" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to the parent set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.deck_cards">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">deck_cards</span></span><a class="headerlink" href="#models.Card.deck_cards" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to associated decks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+<section id="deck">
+<h2>Deck<a class="headerlink" href="#deck" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.Deck">Represents a Pokemon Trading Card Game deck.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.id">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.Deck.id" title="Link to this definition">¶</a></dt>
+<dd><p>Primary key for the deck</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.name">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#models.Deck.name" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the deck</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.description">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#models.Deck.description" title="Link to this definition">¶</a></dt>
+<dd><p>Description of the deck</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.format_id">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">format_id</span></span><a class="headerlink" href="#models.Deck.format_id" title="Link to this definition">¶</a></dt>
+<dd><p>Foreign key reference to the format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.deckbox_id">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">deckbox_id</span></span><a class="headerlink" href="#models.Deck.deckbox_id" title="Link to this definition">¶</a></dt>
+<dd><p>Foreign key reference to the deckbox</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.created_at">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">created_at</span></span><a class="headerlink" href="#models.Deck.created_at" title="Link to this definition">¶</a></dt>
+<dd><p>Timestamp of deck creation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.updated_at">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">updated_at</span></span><a class="headerlink" href="#models.Deck.updated_at" title="Link to this definition">¶</a></dt>
+<dd><p>Timestamp of last deck update</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.deck_cards">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">deck_cards</span></span><a class="headerlink" href="#models.Deck.deck_cards" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to associated cards</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.deckbox">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">deckbox</span></span><a class="headerlink" href="#models.Deck.deckbox" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to the deck box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.Deck.ratings">
+<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">ratings</span></span><a class="headerlink" href="#models.Deck.ratings" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to deck ratings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+<section id="deckbox">
+<h2>DeckBox<a class="headerlink" href="#deckbox" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.DeckBox">Represents a storage container for Pokemon TCG decks.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckBox.id">
+<span class="sig-prename descclassname"><span class="pre">models.DeckBox.</span></span><span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.DeckBox.id" title="Link to this definition">¶</a></dt>
+<dd><p>Primary key for the deck box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckBox.name">
+<span class="sig-prename descclassname"><span class="pre">models.DeckBox.</span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#models.DeckBox.name" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the deck box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckBox.description">
+<span class="sig-prename descclassname"><span class="pre">models.DeckBox.</span></span><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#models.DeckBox.description" title="Link to this definition">¶</a></dt>
+<dd><p>Description of the deck box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckBox.decks">
+<span class="sig-prename descclassname"><span class="pre">models.DeckBox.</span></span><span class="sig-name descname"><span class="pre">decks</span></span><a class="headerlink" href="#models.DeckBox.decks" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to stored decks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+<section id="deckcard">
+<h2>DeckCard<a class="headerlink" href="#deckcard" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.DeckCard">Represents the association between decks and cards, tracking card quantities in decks.</p>
+<p>This model manages the many-to-many relationship between Deck and Card models,
+allowing cards to be included in multiple decks with specific quantities.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckCard.id">
+<span class="sig-prename descclassname"><span class="pre">models.DeckCard.</span></span><span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.DeckCard.id" title="Link to this definition">¶</a></dt>
+<dd><p>Primary key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckCard.deck_id">
+<span class="sig-prename descclassname"><span class="pre">models.DeckCard.</span></span><span class="sig-name descname"><span class="pre">deck_id</span></span><a class="headerlink" href="#models.DeckCard.deck_id" title="Link to this definition">¶</a></dt>
+<dd><p>Foreign key to the deck containing the card</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckCard.card_id">
+<span class="sig-prename descclassname"><span class="pre">models.DeckCard.</span></span><span class="sig-name descname"><span class="pre">card_id</span></span><a class="headerlink" href="#models.DeckCard.card_id" title="Link to this definition">¶</a></dt>
+<dd><p>Foreign key to the card being included</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.DeckCard.quantity">
+<span class="sig-prename descclassname"><span class="pre">models.DeckCard.</span></span><span class="sig-name descname"><span class="pre">quantity</span></span><a class="headerlink" href="#models.DeckCard.quantity" title="Link to this definition">¶</a></dt>
+<dd><p>Number of copies of this card in the deck</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="simple">
+<dt>Relationships:</dt><dd><p>deck: Reference to the parent Deck
+card: Reference to the associated Card</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="cardtype">
+<h2>CardType<a class="headerlink" href="#cardtype" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.cardtype">CardType model for managing Pokemon TCG card types</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="models.cardtype.CardType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.cardtype.</span></span><span class="sig-name descname"><span class="pre">CardType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models/cardtype.html#CardType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.cardtype.CardType" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Represents a Pokemon Trading Card Game card type.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.cardtype.CardType.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.cardtype.CardType.id" title="Link to this definition">¶</a></dt>
+<dd><p>Primary key for the card type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.cardtype.CardType.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#models.cardtype.CardType.name" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the type (Fire, Water, etc)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.cardtype.CardType.cards">
+<span class="sig-name descname"><span class="pre">cards</span></span><a class="headerlink" href="#models.cardtype.CardType.cards" title="Link to this definition">¶</a></dt>
+<dd><p>Cards of this cardtype</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div></blockquote>
+</section>
+<section id="cardset">
+<h2>CardSet<a class="headerlink" href="#cardset" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.CardSet">Represents a card set in the database.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.CardSet.id">
+<span class="sig-prename descclassname"><span class="pre">models.CardSet.</span></span><span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.CardSet.id" title="Link to this definition">¶</a></dt>
+<dd><p>Primary key for the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.CardSet.name">
+<span class="sig-prename descclassname"><span class="pre">models.CardSet.</span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#models.CardSet.name" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the set, must be unique</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.CardSet.release_date">
+<span class="sig-prename descclassname"><span class="pre">models.CardSet.</span></span><span class="sig-name descname"><span class="pre">release_date</span></span><a class="headerlink" href="#models.CardSet.release_date" title="Link to this definition">¶</a></dt>
+<dd><p>Release date of the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>date</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.CardSet.description">
+<span class="sig-prename descclassname"><span class="pre">models.CardSet.</span></span><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#models.CardSet.description" title="Link to this definition">¶</a></dt>
+<dd><p>Description of the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>text</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.CardSet.cards">
+<span class="sig-prename descclassname"><span class="pre">models.CardSet.</span></span><span class="sig-name descname"><span class="pre">cards</span></span><a class="headerlink" href="#models.CardSet.cards" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to associated cards in the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+<section id="format">
+<h2>Format<a class="headerlink" href="#format" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.format">Format module for managing Pokemon TCG game formats and their rules.</p>
+<p>This module defines the Format model, which represents different play formats
+like Standard, Expanded, and Unlimited. Each format has specific rules about
+which card sets are legal for play.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="models.format.Format">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.format.</span></span><span class="sig-name descname"><span class="pre">Format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models/format.html#Format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.format.Format" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Represents a Pokémon Trading Card Game format.</p>
+<p>A format defines which cards are legal for tournament play based on
+release dates and set legality. Examples include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Standard</strong>: Newest sets only.</p></li>
+<li><p><strong>Expanded</strong>: Black &amp; White forward.</p></li>
+<li><p><strong>Unlimited</strong>: All cards are legal.</p></li>
+</ul>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.format.Format.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.format.Format.id" title="Link to this definition">¶</a></dt>
+<dd><p>Unique identifier for the format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.format.Format.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#models.format.Format.name" title="Link to this definition">¶</a></dt>
+<dd><p>Name of the format, must be unique (e.g., “Standard”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.format.Format.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#models.format.Format.description" title="Link to this definition">¶</a></dt>
+<dd><p>Detailed rules and set restrictions for the format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div></blockquote>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Deckforger</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="controllers.html">Controllers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#card">Card</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deck">Deck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deckbox">DeckBox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deckcard">DeckCard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cardtype">CardType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cardset">CardSet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#format">Format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="schemas.html">Schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Application Setup</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="controllers.html" title="previous chapter">Controllers</a></li>
+      <li>Next: <a href="schemas.html" title="next chapter">Schemas</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Shane W Miller.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
