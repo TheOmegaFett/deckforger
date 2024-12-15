@@ -84,6 +84,23 @@ def get_all_decks():
     decks = db.session.scalars(stmt).all()
     return decks_schema.jsonify(decks), 200
 
+@deck_controller.route('/<int:deck_id>', methods=['GET'])
+def get_one_deck(deck_id):
+    """
+    Retrieve a specific Pokemon TCG deck by ID.
+    
+    Parameters:
+        deck_id (int): ID of the deck to retrieve
+        
+    Returns:
+        200: Deck details
+        404: Deck not found
+    """
+    deck = db.session.get(Deck, deck_id)
+    if not deck:
+        return jsonify({'error': 'Deck not found'}), 404
+    return deck_schema.jsonify(deck), 200
+
 @deck_controller.route('/', methods=['POST'])
 def create_deck():
     """
