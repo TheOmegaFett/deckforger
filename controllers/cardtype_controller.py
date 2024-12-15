@@ -6,6 +6,7 @@ from sqlalchemy import desc, func, text
 from init import db
 
 # Local application imports
+from models import cardtype
 from models.cardtype import CardType
 from models.card import Card
 from models.cardset import CardSet
@@ -99,7 +100,7 @@ def get_type_popularity():
         
         results = popularity_query.all()
         return jsonify([{
-            'card_type': type.name,
+            'card_type': cardtype.name,
             'usage_count': count
         } for type, count in results]), 200
     except Exception as e:
