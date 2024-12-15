@@ -146,3 +146,26 @@ def get_cards_in_set(cardset_id):
         'name': card.name,
         'cardtype': card.cardtype.name
     } for card in cardset.cards])
+
+@cardset_controller.route('/stats/card-distribution', methods=['GET'])
+def get_set_distribution():
+    """
+    Get card type distribution within sets.
+    
+    Returns:
+        200: Distribution statistics per set
+    """
+    stmt = db.select(
+        CardSet.name,
+        CardType.name,
+        func.count(Card.id).label('count')
+    ).\
+    join(Card).join(CardType).\
+    group_by(CardSet.name, CardType.name)
+    
+    distribution = db.session.execute(stmt).all()
+    return jsonify([{
+        'set': d.name,
+        'type': d.name_1,
+        'count': d.count
+    } for d in distribution]), 200

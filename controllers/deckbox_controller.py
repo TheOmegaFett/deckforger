@@ -217,3 +217,22 @@ def remove_deck_from_deckbox(deckbox_id, deck_id):
     db.session.delete(deck)
     db.session.commit()
     return jsonify({'message': 'Deck removed from DeckBox successfully!'})
+
+@deckbox_controller.route('/search', methods=['GET'])
+def search_deckboxes():
+    """
+    Search deckboxes by name.
+    
+    Query Parameters:
+        name (str): Name to search for
+        
+    Returns:
+        200: List of matching deckboxes
+    """
+    stmt = db.select(DeckBox)
+    
+    if name := request.args.get('name'):
+        stmt = stmt.filter(DeckBox.name.ilike(f'%{name}%'))
+        
+    deckboxes = db.session.scalars(stmt).all()
+    return deckboxes_schema.jsonify(deckboxes), 200

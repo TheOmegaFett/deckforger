@@ -208,3 +208,83 @@ def validate_deck_rules(deck_id):
             'deck_id': deck_id
         }), 500
 
+
+@deck_controller.route('/search', methods=['GET'])
+def search_decks():
+    """
+    Search and filter decks by format and rating.
+    
+    Query Parameters:
+        format (str): Format name (standard, expanded)
+        rating (int): Minimum rating threshold
+        
+    Returns:
+        200: List of matching decks
+    """
+    stmt = db.select(Deck)
+    
+    if format_name := request.args.get('format'):
+        stmt = stmt.filter(Deck.format_id == format_name)
+    if rating := request.args.get('rating'):
+        stmt = stmt.filter(Deck.rating >= rating)
+        
+    decks = db.session.scalars(stmt).all()
+    return decks_schema.jsonify(decks), 200
+
+@deck_controller.route('/filter/by-cardtype', methods=['GET'])
+def filter_decks_by_cardtype():
+    """
+    Get decks filtered by card type distribution.
+    
+    Returns:
+        200: Decks with their card type breakdowns
+    """
+    stmt = db.select(Deck, func.count(CardType.id).label('type_count')).\
+           join(DeckCard).join(Card).join(CardType).\
+           group_by(Deck.id)
+    
+    decks = db.session.execute(stmt).all()
+    return decks_schema.jsonify(decks), 200
+
+@deck_controller.route('/top-rated', methods=['GET'])
+def get_top_rated_decks():
+    """
+    Get highest rated decks.
+    
+    Query Parameters:
+        limit (int): Number of decks to return (default 10)
+        
+    Returns:
+        200: List of top rated decks
+    """
+    limit = request.args.get('limit', 10, type=int)
+    stmt = db.select(Deck).\
+           order_by(Deck.rating.desc()).\
+           limit(limit)
+    
+    decks = db.session.scalars(stmt).all()
+    return decks_schema.jsonify(decks), 200
+
+@deck_controller.route('/filter/by-rating-range', methods=['GET'])
+def filter_by_rating():
+    """
+    Filter decks by rating range.
+    
+    Query Parameters:
+        min (float): Minimum rating
+        max (float): Maximum rating
+        
+    Returns:
+        200: List of decks within rating range
+    """
+    min_rating = request.args.get('min', type=float)
+    max_rating = request.args.get('max', type=float)
+    
+    stmt = db.select(Deck)
+    if min_rating:
+        stmt = stmt.filter(Deck.rating >= min_rating)
+    if max_rating:
+        stmt = stmt.filter(Deck.rating <= max_rating)
+        
+    decks = db.session.scalars(stmt).all()
+    return decks_schema.jsonify(decks), 200

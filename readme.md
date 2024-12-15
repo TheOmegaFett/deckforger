@@ -53,7 +53,13 @@ flask run/seed
 - PUT /api/decks/{deck_id} - Update deck
 - GET /api/decks/validate/{deck_id} - Validate deck rules
 
-### Deck Boxes
+### Deck Filtering
+
+- GET /api/decks/search?format=standard&rating=4 - Filter decks by format and rating
+- GET /api/decks/filter/by-cardtype - Get decks by card type distribution
+- GET /api/decks/filter/by-cardset - Get decks containing cards from specific sets
+- GET /api/decks/top-rated - Get top rated decks
+- GET /api/decks/filter/by-rating-range?min=4&max=5 - Filter decks by rating range### Deck Boxes
 
 - POST /api/deckboxes/ - Create deck box
 - GET /api/deckboxes/ - List all deck boxes
@@ -88,6 +94,8 @@ flask run/seed
 - PUT /api/cardsets/{cardset_id} - Update set
 - DELETE /api/cardsets/{cardset_id} - Delete set
 - GET /api/cardsets/search - Search sets
+- GET /api/cardsets/stats/card-distribution - Get card type distribution within sets
+- GET /api/cardsets/most-used-in-decks - Get most used sets in competitive decks
 
 ### Formats
 
@@ -104,6 +112,8 @@ flask run/seed
 - POST /api/cardtypes/ - Create new card type
 - PUT /api/cardtypes/{type_id} - Update card type
 - DELETE /api/cardtypes/{type_id} - Delete card type
+- GET /api/cardtypes/popularity-in-decks - Get popularity of card types in decks
+- GET /api/cardtypes/distribution-by-set - Get distribution of types across sets
 
 ### Deck Ratings
 
@@ -161,31 +171,39 @@ POST /api/decks/{deck_id}/ratings
 
 ### Searching Cards
 
-```python
-# Search for Fire-type cards
-GET /api/cards/search?cardtype=fire
+# Filter cards by multiple types
 
-# Search by set
-GET /api/cards/search?cardset_id=1
-```
+GET /api/cards/filter/by-multiple-types?types=fire,water
+
+# Filter cards by multiple sets
+
+GET /api/cards/filter/by-multiple-sets?sets=1,2,3
 
 ### Managing Deck Boxes
 
-```python
 # Create a new deck box
+
 POST /api/deckboxes
 {
-    "name": "Tournament Decks",
-    "description": "Competition-ready decks"
+"name": "Tournament Decks",
+"description": "Competition-ready decks"
 }
 
 # Add deck to deck box
+
 POST /api/deckboxes/{deckbox_id}/decks
 {
-    "name": "Championship Deck",
-    "format": "Standard"
+"name": "Championship Deck",
+"format": "Standard"
 }
-```
+
+# Search deckboxes by name
+
+GET /api/deckboxes/search?name=tournament
+
+# Filter decks within a specific deckbox
+
+GET /api/deckboxes/{deckbox_id}/decks/filter
 
 ### Format Validation
 
