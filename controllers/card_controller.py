@@ -245,20 +245,20 @@ def search_cards():
         400: Invalid cardset_id format
         500: Search operation failed
     """    try:
-        stmt = db.select(Card)
-        
-        if name := request.args.get('name'):
-            stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
-        if card_type := request.args.get('cardtype'):
-            stmt = stmt.filter(Card.cardtype.has(CardType.name.ilike(f'%{card_type}%')))
-        if cardset_id := request.args.get('cardset_id'):
-            try:
-                cardset_id = int(cardset_id)
-                stmt = stmt.filter(Card.cardset_id == cardset_id)
-            except ValueError:
-                return jsonify({'error': 'Invalid cardset_id format'}), 400
-            
-        cards = db.session.scalars(stmt).all()
-        return cards_schema.jsonify(cards), 200
-    except Exception as e:
-        return jsonify({'error': 'Search failed', 'details': str(e)}), 500        return jsonify({'error': 'Search failed', 'details': str(e)}), 500
+                stmt = db.select(Card)
+                
+                if name := request.args.get('name'):
+                    stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
+                if card_type := request.args.get('cardtype'):
+                    stmt = stmt.filter(Card.cardtype.has(CardType.name.ilike(f'%{card_type}%')))
+                if cardset_id := request.args.get('cardset_id'):
+                    try:
+                        cardset_id = int(cardset_id)
+                        stmt = stmt.filter(Card.cardset_id == cardset_id)
+                    except ValueError:
+                        return jsonify({'error': 'Invalid cardset_id format'}), 400
+                    
+                cards = db.session.scalars(stmt).all()
+                return cards_schema.jsonify(cards), 200
+            except Exception as e:
+                 return jsonify({'error': 'Search failed', 'details': str(e)}), 500        return jsonify({'error': 'Search failed', 'details': str(e)}), 500
