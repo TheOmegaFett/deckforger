@@ -84,33 +84,33 @@ def seed_tables():
 
         # Pokemon cards
         pokemon_cards = [
-            Card(name='Fezandipiti EX', type=type_lookup['Dark'], set_id=1),
-            Card(name='Gengar EX', type=type_lookup['Ghost'], set_id=2),
-            Card(name='Temporal Tyranitar', type=type_lookup['Dark'], set_id=3),
-            Card(name='Mewtwo VMAX', type=type_lookup['Psychic'], set_id=2),
-            Card(name='Darkrai VSTAR', type=type_lookup['Dark'], set_id=1),
-            Card(name='Zoroark GX', type=type_lookup['Dark'], set_id=3),
-            Card(name='Lunala V', type=type_lookup['Psychic'], set_id=2)
+            Card(name='Fezandipiti EX', cardtype=type_lookup['Dark'], set_id=1),
+            Card(name='Gengar EX', cardtype=type_lookup['Ghost'], set_id=2),
+            Card(name='Temporal Tyranitar', cardtype=type_lookup['Dark'], set_id=3),
+            Card(name='Mewtwo VMAX', cardtype=type_lookup['Psychic'], set_id=2),
+            Card(name='Darkrai VSTAR', cardtype=type_lookup['Dark'], set_id=1),
+            Card(name='Zoroark GX', cardtype=type_lookup['Dark'], set_id=3),
+            Card(name='Lunala V', cardtype=type_lookup['Psychic'], set_id=2)
         ]
-
+        
         # Trainer cards
         trainer_cards = [
-            Card(name='Dark Patch', type=type_lookup['Supporter'], set_id=1),
-            Card(name='Time Spiral', type=type_lookup['Supporter'], set_id=3),
-            Card(name='Fossil Researcher', type=type_lookup['Supporter'], set_id=2),
-            Card(name='Professor Research', type=type_lookup['Supporter'], set_id=1),
-            Card(name='Boss Orders', type=type_lookup['Supporter'], set_id=2),
-            Card(name='Quick Ball', type=type_lookup['Supporter'], set_id=3),
-            Card(name='Ultra Ball', type=type_lookup['Supporter'], set_id=1)
+            Card(name='Dark Patch', cardtype=type_lookup['Supporter'], set_id=1),
+            Card(name='Time Spiral', cardtype=type_lookup['Supporter'], set_id=3),
+            Card(name='Fossil Researcher', cardtype=type_lookup['Supporter'], set_id=2),
+            Card(name='Professor Research', cardtype=type_lookup['Supporter'], set_id=1),
+            Card(name='Boss Orders', cardtype=type_lookup['Supporter'], set_id=2),
+            Card(name='Quick Ball', cardtype=type_lookup['Supporter'], set_id=3),
+            Card(name='Ultra Ball', cardtype=type_lookup['Supporter'], set_id=1)
         ]
 
         # Energy cards
         energy_cards = [
-            Card(name='Basic Dark Energy', type=type_lookup['Energy'], set_id=1),
-            Card(name='Basic Psychic Energy', type=type_lookup['Energy'], set_id=1),
-            Card(name='Crystal Energy', type=type_lookup['Energy'], set_id=2),
-            Card(name='Double Dragon Energy', type=type_lookup['Energy'], set_id=3),
-            Card(name='Horror Energy', type=type_lookup['Energy'], set_id=2)
+            Card(name='Basic Dark Energy', cardtype=type_lookup['Energy'], set_id=1),
+            Card(name='Basic Psychic Energy', cardtype=type_lookup['Energy'], set_id=1),
+            Card(name='Crystal Energy', cardtype=type_lookup['Energy'], set_id=2),
+            Card(name='Double Dragon Energy', cardtype=type_lookup['Energy'], set_id=3),
+            Card(name='Horror Energy', cardtype=type_lookup['Energy'], set_id=2)
         ]
     
         db.session.add_all(pokemon_cards + trainer_cards + energy_cards)

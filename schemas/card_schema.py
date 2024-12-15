@@ -7,11 +7,11 @@ from schemas.cardtype_schema import CardTypeSchema
 from schemas.cardset_schema import SetSchema
 
 class CardSchema(ma.Schema):
-    type = ma.Nested(CardTypeSchema)
-    sets = ma.Nested(SetSchema)
+    cardtype = fields.Nested(CardTypeSchema)
+    sets = fields.Nested(CardSetSchema)
     
     class Meta:
-        fields = ('id', 'name', 'type', 'set_id', 'sets')
+        fields = ('id', 'name', 'cardtype', 'set_id', 'sets')
         ordered = True
    
 
