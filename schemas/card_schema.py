@@ -12,7 +12,9 @@ class CardSchema(ma.Schema):
     class Meta:
         fields = ('id', 'name', 'cardtype', 'set_id')
         ordered = True
-   
+    
+    # Relationships
+    cardset = db.relationship("Set", backref="cards")
 
 # Schema instances
 card_schema = CardSchema()
