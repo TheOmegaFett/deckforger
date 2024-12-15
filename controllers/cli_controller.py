@@ -64,46 +64,53 @@ def seed_tables():
         db.session.add_all(sets)
         db.session.commit()
         
-        # Seed CardTpyes with Types
+        # Create the CardType objects
         card_types = [
             CardType(name=type_name) for type_name in [
-            'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
-            'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug',
-            'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy',
-            'Supporter', 'Energy'
-        ]
+                'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
+                'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug',
+                'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy',
+                'Supporter', 'Energy'
+            ]
         ]
         db.session.add_all(card_types)
         db.session.commit()
 
-        
-        # Seed Cards
+        # Create a lookup dictionary for the types
+        type_lookup = {
+            type_obj.name: type_obj 
+            for type_obj in card_types
+        }
+
+        # Pokemon cards
         pokemon_cards = [
-            Card(name='Fezandipiti EX', type='Dark', set_id=1),
-            Card(name='Gengar EX', type='Ghost', set_id=2),
-            Card(name='Temporal Tyranitar', type='Dark', set_id=3),
-            Card(name='Mewtwo VMAX', type='Psychic', set_id=2),
-            Card(name='Darkrai VSTAR', type='Dark', set_id=1),
-            Card(name='Zoroark GX', type='Dark', set_id=3),
-            Card(name='Lunala V', type='Psychic', set_id=2)
+            Card(name='Fezandipiti EX', type=type_lookup['Dark'], set_id=1),
+            Card(name='Gengar EX', type=type_lookup['Ghost'], set_id=2),
+            Card(name='Temporal Tyranitar', type=type_lookup['Dark'], set_id=3),
+            Card(name='Mewtwo VMAX', type=type_lookup['Psychic'], set_id=2),
+            Card(name='Darkrai VSTAR', type=type_lookup['Dark'], set_id=1),
+            Card(name='Zoroark GX', type=type_lookup['Dark'], set_id=3),
+            Card(name='Lunala V', type=type_lookup['Psychic'], set_id=2)
         ]
-    
+
+        # Trainer cards
         trainer_cards = [
-            Card(name='Dark Patch', type='Item', set_id=1),
-            Card(name='Time Spiral', type='Item', set_id=3),
-            Card(name='Fossil Researcher', type='Supporter', set_id=2),
-            Card(name='Professor Research', type='Supporter', set_id=1),
-            Card(name='Boss Orders', type='Supporter', set_id=2),
-            Card(name='Quick Ball', type='Item', set_id=3),
-            Card(name='Ultra Ball', type='Item', set_id=1)
+            Card(name='Dark Patch', type=type_lookup['Supporter'], set_id=1),
+            Card(name='Time Spiral', type=type_lookup['Supporter'], set_id=3),
+            Card(name='Fossil Researcher', type=type_lookup['Supporter'], set_id=2),
+            Card(name='Professor Research', type=type_lookup['Supporter'], set_id=1),
+            Card(name='Boss Orders', type=type_lookup['Supporter'], set_id=2),
+            Card(name='Quick Ball', type=type_lookup['Supporter'], set_id=3),
+            Card(name='Ultra Ball', type=type_lookup['Supporter'], set_id=1)
         ]
-    
+
+        # Energy cards
         energy_cards = [
-            Card(name='Basic Dark Energy', type='Dark', set_id=1),
-            Card(name='Basic Psychic Energy', type='Psychic', set_id=1),
-            Card(name='Crystal Energy', type='Special', set_id=2),
-            Card(name='Double Dragon Energy', type='Special', set_id=3),
-            Card(name='Horror Energy', type='Special', set_id=2)
+            Card(name='Basic Dark Energy', type=type_lookup['Energy'], set_id=1),
+            Card(name='Basic Psychic Energy', type=type_lookup['Energy'], set_id=1),
+            Card(name='Crystal Energy', type=type_lookup['Energy'], set_id=2),
+            Card(name='Double Dragon Energy', type=type_lookup['Energy'], set_id=3),
+            Card(name='Horror Energy', type=type_lookup['Energy'], set_id=2)
         ]
     
         db.session.add_all(pokemon_cards + trainer_cards + energy_cards)
