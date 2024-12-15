@@ -198,4 +198,4 @@ def get_card_distribution():
         return jsonify({
             'message': 'Database query failed',
             'error': str(e)
-        }), 500    return jsonify(distribution), 200
+        }), 500 
