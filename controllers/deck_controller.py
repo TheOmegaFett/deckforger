@@ -110,28 +110,40 @@ def create_deck():
         name (str): Name of the deck
         description (str, optional): Description of the deck
         format_id (int): ID of the format this deck follows
+        deckbox_id (int): ID of the deckbox to contain this deck
         
     Returns:
         201: Deck created successfully
         400: Validation error in deck composition
+        500: Database operation failed
     """
-    data = request.get_json()
-    
-    new_deck = Deck(
-        name=data['name'],
-        description=data.get('description', ''),
-        format_id=data['format_id']
-    )
-    db.session.add(new_deck)
-    db.session.commit()
-
     try:
-        validate_deck(new_deck.id, new_deck.format_id)
-    except ValidationError as e:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['name', 'format_id', 'deckbox_id']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        new_deck = Deck(
+            name=data['name'],
+            description=data.get('description', ''),
+            format_id=data['format_id'],
+            deckbox_id=data['deckbox_id']
+        )
+        
+        db.session.add(new_deck)
+        db.session.commit()
+        
+        return deck_schema.jsonify(new_deck), 201
+        
+    except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
-
-    return deck_schema.jsonify(new_deck), 201
+        return jsonify({
+            'error': 'Failed to create deck',
+            'details': str(e)
+        }), 500
 
 
 @deck_controller.route('/<int:deck_id>', methods=['PUT'])
