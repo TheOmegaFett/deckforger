@@ -196,3 +196,22 @@ def search_cards():
         
     cards = db.session.scalars(stmt).all()
     return cards_schema.jsonify(cards), 200
+
+@card_controller.route('/filter/by-multiple-sets', methods=['GET'])
+def filter_by_multiple_sets():
+    """
+    Filter cards by multiple set IDs.
+    
+    Query Parameters:
+        sets (str): Comma-separated list of set IDs
+        
+    Returns:
+        200: List of cards from specified sets
+    """
+    if set_ids := request.args.get('sets'):
+        set_id_list = [int(id) for id in set_ids.split(',')]
+        stmt = db.select(Card).filter(Card.cardset_id.in_(set_id_list))
+        cards = db.session.scalars(stmt).all()
+        return cards_schema.jsonify(cards), 200
+    
+    return jsonify({'error': 'No set IDs provided'}), 400
