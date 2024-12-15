@@ -7,6 +7,7 @@ from marshmallow import ValidationError, validates
 # Local application imports
 from init import db
 from models.card import Card
+from models.cardtype import CardType
 from schemas.card_schema import CardSchema
 
 # Blueprint and Schema initialization
