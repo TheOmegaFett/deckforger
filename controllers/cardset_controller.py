@@ -148,24 +148,40 @@ def get_cards_in_set(cardset_id):
     } for card in cardset.cards])
 
 @cardset_controller.route('/stats/card-distribution', methods=['GET'])
-def get_set_distribution():
+def get_card_distribution():
     """
-    Get card type distribution within sets.
+    Get distribution of cards across sets with type breakdown.
     
     Returns:
-        200: Distribution statistics per set
+        200: Card distribution statistics per set
+        {
+            "set_name": {
+                "total_cards": count,
+                "types": {
+                    "type_name": count
+                }
+            }
+        }
     """
     stmt = db.select(
         CardSet.name,
-        CardType.name,
-        func.count(Card.id).label('count')
+        CardType.name.label('type_name'),
+        func.count(Card.id).label('card_count')
     ).\
-    join(Card).join(CardType).\
+    join(Card).\
+    join(CardType).\
     group_by(CardSet.name, CardType.name)
     
-    distribution = db.session.execute(stmt).all()
-    return jsonify([{
-        'set': d.name,
-        'type': d.name_1,
-        'count': d.count
-    } for d in distribution]), 200
+    results = db.session.execute(stmt).all()
+    
+    distribution = {}
+    for result in results:
+        if result.name not in distribution:
+            distribution[result.name] = {
+                "total_cards": 0,
+                "types": {}
+            }
+        distribution[result.name]["types"][result.type_name] = result.card_count
+        distribution[result.name]["total_cards"] += result.card_count
+    
+    return jsonify(distribution), 200
