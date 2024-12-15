@@ -27,8 +27,12 @@ def validate_name(self, value):
 @validates('type')
 def validate_type(self, value):
     try:
+       
         if not isinstance(value, str):
             raise ValidationError('Card type must be text')
+        # Get valid Pokemon types from database
+        stmt = db.select(Card.type).distinct()
+        valid_types = [type.lower() for type in db.session.scalars(stmt).all()]
         if value.lower() not in valid_types:
             raise ValidationError('Invalid Pokemon card type')
     except (ValueError, TypeError):
