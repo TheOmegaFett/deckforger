@@ -1,6 +1,21 @@
-__pycache__
-.venv
-.env
+# Python cache and environment files
+__pycache__/
+.venv/
+.env/
 venv/
-docs/
+
+# Sphinx build files
+docs/docs/_build/
+
+# Sphinx Makefiles
+docs/docs/Makefile
+docs/docs/make.bat
+
+# Migrations directory
 migrations/
+
+# Ignore specific files or directories (optional)
+*.log
+*.tmp
+*.bat
+makefile
