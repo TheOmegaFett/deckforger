@@ -44,10 +44,7 @@
 <span class="kn">from</span> <span class="nn">models.format</span> <span class="kn">import</span> <span class="n">Format</span>
 <span class="kn">from</span> <span class="nn">models.cardtype</span> <span class="kn">import</span> <span class="n">CardType</span>
 
-
-
 <span class="n">cli_controller</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;cli&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
-
 
 <div class="viewcode-block" id="create_tables">
 <a class="viewcode-back" href="../../controllers.html#controllers.cli_controller.create_tables">[docs]</a>
@@ -58,10 +55,16 @@
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Tables created successfully</span>
+<span class="sd">        500: Table creation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Tables created successfully!&#39;</span><span class="p">})</span></div>
-
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Tables created successfully!&#39;</span><span class="p">}),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to create tables&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="drop_tables">
@@ -73,10 +76,16 @@
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Tables dropped successfully</span>
+<span class="sd">        500: Table drop operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">drop_all</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Tables dropped successfully!&#39;</span><span class="p">})</span></div>
-
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">drop_all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Tables dropped successfully!&#39;</span><span class="p">}),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to drop tables&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="seed_tables">
@@ -85,6 +94,10 @@
 <span class="k">def</span> <span class="nf">seed_tables</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Seed database with initial data.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: Database seeded successfully</span>
+<span class="sd">        500: Seeding operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Seed Formats</span>
@@ -225,12 +238,11 @@
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add_all</span><span class="p">(</span><span class="n">psychic_control_cards</span> <span class="o">+</span> <span class="n">dark_box_cards</span> <span class="o">+</span> <span class="n">test_dragons_cards</span><span class="p">)</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>       
         
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Database seeded successfully!&#39;</span><span class="p">})</span>
-
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Database seeded successfully!&#39;</span><span class="p">}),</span> <span class="mi">200</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
-            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;seeding failed&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Seeding failed&#39;</span><span class="p">,</span>
             <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="p">}),</span> <span class="mi">500</span></div>
 
@@ -241,10 +253,6 @@
 <span class="k">def</span> <span class="nf">cleanup_database</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clean up duplicate entries in database.</span>
-<span class="sd">    </span>
-<span class="sd">    Removes duplicate:</span>
-<span class="sd">        - Cards with same name and cardset_id</span>
-<span class="sd">        - Sets with same name</span>
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Cleanup completed successfully with count of removed items</span>
@@ -290,14 +298,12 @@
             <span class="s1">&#39;cards_removed&#39;</span><span class="p">:</span> <span class="n">cards_deleted</span><span class="p">,</span>
             <span class="s1">&#39;sets_removed&#39;</span><span class="p">:</span> <span class="n">sets_deleted</span>
         <span class="p">}),</span> <span class="mi">200</span>
-
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
             <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Database cleanup failed&#39;</span><span class="p">,</span>
             <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="p">}),</span> <span class="mi">500</span></div>
-
 
 
 <div class="viewcode-block" id="health_check">
@@ -308,10 +314,12 @@
 <span class="sd">    Check API health status.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
-<span class="sd">        200: API is running</span>
+<span class="sd">        200: API is running with timestamp</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;API is running!&#39;</span><span class="p">}),</span> <span class="mi">200</span></div>
-
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+        <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;healthy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="p">}),</span> <span class="mi">200</span></div>
 
 
 <div class="viewcode-block" id="list_routes">
@@ -324,18 +332,24 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: List of all registered routes and their methods</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">routes</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">current_app</span><span class="o">.</span><span class="n">url_map</span><span class="o">.</span><span class="n">iter_rules</span><span class="p">():</span>
-        <span class="n">routes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-            <span class="s1">&#39;endpoint&#39;</span><span class="p">:</span> <span class="n">rule</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span>
-            <span class="s1">&#39;methods&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">methods</span><span class="p">),</span>
-            <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
-        <span class="p">})</span>
-    
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
-        <span class="s1">&#39;available_routes&#39;</span><span class="p">:</span> <span class="n">routes</span><span class="p">,</span>
-        <span class="s1">&#39;total_routes&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">routes</span><span class="p">)</span>
-    <span class="p">}),</span> <span class="mi">200</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">routes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">current_app</span><span class="o">.</span><span class="n">url_map</span><span class="o">.</span><span class="n">iter_rules</span><span class="p">():</span>
+            <span class="n">routes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;endpoint&#39;</span><span class="p">:</span> <span class="n">rule</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span>
+                <span class="s1">&#39;methods&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">methods</span><span class="p">),</span>
+                <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+            <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s1">&#39;available_routes&#39;</span><span class="p">:</span> <span class="n">routes</span><span class="p">,</span>
+            <span class="s1">&#39;total_routes&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">routes</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to list routes&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 </pre></div>
 

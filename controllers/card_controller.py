@@ -62,6 +62,7 @@ def create_card():
         400: Missing required fields
         500: Database operation failed
     """
+    
     try:
         data = request.json
         if not all(key in data for key in ['name', 'cardtype_id', 'cardset_id']):
@@ -88,6 +89,7 @@ def get_all_cards():
         200: List of all cards
         500: Database query failed
     """
+    
     try:
         stmt = db.select(Card)
         cards = db.session.scalars(stmt).all()
@@ -108,6 +110,7 @@ def get_one_card(card_id):
         404: Card not found
         500: Database query failed
     """
+    
     try:
         card = db.session.get(Card, card_id)
         if not card:
@@ -116,17 +119,17 @@ def get_one_card(card_id):
     except Exception as e:
         return jsonify({'error': 'Failed to retrieve card', 'details': str(e)}), 500
 
-@card_controller.route('/<int:card_id>', methods=['PUT'])
+@card_controller.route('/<int:card_id>', methods=['PATCH'])
 def update_card(card_id):
     """
-    Update a specific Pokemon card.
+    Update specific properties of a card.
     
     Parameters:
         card_id (int): ID of the card to update
         
     Request Body:
         name (str, optional): New name for the card
-        cardtype_id (int, optional): New type ID for the card
+        cardtype (str, optional): New type for the card
         cardset_id (int, optional): New set ID for the card
         
     Returns:
@@ -134,21 +137,28 @@ def update_card(card_id):
         404: Card not found
         500: Database operation failed
     """
+    
     try:
         card = db.session.get(Card, card_id)
         if not card:
             return jsonify({'error': 'Card not found'}), 404
 
         data = request.json
-        card.name = data.get('name', card.name)
-        card.cardtype_id = data.get('cardtype_id', card.cardtype_id)
-        card.cardset_id = data.get('cardset_id', card.cardset_id)
+        if 'name' in data:
+            card.name = data['name']
+        if 'cardtype' in data:
+            card.cardtype = data['cardtype']
+        if 'cardset_id' in data:
+            card.cardset_id = data['cardset_id']
 
         db.session.commit()
         return card_schema.jsonify(card), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to update card', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Database operation failed',
+            'details': str(e)
+        }), 500
 
 @card_controller.route('/<int:card_id>', methods=['DELETE'])
 def delete_card(card_id):
@@ -163,6 +173,7 @@ def delete_card(card_id):
         404: Card not found
         500: Database operation failed
     """
+    
     try:
         card = db.session.get(Card, card_id)
         if not card:
@@ -188,6 +199,7 @@ def filter_by_multiple_types():
         400: No types provided
         500: Filter operation failed
     """
+    
     try:
         if type_names := request.args.get('types'):
             type_list = [type_name.strip().capitalize() for type_name in type_names.split(',')]
@@ -211,6 +223,7 @@ def filter_by_multiple_sets():
         400: No set IDs provided
         500: Filter operation failed
     """
+    
     try:
         if set_ids := request.args.get('sets'):
             set_id_list = [int(id) for id in set_ids.split(',')]
@@ -233,19 +246,9 @@ def search_cards():
         
     Returns:
         200: List of matching cards with their relationships
-            {
-                "cards": [
-                    {
-                        "id": 1,
-                        "name": "Mewtwo",
-                        "cardtype": {"name": "Psychic"},
-                        "cardset": {"name": "Base Set"}
-                    }
-                ]
-            }
         400: Invalid cardset_id format
         500: Search operation failed
-    """   
+    """    
     try:
         stmt = db.select(Card)
         

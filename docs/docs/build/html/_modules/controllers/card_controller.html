@@ -40,6 +40,7 @@
 <span class="c1"># Local application imports</span>
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
 <span class="kn">from</span> <span class="nn">models.card</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">models.cardtype</span> <span class="kn">import</span> <span class="n">CardType</span>
 <span class="kn">from</span> <span class="nn">schemas.card_schema</span> <span class="kn">import</span> <span class="n">CardSchema</span>
 
 <span class="c1"># Blueprint and Schema initialization</span>
@@ -97,34 +98,31 @@
 <span class="sd">    </span>
 <span class="sd">    Request Body:</span>
 <span class="sd">        name (str): Name of the card</span>
-<span class="sd">        type (str): Type of the card (grass, fire, water, etc.)</span>
+<span class="sd">        cardtype_id (int): ID of the card type</span>
 <span class="sd">        cardset_id (int): ID of the set this card belongs to</span>
 <span class="sd">        </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        201: Card created successfully</span>
 <span class="sd">        400: Missing required fields</span>
-<span class="sd">        409: Card already exists in set</span>
+<span class="sd">        500: Database operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;cardtype_id&#39;</span><span class="p">,</span> <span class="s1">&#39;cardset_id&#39;</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Missing required fields&#39;</span><span class="p">}),</span> <span class="mi">400</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardtype&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Name, cardtype, and cardset_id are required fields.&#39;</span><span class="p">}),</span> <span class="mi">400</span>
-
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">cardset_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">])</span>
-    <span class="n">existing_card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">existing_card</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Card </span><span class="se">\&#39;</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1"> already exists in this set&#39;</span><span class="p">}),</span> <span class="mi">409</span>
-
-    <span class="n">card</span> <span class="o">=</span> <span class="n">Card</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
-        <span class="n">cardtype</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardtype&#39;</span><span class="p">],</span>
-        <span class="n">cardset_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">201</span></div>
-
+        <span class="n">card</span> <span class="o">=</span> <span class="n">Card</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+            <span class="n">cardtype_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardtype_id&#39;</span><span class="p">],</span>
+            <span class="n">cardset_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">201</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to create card&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="get_all_cards">
@@ -136,11 +134,15 @@
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        200: List of all cards</span>
+<span class="sd">        500: Database query failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
-    <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cards_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">cards</span><span class="p">),</span> <span class="mi">200</span></div>
-
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
+        <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cards_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">cards</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to retrieve cards&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="get_one_card">
@@ -156,20 +158,24 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Card details</span>
 <span class="sd">        404: Card not found</span>
+<span class="sd">        500: Database query failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
-    <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">200</span></div>
-
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
+        <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to retrieve card&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="update_card">
 <a class="viewcode-back" href="../../controllers.html#controllers.card_controller.update_card">[docs]</a>
-<span class="nd">@card_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:card_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUT&#39;</span><span class="p">])</span>
+<span class="nd">@card_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:card_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PATCH&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">update_card</span><span class="p">(</span><span class="n">card_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update a specific Pokemon card.</span>
+<span class="sd">    Update specific properties of a card.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
 <span class="sd">        card_id (int): ID of the card to update</span>
@@ -184,25 +190,28 @@
 <span class="sd">        404: Card not found</span>
 <span class="sd">        500: Database operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
-
-    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
-    <span class="n">card</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">card</span><span class="o">.</span><span class="n">cardtype</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardtype&#39;</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">cardtype</span><span class="p">)</span>
-    <span class="n">card</span><span class="o">.</span><span class="n">cardset_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">cardset_id</span><span class="p">)</span>
-
+    
     <span class="k">try</span><span class="p">:</span>
+        <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;cardtype&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">cardtype</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardtype&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;cardset_id&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">cardset_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">]</span>
+
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">200</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
             <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Database operation failed&#39;</span><span class="p">,</span>
             <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="p">}),</span> <span class="mi">500</span>
-    <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">200</span></div>
-
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="delete_card">
@@ -218,15 +227,74 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Card deleted successfully</span>
 <span class="sd">        404: Card not found</span>
+<span class="sd">        500: Database operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
 
-    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Card deleted successfully!&#39;</span><span class="p">}),</span> <span class="mi">200</span></div>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Card deleted successfully&#39;</span><span class="p">}),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to delete card&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
+
+<div class="viewcode-block" id="filter_by_multiple_types">
+<a class="viewcode-back" href="../../controllers.html#controllers.card_controller.filter_by_multiple_types">[docs]</a>
+<span class="nd">@card_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/filter/by-multiple-types&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">filter_by_multiple_types</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter cards by multiple card types.</span>
+<span class="sd">    </span>
+<span class="sd">    Query Parameters:</span>
+<span class="sd">        types (str): Comma-separated list of card types (e.g. fire,water)</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of cards matching the specified types</span>
+<span class="sd">        400: No types provided</span>
+<span class="sd">        500: Filter operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">type_names</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;types&#39;</span><span class="p">):</span>
+            <span class="n">type_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">type_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">for</span> <span class="n">type_name</span> <span class="ow">in</span> <span class="n">type_names</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">type_list</span><span class="p">))</span>
+            <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">cards_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">cards</span><span class="p">),</span> <span class="mi">200</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;No types provided&#39;</span><span class="p">}),</span> <span class="mi">400</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to filter cards&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+
+<div class="viewcode-block" id="filter_by_multiple_sets">
+<a class="viewcode-back" href="../../controllers.html#controllers.card_controller.filter_by_multiple_sets">[docs]</a>
+<span class="nd">@card_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/filter/by-multiple-sets&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">filter_by_multiple_sets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter cards by multiple set IDs.</span>
+<span class="sd">    </span>
+<span class="sd">    Query Parameters:</span>
+<span class="sd">        sets (str): Comma-separated list of set IDs</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of cards from specified sets</span>
+<span class="sd">        400: No set IDs provided</span>
+<span class="sd">        500: Filter operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">set_ids</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sets&#39;</span><span class="p">):</span>
+            <span class="n">set_id_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">set_ids</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">cardset_id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">set_id_list</span><span class="p">))</span>
+            <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">cards_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">cards</span><span class="p">),</span> <span class="mi">200</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;No set IDs provided&#39;</span><span class="p">}),</span> <span class="mi">400</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to filter cards&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="search_cards">
@@ -237,24 +305,34 @@
 <span class="sd">    Search for Pokemon cards using filters.</span>
 <span class="sd">    </span>
 <span class="sd">    Search Parameters:</span>
-<span class="sd">        name (str, optional): Card name to search for</span>
-<span class="sd">        type (str, optional): Card type to filter by</span>
-<span class="sd">        cardset_id (int, optional): Set ID to filter by</span>
+<span class="sd">        name (str, optional): Card name pattern to search for (case insensitive)</span>
+<span class="sd">        cardtype (str, optional): Card type name pattern to filter by (case insensitive)</span>
+<span class="sd">        cardset_id (int, optional): Exact set ID to filter by</span>
 <span class="sd">        </span>
 <span class="sd">    Returns:</span>
-<span class="sd">        200: List of matching cards</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">name</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-        <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">card_type</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardtype&#39;</span><span class="p">):</span>
-        <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">cardtype</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">card_type</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">cardset_id</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">):</span>
-        <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">cardset_id</span> <span class="o">==</span> <span class="n">cardset_id</span><span class="p">)</span>
+<span class="sd">        200: List of matching cards with their relationships</span>
+<span class="sd">        400: Invalid cardset_id format</span>
+<span class="sd">        500: Search operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
         
-    <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cards_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">cards</span><span class="p">),</span> <span class="mi">200</span></div>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">card_type</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardtype&#39;</span><span class="p">):</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">cardtype</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">card_type</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">cardset_id</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cardset_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cardset_id</span><span class="p">)</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">cardset_id</span> <span class="o">==</span> <span class="n">cardset_id</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Invalid cardset_id format&#39;</span><span class="p">}),</span> <span class="mi">400</span>
+            
+        <span class="n">cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cards_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">cards</span><span class="p">),</span> <span class="mi">200</span>
+    
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Search failed&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 </pre></div>
 

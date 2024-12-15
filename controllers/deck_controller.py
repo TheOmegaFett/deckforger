@@ -97,10 +97,10 @@ def create_deck():
         db.session.rollback()
         return jsonify({'error': 'Failed to create deck', 'details': str(e)}), 500
 
-@deck_controller.route('/<int:deck_id>', methods=['PUT'])
+@deck_controller.route('/<int:deck_id>', methods=['PATCH'])
 def update_deck(deck_id):
     """
-    Update an existing Pokemon TCG deck.
+    Update specific properties of a deck.
     
     Parameters:
         deck_id (int): ID of the deck to update
@@ -109,7 +109,6 @@ def update_deck(deck_id):
         name (str, optional): New name for the deck
         description (str, optional): New description
         format_id (int, optional): New format ID
-        deckbox_id (int, optional): New deckbox ID
         
     Returns:
         200: Deck updated successfully
@@ -122,23 +121,23 @@ def update_deck(deck_id):
         if not deck:
             return jsonify({'error': 'Deck not found'}), 404
 
-        data = request.get_json()
-        
+        data = request.json
         if 'name' in data:
             deck.name = data['name']
         if 'description' in data:
             deck.description = data['description']
         if 'format_id' in data:
             deck.format_id = data['format_id']
-        if 'deckbox_id' in data:
-            deck.deckbox_id = data['deckbox_id']
+            validate_deck(deck.id, deck.format_id)
 
         db.session.commit()
         return deck_schema.jsonify(deck), 200
-
+    except ValidationError as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to update deck', 'details': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
 @deck_controller.route('/validate/<int:deck_id>', methods=['GET'])
 def validate_deck_rules(deck_id):

@@ -31,10 +31,19 @@
           <div class="body" role="main">
             
   <h1>Source code for controllers.cardtype_controller</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">jsonify</span>
+<span></span><span class="sd">&#39;&#39;&#39;Controller for managing Pokemon TCG card type operations&#39;&#39;&#39;</span>
+
+<span class="c1"># Third-party imports</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">jsonify</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">func</span><span class="p">,</span> <span class="n">text</span>
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
+
+<span class="c1"># Local application imports</span>
 <span class="kn">from</span> <span class="nn">models.cardtype</span> <span class="kn">import</span> <span class="n">CardType</span>
-<span class="kn">from</span> <span class="nn">schemas.cardtype_schema</span> <span class="kn">import</span> <span class="n">cardtypes_schema</span>
+<span class="kn">from</span> <span class="nn">models.card</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">models.cardset</span> <span class="kn">import</span> <span class="n">CardSet</span>
+<span class="kn">from</span> <span class="nn">models.deckcard</span> <span class="kn">import</span> <span class="n">DeckCard</span>
+<span class="kn">from</span> <span class="nn">schemas.cardtype_schema</span> <span class="kn">import</span> <span class="n">cardtype_schema</span><span class="p">,</span> <span class="n">cardtypes_schema</span>
 
 <span class="n">cardtype_controller</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;cardtypes&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">,</span> <span class="n">url_prefix</span><span class="o">=</span><span class="s1">&#39;/cardtypes&#39;</span><span class="p">)</span>
 
@@ -42,36 +51,130 @@
 <a class="viewcode-back" href="../../controllers.html#controllers.cardtype_controller.get_all_types">[docs]</a>
 <span class="nd">@cardtype_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">get_all_types</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all card types&quot;&quot;&quot;</span>
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span>
-    <span class="n">types</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cardtypes_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">types</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve all card types.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of all card types</span>
+<span class="sd">        500: Database query failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cardtypes_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">types</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to retrieve card types&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="search_by_name">
 <a class="viewcode-back" href="../../controllers.html#controllers.cardtype_controller.search_by_name">[docs]</a>
 <span class="nd">@cardtype_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/search/&lt;string:name&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">search_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for types by name&quot;&quot;&quot;</span>
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
-    <span class="n">types</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cardtypes_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">types</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Search for card types by name.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        name (str): Name pattern to search for</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of matching card types</span>
+<span class="sd">        500: Search operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cardtypes_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">types</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to search card types&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="get_cards_by_type">
 <a class="viewcode-back" href="../../controllers.html#controllers.cardtype_controller.get_cards_by_type">[docs]</a>
-<span class="nd">@cardtype_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:type_id&gt;/cards&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">get_cards_by_type</span><span class="p">(</span><span class="n">type_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all cards of a specific type&quot;&quot;&quot;</span>
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">type_id</span><span class="p">)</span>
-    <span class="n">card_type</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">card_type</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card type not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">([{</span>
-        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="n">card</span><span class="o">.</span><span class="n">sets</span><span class="o">.</span><span class="n">name</span>
-    <span class="p">}</span> <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">card_type</span><span class="o">.</span><span class="n">cards</span><span class="p">])</span></div>
+<span class="nd">@cardtype_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:cardtype_id&gt;/cards&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">get_cards_by_type</span><span class="p">(</span><span class="n">cardtype_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get all cards of a specific type.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        cardtype_id (int): ID of the card type</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of cards of specified type</span>
+<span class="sd">        404: Card type not found</span>
+<span class="sd">        500: Query operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cardtype_id</span><span class="p">)</span>
+        <span class="n">card_type</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card type not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
+            
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">([{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="n">card</span><span class="o">.</span><span class="n">cardset</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">}</span> <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">card_type</span><span class="o">.</span><span class="n">cards</span><span class="p">]),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to retrieve cards&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+
+<div class="viewcode-block" id="get_type_popularity">
+<a class="viewcode-back" href="../../controllers.html#controllers.cardtype_controller.get_type_popularity">[docs]</a>
+<span class="nd">@cardtype_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/popularity-in-decks&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">get_type_popularity</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get popularity statistics of card types across all decks.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: Card type usage statistics</span>
+<span class="sd">        500: Statistics calculation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+            <span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">DeckCard</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;usage_count&#39;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span>\
+        <span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">group_by</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">order_by</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="s1">&#39;usage_count DESC&#39;</span><span class="p">))</span>
+        
+        <span class="n">popularity</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">([{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;usage_count&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">usage_count</span>
+        <span class="p">}</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">popularity</span><span class="p">]),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to calculate type popularity&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+
+<div class="viewcode-block" id="get_type_distribution">
+<a class="viewcode-back" href="../../controllers.html#controllers.cardtype_controller.get_type_distribution">[docs]</a>
+<span class="nd">@cardtype_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/distribution-by-set&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">get_type_distribution</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get distribution of types across all sets.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: Type distribution statistics per set</span>
+<span class="sd">        500: Distribution calculation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+            <span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">CardSet</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;set_name&#39;</span><span class="p">),</span>
+            <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;card_count&#39;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span>\
+        <span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CardSet</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">group_by</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">CardSet</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        
+        <span class="n">distribution</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">([{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">set_name</span><span class="p">,</span>
+            <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">card_count</span>
+        <span class="p">}</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">distribution</span><span class="p">]),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to calculate type distribution&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 </pre></div>
 

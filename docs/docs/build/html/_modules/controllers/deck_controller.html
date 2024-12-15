@@ -37,6 +37,7 @@
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
 <span class="kn">from</span> <span class="nn">marshmallow</span> <span class="kn">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">func</span><span class="p">,</span> <span class="n">and_</span><span class="p">,</span> <span class="n">true</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="c1"># Local application imports</span>
@@ -45,68 +46,12 @@
 <span class="kn">from</span> <span class="nn">models.deckcard</span> <span class="kn">import</span> <span class="n">DeckCard</span>
 <span class="kn">from</span> <span class="nn">models.card</span> <span class="kn">import</span> <span class="n">Card</span>
 <span class="kn">from</span> <span class="nn">models.cardset</span> <span class="kn">import</span> <span class="n">CardSet</span>
+<span class="kn">from</span> <span class="nn">models.cardtype</span> <span class="kn">import</span> <span class="n">CardType</span>
 <span class="kn">from</span> <span class="nn">schemas.deck_schema</span> <span class="kn">import</span> <span class="n">DeckSchema</span>
-
 
 <span class="n">deck_controller</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;deck_controller&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
 <span class="n">deck_schema</span> <span class="o">=</span> <span class="n">DeckSchema</span><span class="p">()</span>
 <span class="n">decks_schema</span> <span class="o">=</span> <span class="n">DeckSchema</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="validate_deck">
-<a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.validate_deck">[docs]</a>
-<span class="k">def</span> <span class="nf">validate_deck</span><span class="p">(</span><span class="n">deck_id</span><span class="p">,</span> <span class="n">format_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Validate deck composition and format legality.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters:</span>
-<span class="sd">        deck_id (int): ID of deck to validate</span>
-<span class="sd">        format_id (int): Format to validate against</span>
-<span class="sd">        </span>
-<span class="sd">    Raises:</span>
-<span class="sd">        ValidationError: If deck violates any format or composition rules</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">standard_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-    <span class="n">expanded_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-
-    <span class="n">stmt</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">CardSet</span><span class="o">.</span><span class="n">release_date</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">DeckCard</span><span class="o">.</span><span class="n">deck_id</span> <span class="o">==</span> <span class="n">deck_id</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">oldest_card_date</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">format_id</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">oldest_card_date</span> <span class="o">&lt;</span> <span class="n">standard_date</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Deck contains cards not legal in Standard format&#39;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">format_id</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">oldest_card_date</span> <span class="o">&lt;</span> <span class="n">expanded_date</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Deck contains cards not legal in Expanded format&#39;</span><span class="p">)</span>
-
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="n">deck_id</span><span class="p">)</span>
-    <span class="n">deck_cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-
-    <span class="n">card_count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">card_quantities</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">basic_energy_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^Basic \w+ Energy&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">deck_card</span> <span class="ow">in</span> <span class="n">deck_cards</span><span class="p">:</span>
-        <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">deck_card</span><span class="o">.</span><span class="n">card_id</span><span class="p">)</span>
-        <span class="n">card_set</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CardSet</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">cardset_id</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">card_set</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Card or card set not found for deck card ID </span><span class="si">{</span><span class="n">deck_card</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="n">quantity</span> <span class="o">=</span> <span class="n">deck_card</span><span class="o">.</span><span class="n">quantity</span>
-        <span class="n">card_count</span> <span class="o">+=</span> <span class="n">quantity</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">basic_energy_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-            <span class="n">card_quantities</span><span class="p">[</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">card_quantities</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">quantity</span>
-            <span class="k">if</span> <span class="n">card_quantities</span><span class="p">[</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Card </span><span class="se">\&#39;</span><span class="si">{</span><span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1"> has more than 4 copies in the deck.&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">card_count</span> <span class="o">!=</span> <span class="mi">60</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Deck must contain exactly 60 cards. Current count: </span><span class="si">{</span><span class="n">card_count</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="get_all_decks">
 <a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.get_all_decks">[docs]</a>
@@ -117,10 +62,14 @@
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        200: List of all decks</span>
+<span class="sd">        500: Database query failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">)</span>
-    <span class="n">decks</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">decks_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">decks</span><span class="p">),</span> <span class="mi">200</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">)</span>
+        <span class="n">decks</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">decks_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">decks</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to retrieve decks&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="get_one_deck">
@@ -128,7 +77,7 @@
 <span class="nd">@deck_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:deck_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">get_one_deck</span><span class="p">(</span><span class="n">deck_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Retrieve a specific Pokemon TCG deck by ID.</span>
+<span class="sd">    Retrieve a specific deck by ID.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
 <span class="sd">        deck_id (int): ID of the deck to retrieve</span>
@@ -136,11 +85,15 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Deck details</span>
 <span class="sd">        404: Deck not found</span>
+<span class="sd">        500: Database query failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deck</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Deck</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">deck</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Deck not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
-    <span class="k">return</span> <span class="n">deck_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">deck</span><span class="p">),</span> <span class="mi">200</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Deck</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">deck</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Deck not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
+        <span class="k">return</span> <span class="n">deck_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">deck</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to retrieve deck&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="create_deck">
@@ -154,37 +107,44 @@
 <span class="sd">        name (str): Name of the deck</span>
 <span class="sd">        description (str, optional): Description of the deck</span>
 <span class="sd">        format_id (int): ID of the format this deck follows</span>
+<span class="sd">        deckbox_id (int): ID of the deckbox to contain this deck</span>
 <span class="sd">        </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        201: Deck created successfully</span>
-<span class="sd">        400: Validation error in deck composition</span>
+<span class="sd">        400: Missing required fields or validation error</span>
+<span class="sd">        500: Database operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
-    
-    <span class="n">new_deck</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
-        <span class="n">description</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
-        <span class="n">format_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;format_id&#39;</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_deck</span><span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">validate_deck</span><span class="p">(</span><span class="n">new_deck</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">new_deck</span><span class="o">.</span><span class="n">format_id</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+        
+        <span class="n">required_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;format_id&#39;</span><span class="p">,</span> <span class="s1">&#39;deckbox_id&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Missing required field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">}),</span> <span class="mi">400</span>
+        
+        <span class="n">new_deck</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="n">format_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;format_id&#39;</span><span class="p">],</span>
+            <span class="n">deckbox_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;deckbox_id&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_deck</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">deck_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">new_deck</span><span class="p">),</span> <span class="mi">201</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span>
-
-    <span class="k">return</span> <span class="n">deck_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">new_deck</span><span class="p">),</span> <span class="mi">201</span></div>
-
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to create deck&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="update_deck">
 <a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.update_deck">[docs]</a>
-<span class="nd">@deck_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:deck_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUT&#39;</span><span class="p">])</span>
+<span class="nd">@deck_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:deck_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PATCH&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">update_deck</span><span class="p">(</span><span class="n">deck_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update an existing Pokemon TCG deck.</span>
+<span class="sd">    Update specific properties of a deck.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
 <span class="sd">        deck_id (int): ID of the deck to update</span>
@@ -197,27 +157,31 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Deck updated successfully</span>
 <span class="sd">        404: Deck not found</span>
-<span class="sd">        400: Validation error in deck composition</span>
+<span class="sd">        400: Validation error</span>
+<span class="sd">        500: Database operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deck</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Deck</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">deck</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Deck not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
-
-    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
-    <span class="n">deck</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">deck</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">deck</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="n">deck</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
-    <span class="n">deck</span><span class="o">.</span><span class="n">format_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;format_id&#39;</span><span class="p">,</span> <span class="n">deck</span><span class="o">.</span><span class="n">format_id</span><span class="p">)</span>
-
-    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">validate_deck</span><span class="p">(</span><span class="n">deck</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">deck</span><span class="o">.</span><span class="n">format_id</span><span class="p">)</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Deck</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">deck</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Deck not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">deck</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;description&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">deck</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;format_id&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">deck</span><span class="o">.</span><span class="n">format_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;format_id&#39;</span><span class="p">]</span>
+            <span class="n">validate_deck</span><span class="p">(</span><span class="n">deck</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">deck</span><span class="o">.</span><span class="n">format_id</span><span class="p">)</span>
+
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">deck_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">deck</span><span class="p">),</span> <span class="mi">200</span>
     <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span>
-
-    <span class="k">return</span> <span class="n">deck_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">deck</span><span class="p">),</span> <span class="mi">200</span></div>
-
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="validate_deck_rules">
@@ -251,6 +215,8 @@
             <span class="s1">&#39;card_count&#39;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">quantity</span> <span class="k">for</span> <span class="n">dc</span> <span class="ow">in</span> <span class="n">deck</span><span class="o">.</span><span class="n">deck_cards</span><span class="p">)</span>
         <span class="p">}),</span> <span class="mi">200</span>
             
+    <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
             <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Validation check failed&#39;</span><span class="p">,</span>
@@ -258,6 +224,172 @@
             <span class="s1">&#39;deck_id&#39;</span><span class="p">:</span> <span class="n">deck_id</span>
         <span class="p">}),</span> <span class="mi">500</span></div>
 
+
+<div class="viewcode-block" id="search_decks">
+<a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.search_decks">[docs]</a>
+<span class="nd">@deck_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/search&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">search_decks</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Search and filter decks by format and rating.</span>
+<span class="sd">    </span>
+<span class="sd">    Query Parameters:</span>
+<span class="sd">        format (str): Format name (standard, expanded)</span>
+<span class="sd">        rating (int): Minimum rating threshold</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of matching decks</span>
+<span class="sd">        500: Search operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">format_name</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">):</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">format_id</span> <span class="o">==</span> <span class="n">format_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rating</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rating&#39;</span><span class="p">):</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">rating</span> <span class="o">&gt;=</span> <span class="n">rating</span><span class="p">)</span>
+            
+        <span class="n">decks</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">decks_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">decks</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Search failed&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+
+<div class="viewcode-block" id="filter_decks_by_cardtype">
+<a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.filter_decks_by_cardtype">[docs]</a>
+<span class="nd">@deck_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/filter/by-cardtype&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">filter_decks_by_cardtype</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get decks filtered by card type distribution.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: Decks with their card type breakdowns</span>
+<span class="sd">        500: Filter operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;type_count&#39;</span><span class="p">))</span><span class="o">.</span>\
+               <span class="n">join</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span><span class="o">.</span>\
+               <span class="n">group_by</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        
+        <span class="n">decks</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">decks_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">decks</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Filter failed&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+
+<div class="viewcode-block" id="get_top_rated_decks">
+<a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.get_top_rated_decks">[docs]</a>
+<span class="nd">@deck_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/top-rated&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">get_top_rated_decks</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get highest rated decks.</span>
+<span class="sd">    </span>
+<span class="sd">    Query Parameters:</span>
+<span class="sd">        limit (int): Number of decks to return (default 10)</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of top rated decks</span>
+<span class="sd">        500: Query failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;limit&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">)</span><span class="o">.</span>\
+               <span class="n">order_by</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">rating</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span><span class="o">.</span>\
+               <span class="n">limit</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+        
+        <span class="n">decks</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">decks_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">decks</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to get top rated decks&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+
+<div class="viewcode-block" id="filter_by_rating">
+<a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.filter_by_rating">[docs]</a>
+<span class="nd">@deck_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/filter/by-rating-range&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">filter_by_rating</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter decks by rating range.</span>
+<span class="sd">    </span>
+<span class="sd">    Query Parameters:</span>
+<span class="sd">        min (float): Minimum rating</span>
+<span class="sd">        max (float): Maximum rating</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        200: List of decks within rating range</span>
+<span class="sd">        500: Filter operation failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">min_rating</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">max_rating</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_rating</span><span class="p">:</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">rating</span> <span class="o">&gt;=</span> <span class="n">min_rating</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_rating</span><span class="p">:</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">rating</span> <span class="o">&lt;=</span> <span class="n">max_rating</span><span class="p">)</span>
+            
+        <span class="n">decks</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">decks_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">decks</span><span class="p">),</span> <span class="mi">200</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Filter failed&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+
+<div class="viewcode-block" id="validate_deck">
+<a class="viewcode-back" href="../../controllers.html#controllers.deck_controller.validate_deck">[docs]</a>
+<span class="k">def</span> <span class="nf">validate_deck</span><span class="p">(</span><span class="n">deck_id</span><span class="p">,</span> <span class="n">format_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate deck composition and format legality.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        deck_id (int): ID of deck to validate</span>
+<span class="sd">        format_id (int): Format to validate against</span>
+<span class="sd">        </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: If deck violates any format or composition rules</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">standard_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">expanded_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+    <span class="n">stmt</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">CardSet</span><span class="o">.</span><span class="n">release_date</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">DeckCard</span><span class="o">.</span><span class="n">deck_id</span> <span class="o">==</span> <span class="n">deck_id</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">oldest_card_date</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">oldest_card_date</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;No cards found in deck&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Continue with date comparisons after confirming we have a valid date</span>
+    <span class="k">if</span> <span class="n">format_id</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">oldest_card_date</span> <span class="o">&lt;</span> <span class="n">standard_date</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Deck contains cards not legal in Standard format&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">format_id</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">oldest_card_date</span> <span class="o">&lt;</span> <span class="n">expanded_date</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Deck contains cards not legal in Expanded format&#39;</span><span class="p">)</span>
+
+    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="n">deck_id</span><span class="p">)</span>
+    <span class="n">deck_cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="n">card_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">card_quantities</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">basic_energy_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^Basic \w+ Energy&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">deck_card</span> <span class="ow">in</span> <span class="n">deck_cards</span><span class="p">:</span>
+        <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">deck_card</span><span class="o">.</span><span class="n">card_id</span><span class="p">)</span>
+        <span class="n">card_set</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CardSet</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">cardset_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">card_set</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Card or card set not found for deck card ID </span><span class="si">{</span><span class="n">deck_card</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">quantity</span> <span class="o">=</span> <span class="n">deck_card</span><span class="o">.</span><span class="n">quantity</span>
+        <span class="n">card_count</span> <span class="o">+=</span> <span class="n">quantity</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">basic_energy_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">card_quantities</span><span class="p">[</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">card_quantities</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">quantity</span>
+            <span class="k">if</span> <span class="n">card_quantities</span><span class="p">[</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Card </span><span class="se">\&#39;</span><span class="si">{</span><span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1"> has more than 4 copies in the deck.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">card_count</span> <span class="o">!=</span> <span class="mi">60</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Deck must contain exactly 60 cards. Current count: </span><span class="si">{</span><span class="n">card_count</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 </pre></div>
 

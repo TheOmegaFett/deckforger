@@ -82,10 +82,10 @@ def read_one_deckbox(deckbox_id):
     except Exception as e:
         return jsonify({'error': 'Failed to retrieve deckbox', 'details': str(e)}), 500
 
-@deckbox_controller.route('/<int:deckbox_id>', methods=['PUT'])
+@deckbox_controller.route('/<int:deckbox_id>', methods=['PATCH'])
 def update_deckbox(deckbox_id):
     """
-    Update a specific deck box.
+    Update specific properties of a deck box.
     
     Parameters:
         deckbox_id (int): ID of the deck box to update
@@ -105,8 +105,11 @@ def update_deckbox(deckbox_id):
             return jsonify({'error': 'DeckBox not found'}), 404
 
         data = request.json
-        deckbox.name = data.get('name', deckbox.name)
-        deckbox.description = data.get('description', deckbox.description)
+        if 'name' in data:
+            deckbox.name = data['name']
+        if 'description' in data:
+            deckbox.description = data['description']
+
         db.session.commit()
         return deckbox_schema.jsonify(deckbox), 200
     except Exception as e:

@@ -262,10 +262,20 @@
         <li><a href="schemas.html#schemas.cardtype_schema.CardTypeSchema.Meta.fields">(schemas.cardtype_schema.CardTypeSchema.Meta attribute)</a>
 </li>
       </ul></li>
-      <li><a href="models.html#models.format.Format">Format (class in models.format)</a>
+      <li><a href="controllers.html#controllers.card_controller.filter_by_multiple_sets">filter_by_multiple_sets() (in module controllers.card_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.card_controller.filter_by_multiple_types">filter_by_multiple_types() (in module controllers.card_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.deck_controller.filter_by_rating">filter_by_rating() (in module controllers.deck_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.deckbox_controller.filter_deckbox_decks">filter_deckbox_decks() (in module controllers.deckbox_controller)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="controllers.html#controllers.deck_controller.filter_decks_by_cardtype">filter_decks_by_cardtype() (in module controllers.deck_controller)</a>
+</li>
+      <li><a href="models.html#models.format.Format">Format (class in models.format)</a>
+</li>
       <li><a href="models.html#models.Deck.format_id">format_id (in module models.Deck)</a>
 
       <ul>
@@ -290,12 +300,14 @@
 </li>
       <li><a href="controllers.html#controllers.cardtype_controller.get_all_types">get_all_types() (in module controllers.cardtype_controller)</a>
 </li>
+      <li><a href="controllers.html#controllers.cardset_controller.get_card_distribution">get_card_distribution() (in module controllers.cardset_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.cardtype_controller.get_cards_by_type">get_cards_by_type() (in module controllers.cardtype_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.cardset_controller.get_cards_in_set">get_cards_in_set() (in module controllers.cardset_controller)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="controllers.html#controllers.cardset_controller.get_cards_in_set">get_cards_in_set() (in module controllers.cardset_controller)</a>
-</li>
       <li><a href="controllers.html#controllers.format_controller.get_format">get_format() (in module controllers.format_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.format_controller.get_formats">get_formats() (in module controllers.format_controller)</a>
@@ -305,6 +317,12 @@
       <li><a href="controllers.html#controllers.deck_controller.get_one_deck">get_one_deck() (in module controllers.deck_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.cardset_controller.get_set">get_set() (in module controllers.cardset_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.deck_controller.get_top_rated_decks">get_top_rated_decks() (in module controllers.deck_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.cardtype_controller.get_type_distribution">get_type_distribution() (in module controllers.cardtype_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.cardtype_controller.get_type_popularity">get_type_popularity() (in module controllers.cardtype_controller)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -577,8 +595,6 @@
         <li><a href="schemas.html#schemas.cardset_schema.CardSetSchema.release_date">(schemas.cardset_schema.CardSetSchema attribute)</a>
 </li>
       </ul></li>
-      <li><a href="controllers.html#controllers.deckbox_controller.remove_deck_from_deckbox">remove_deck_from_deckbox() (in module controllers.deckbox_controller)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -627,8 +643,6 @@
         <li><a href="schemas.html#module-schemas.deckcard_schema">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     schemas.format_schema
 
@@ -636,6 +650,8 @@
         <li><a href="schemas.html#module-schemas.format_schema">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="controllers.html#controllers.cardset_controller.search_by_name">search_by_name() (in module controllers.cardset_controller)</a>
 
       <ul>
@@ -643,6 +659,10 @@
 </li>
       </ul></li>
       <li><a href="controllers.html#controllers.card_controller.search_cards">search_cards() (in module controllers.card_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.deckbox_controller.search_deckboxes">search_deckboxes() (in module controllers.deckbox_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.deck_controller.search_decks">search_decks() (in module controllers.deck_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.cli_controller.seed_tables">seed_tables() (in module controllers.cli_controller)</a>
 </li>
@@ -694,21 +714,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="controllers.html#controllers.deck_controller.validate_deck">validate_deck() (in module controllers.deck_controller)</a>
 </li>
-      <li><a href="controllers.html#controllers.format_controller.validate_deck_format">validate_deck_format() (in module controllers.format_controller)</a>
-</li>
       <li><a href="controllers.html#controllers.deck_controller.validate_deck_rules">validate_deck_rules() (in module controllers.deck_controller)</a>
 </li>
-      <li><a href="controllers.html#controllers.card_controller.validate_name">validate_name() (in module controllers.card_controller)</a>
-
-      <ul>
-        <li><a href="controllers.html#controllers.cardset_controller.validate_name">(in module controllers.cardset_controller)</a>
+      <li><a href="controllers.html#controllers.format_controller.validate_format_legality">validate_format_legality() (in module controllers.format_controller)</a>
 </li>
-        <li><a href="controllers.html#controllers.deckbox_controller.validate_name">(in module controllers.deckbox_controller)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="controllers.html#controllers.cardset_controller.validate_release_date">validate_release_date() (in module controllers.cardset_controller)</a>
+      <li><a href="controllers.html#controllers.card_controller.validate_name">validate_name() (in module controllers.card_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.card_controller.validate_set_id">validate_set_id() (in module controllers.card_controller)</a>
 </li>
