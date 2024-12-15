@@ -507,6 +507,7 @@ format_id (int, optional): New format ID</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Deck is valid with details
 404: Deck not found
+422: Deck is invalid with details
 500: Validation check failed</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -771,10 +772,12 @@ description (str, optional): New description</p>
 <dt class="sig sig-object py" id="controllers.cardtype_controller.get_type_popularity">
 <span class="sig-prename descclassname"><span class="pre">controllers.cardtype_controller.</span></span><span class="sig-name descname"><span class="pre">get_type_popularity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardtype_controller.html#get_type_popularity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardtype_controller.get_type_popularity" title="Link to this definition">¶</a></dt>
 <dd><p>Get popularity statistics of card types across all decks.</p>
+<p>Calculates usage frequency of each card type in all decks by counting
+occurrences in deck compositions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Card type usage statistics
-500: Statistics calculation failed</p>
+<dd class="field-odd"><p>JSON array of card types with their usage counts
+500: Database query failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>200</p>
@@ -865,9 +868,11 @@ description (str): Description of the set</p>
 <dt class="sig sig-object py" id="controllers.cardset_controller.get_card_distribution">
 <span class="sig-prename descclassname"><span class="pre">controllers.cardset_controller.</span></span><span class="sig-name descname"><span class="pre">get_card_distribution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardset_controller.html#get_card_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardset_controller.get_card_distribution" title="Link to this definition">¶</a></dt>
 <dd><p>Get distribution of cards across sets with type breakdown.</p>
+<p>This endpoint calculates the distribution of different card types within each card set.
+It provides a breakdown showing how many cards of each type exist in each set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Card distribution statistics per set
+<dd class="field-odd"><p>JSON object with the following structure:
 500: Database query failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

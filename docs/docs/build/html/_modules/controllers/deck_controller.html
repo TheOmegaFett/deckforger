@@ -197,6 +197,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Deck is valid with details</span>
 <span class="sd">        404: Deck not found</span>
+<span class="sd">        422: Deck is invalid with details</span>
 <span class="sd">        500: Validation check failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -216,7 +217,7 @@
         <span class="p">}),</span> <span class="mi">200</span>
             
     <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">422</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
             <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Validation check failed&#39;</span><span class="p">,</span>

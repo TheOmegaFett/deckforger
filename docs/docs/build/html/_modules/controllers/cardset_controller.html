@@ -221,8 +221,11 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get distribution of cards across sets with type breakdown.</span>
 <span class="sd">    </span>
+<span class="sd">    This endpoint calculates the distribution of different card types within each card set.</span>
+<span class="sd">    It provides a breakdown showing how many cards of each type exist in each set.</span>
+<span class="sd">    </span>
 <span class="sd">    Returns:</span>
-<span class="sd">        200: Card distribution statistics per set</span>
+<span class="sd">        200: JSON object with the following structure:</span>
 <span class="sd">        500: Database query failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -232,9 +235,8 @@
                 <span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;type_name&#39;</span><span class="p">),</span>
                 <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">CardSet</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CardType</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">CardSet</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Card</span><span class="o">.</span><span class="n">cardset_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CardType</span><span class="p">,</span> <span class="n">CardType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Card</span><span class="o">.</span><span class="n">cardtype_id</span><span class="p">)</span>
             <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">CardSet</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">CardType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">CardSet</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="p">)</span>
@@ -252,9 +254,10 @@
         
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
-            <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Database query failed&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="p">}),</span> <span class="mi">500</span> </div>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to calculate card distribution&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">500</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">distribution</span><span class="p">),</span> <span class="mi">200</span></div>
 
 </pre></div>
 

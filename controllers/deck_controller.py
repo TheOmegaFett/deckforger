@@ -150,6 +150,7 @@ def validate_deck_rules(deck_id):
     Returns:
         200: Deck is valid with details
         404: Deck not found
+        422: Deck is invalid with details
         500: Validation check failed
     """
     try:
