@@ -30,5 +30,5 @@ class SetSchema(ma.SQLAlchemySchema):
     # Enhanced relationships
     cards = ma.Nested('CardSchema', many=True, exclude=('set_id',))
 
-set_schema = SetSchema()
-sets_schema = SetSchema(many=True)
+cardset_schema = SetSchema()
+cardsets_schema = SetSchema(many=True)

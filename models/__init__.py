@@ -9,12 +9,12 @@ from .format import Format
 from models.cardtype import CardType
 
 __all__ = [
-    'CardType',
     'Card',
     'Deck', 
     'DeckBox', 
     'DeckCard',
     'Rating', 
+    'CardType',
     'CardSet', 
     'Format'
 ]

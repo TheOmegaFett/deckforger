@@ -8,10 +8,10 @@ from datetime import datetime
 # Local application imports
 from init import db
 from models.cardset import CardSet
-from schemas.cardset_schema import set_schema, sets_schema
+from schemas.cardset_schema import cardset_schema, cardsets_schema
 
 
-cardset_controller = Blueprint('set_controller', __name__)
+cardset_controller = Blueprint('cardsets', __name__, url_prefix='/cardsets')
 
 
 @cardset_controller.route('/', methods=['POST'])
@@ -44,7 +44,7 @@ def create_set():
     )
     db.session.add(new_set)
     db.session.commit()
-    return set_schema.jsonify(new_set), 201
+    return cardset_schema.jsonify(new_set), 201
 
 @validates('name')
 def validate_name(self, value):
@@ -61,33 +61,20 @@ def validate_release_date(self, value):
         raise ValidationError('Invalid date format. Use YYYY-MM-DD')
 
 @cardset_controller.route('/', methods=['GET'])
-def get_sets():
-    """
-    Retrieve all Pokemon card sets.
-    
-    Returns:
-        200: List of all sets
-    """
+def get_all_sets():
+    """Get all card sets"""
     stmt = db.select(CardSet)
     sets = db.session.scalars(stmt).all()
-    return sets_schema.jsonify(sets)
+    return cardsets_schema.dump(sets)
 
 @cardset_controller.route('/<int:set_id>', methods=['GET'])
 def get_set(set_id):
-    """
-    Retrieve a specific Pokemon card set by ID.
-    
-    Parameters:
-        set_id (int): ID of the set to retrieve
-        
-    Returns:
-        200: Set details
-        404: Set not found
-    """
-    set_ = db.session.get(CardSet, set_id)
-    if not set_:
-        return jsonify({'error': 'Set not found'}), 404
-    return set_schema.jsonify(set_)
+    """Get a specific set by ID"""
+    stmt = db.select(CardSet).filter_by(id=set_id)
+    set = db.session.scalar(stmt)
+    if not set:
+        return {'error': 'Set not found'}, 404
+    return cardset_schema.dump(set)
 
 @cardset_controller.route('/<int:set_id>', methods=['PUT'])
 def update_set(set_id):
@@ -116,7 +103,7 @@ def update_set(set_id):
     set_.release_date = data.get('release_date', set_.release_date)
     set_.description = data.get('description', set_.description)
     db.session.commit()
-    return set_schema.jsonify(set_)
+    return cardset_schema.jsonify(set_)
 
 @cardset_controller.route('/<int:set_id>', methods=['DELETE'])
 def delete_set(set_id):
@@ -138,24 +125,22 @@ def delete_set(set_id):
     db.session.commit()
     return jsonify({'message': 'Set deleted successfully!'})
 
-@cardset_controller.route('/search', methods=['GET'])
-def search_sets():
-    """
-    Search for Pokemon card sets using filters.
-    
-    Search Parameters:
-        name (str, optional): Set name to search for
-        release_date (date, optional): Filter by release date
-        
-    Returns:
-        200: List of matching sets
-    """
-    stmt = db.select(CardSet)
-    
-    if name := request.args.get('name'):
-        stmt = stmt.filter(CardSet.name.ilike(f'%{name}%'))
-    if release_date := request.args.get('release_date'):
-        stmt = stmt.filter(CardSet.release_date == release_date)
-        
+@cardset_controller.route('/search/<string:name>', methods=['GET'])
+def search_by_name(name):
+    """Search for sets by name"""
+    stmt = db.select(CardSet).filter(CardSet.name.ilike(f'%{name}%'))
     sets = db.session.scalars(stmt).all()
-    return sets_schema.jsonify(sets)
+    return cardsets_schema.dump(sets)
+
+@cardset_controller.route('/<int:set_id>/cards', methods=['GET'])
+def get_cards_in_set(set_id):
+    """Get all cards in a specific set"""
+    stmt = db.select(CardSet).filter_by(id=set_id)
+    set = db.session.scalar(stmt)
+    if not set:
+        return {'error': 'Set not found'}, 404
+    return jsonify([{
+        'id': card.id,
+        'name': card.name,
+        'type': card.type.name
+    } for card in set.cards])

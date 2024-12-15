@@ -15,7 +15,7 @@ Deck
         :undoc-members:
 
 DeckBox
-    -------
+-------
     .. automodule:: models.DeckBox
         :members:
         :undoc-members:
@@ -30,13 +30,15 @@ CardType
 --------
     .. automodule:: models.cardtype
         :members:
-        :show-inheritance:
+        :undoc-members:
+        :exclude-members: id, name, cards, query
 
 CardSet
 -------
     .. automodule:: models.CardSet
         :members:
         :undoc-members:
+        :exclude-members: id, name, query
 
 Format
 ------

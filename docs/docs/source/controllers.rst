@@ -33,12 +33,14 @@ CardType Controller
 -------------------
    .. automodule:: controllers.cardtype_controller
       :members:
+      :undoc-members:
       :show-inheritance:
 
 CardSet Controller
 -------------------
    .. automodule:: controllers.cardset_controller
       :members:
+      :undoc-members:
       :show-inheritance:
 
 Format Controller

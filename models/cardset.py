@@ -13,7 +13,7 @@ class CardSet(db.Model):
         name (str): Name of the set, must be unique
         release_date (date): Release date of the set
         description (text): Description of the set
-        cards (relationship): Relationship to associated cards
+        cards (relationship): Relationship to associated cards in the set
     """
     
     __tablename__ = 'sets'

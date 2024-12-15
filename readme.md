@@ -97,6 +97,22 @@ flask run/seed
 - PUT /api/formats/{format_id} - Update format
 - DELETE /api/formats/{format_id} - Delete format
 
+### Card Types
+
+- GET /api/cardtypes/ - List all card types
+- GET /api/cardtypes/{type_id} - Get specific card type
+- POST /api/cardtypes/ - Create new card type
+- PUT /api/cardtypes/{type_id} - Update card type
+- DELETE /api/cardtypes/{type_id} - Delete card type
+
+### Deck Ratings
+
+- POST /api/ratings/ - Create new rating
+- GET /api/ratings/ - List all ratings
+- GET /api/ratings/{rating_id} - Get specific rating
+- PUT /api/ratings/{rating_id} - Update rating
+- DELETE /api/ratings/{rating_id} - Delete rating
+
 ## Database Schema
 
 ![Pokemon TCG Deck Builder ERD](docs/ERD_Plan.png)

@@ -33,6 +33,7 @@ CardType Schema
 ---------------
 .. automodule:: schemas.cardtype_schema
    :members:
+   :undoc-members:
    :show-inheritance:
 
 CardSet Schema
