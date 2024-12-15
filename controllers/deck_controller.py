@@ -158,30 +158,40 @@ def update_deck(deck_id):
         name (str, optional): New name for the deck
         description (str, optional): New description
         format_id (int, optional): New format ID
+        deckbox_id (int, optional): New deckbox ID
         
     Returns:
         200: Deck updated successfully
         404: Deck not found
         400: Validation error in deck composition
+        500: Database operation failed
     """
-    deck = db.session.get(Deck, deck_id)
-    if not deck:
-        return jsonify({'error': 'Deck not found'}), 404
-
-    data = request.get_json()
-    deck.name = data.get('name', deck.name)
-    deck.description = data.get('description', deck.description)
-    deck.format_id = data.get('format_id', deck.format_id)
-
-    db.session.commit()
-
     try:
-        validate_deck(deck.id, deck.format_id)
-    except ValidationError as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        deck = db.session.get(Deck, deck_id)
+        if not deck:
+            return jsonify({'error': 'Deck not found'}), 404
 
-    return deck_schema.jsonify(deck), 200
+        data = request.get_json()
+        
+        # Update fields if provided
+        if 'name' in data:
+            deck.name = data['name']
+        if 'description' in data:
+            deck.description = data['description']
+        if 'format_id' in data:
+            deck.format_id = data['format_id']
+        if 'deckbox_id' in data:
+            deck.deckbox_id = data['deckbox_id']
+
+        db.session.commit()
+        return deck_schema.jsonify(deck), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'error': 'Failed to update deck',
+            'details': str(e)
+        }), 500
 
 
 @deck_controller.route('/validate/<int:deck_id>', methods=['GET'])
