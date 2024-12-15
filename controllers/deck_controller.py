@@ -295,7 +295,11 @@ def validate_deck(deck_id, format_id):
         .filter(DeckCard.deck_id == deck_id)
     )
     oldest_card_date = db.session.scalar(stmt)
+    
+    if not oldest_card_date:
+        raise ValidationError('No cards found in deck')
 
+    # Continue with date comparisons after confirming we have a valid date
     if format_id == 1 and oldest_card_date < standard_date:
         raise ValidationError('Deck contains cards not legal in Standard format')
     elif format_id == 2 and oldest_card_date < expanded_date:
