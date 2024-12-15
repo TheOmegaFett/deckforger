@@ -4,16 +4,16 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
 from datetime import datetime
+from sqlalchemy import func
 
 # Local application imports
 from init import db
 from models.cardset import CardSet
+from models.card import Card
+from models.cardtype import CardType
 from schemas.cardset_schema import cardset_schema, cardsets_schema
 
-
 cardset_controller = Blueprint('cardsets', __name__, url_prefix='/cardsets')
-
-
 
 @validates('name')
 def validate_name(self, value):
@@ -147,6 +147,8 @@ def get_cards_in_set(cardset_id):
         'cardtype': card.cardtype.name
     } for card in cardset.cards])
 
+
+
 @cardset_controller.route('/stats/card-distribution', methods=['GET'])
 def get_card_distribution():
     """
@@ -185,6 +187,5 @@ def get_card_distribution():
         return jsonify({
             'message': 'Database query failed',
             'error': str(e)
-        }), 500
-        
+        }), 500        
     return jsonify(distribution), 200
