@@ -7,9 +7,9 @@ class CardType(db.Model):
     Represents a Pokemon Trading Card Game card type.
     
     Attributes:
-        id (int): Primary key for the type
+        id (int): Primary key for the card type
         name (str): Name of the type (Fire, Water, etc)
-        cards (relationship): Cards of this type
+        cards (relationship): Cards of this cardtype
     """
     
     __tablename__ = 'card_types'

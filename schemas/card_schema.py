@@ -10,7 +10,7 @@ class CardSchema(ma.Schema):
     sets = ma.Nested(SetSchema)
     
     class Meta:
-        fields = ('id', 'name', 'cardtype', 'set_id', 'sets')
+        fields = ('id', 'name', 'cardtype', 'set_id')
         ordered = True
    
 
