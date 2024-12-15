@@ -169,7 +169,7 @@ def validate_deck_rules(deck_id):
         }), 200
             
     except ValidationError as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 422
     except Exception as e:
         return jsonify({
             'message': 'Validation check failed',
