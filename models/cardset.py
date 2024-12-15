@@ -16,7 +16,7 @@ class CardSet(db.Model):
         cards (relationship): Relationship to associated cards in the set
     """
     
-    __tablename__ = 'sets'
+    __tablename__ = 'cardsets'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -24,7 +24,7 @@ class CardSet(db.Model):
     description = db.Column(db.Text, nullable=True)
 
     # Relationships
-    cards = db.relationship('Card', back_populates='sets', lazy=True)
+    cards = db.relationship('Card', back_populates='cardset', lazy=True)
 
     def __repr__(self):
         return f'<Set {self.name}>'
