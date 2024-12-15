@@ -179,4 +179,3 @@ def get_card_distribution():
         distribution[set_name]['types'][result.type_name] = result.count
         
     return jsonify(distribution), 200
-    return jsonify(distribution), 200
