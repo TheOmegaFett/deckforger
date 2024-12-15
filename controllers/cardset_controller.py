@@ -165,8 +165,11 @@ def get_card_distribution():
     """
     Get distribution of cards across sets with type breakdown.
     
+    This endpoint calculates the distribution of different card types within each card set.
+    It provides a breakdown showing how many cards of each type exist in each set.
+    
     Returns:
-        200: Card distribution statistics per set
+        200: JSON object with the following structure:
         500: Database query failed
     """
     try:
@@ -176,9 +179,8 @@ def get_card_distribution():
                 CardType.name.label('type_name'),
                 func.count(Card.id).label('count')
             )
-            .select_from(CardSet)
-            .join(Card)
-            .join(CardType)
+            .join(Card, CardSet.id == Card.cardset_id)
+            .join(CardType, CardType.id == Card.cardtype_id)
             .group_by(CardSet.name, CardType.name)
             .order_by(CardSet.name)
         )
@@ -196,6 +198,7 @@ def get_card_distribution():
         
     except Exception as e:
         return jsonify({
-            'message': 'Database query failed',
-            'error': str(e)
-        }), 500 
+            'error': 'Failed to calculate card distribution',
+            'details': str(e)
+        }), 500
+    return jsonify(distribution), 200
