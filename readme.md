@@ -115,7 +115,7 @@ flask run/seed
 
 ## Database Schema
 
-![Pokemon TCG Deck Builder ERD](docs/ERD_Plan.png)
+![Pokemon TCG Deck Builder ERD](docs/screenshots/ERD_Plan.png)
 
 ## Usage Examples
 
@@ -199,6 +199,14 @@ GET /api/decks/validate/{deck_id}
 Development is ongoing. Contributions are welcome! But please allow for grading before I accept pull requests.
 
 Main Developer: Shane W Miller
+
+## Feedback
+
+[Go To Feedback Log](docs\Feedback.md)
+
+## Deployment
+
+[Go To Deployment](docs\Deployment.md)
 
 ## License
 
