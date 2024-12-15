@@ -82,9 +82,12 @@ def get_type_popularity():
     """
     Get popularity statistics of card types across all decks.
     
+    Calculates usage frequency of each card type in all decks by counting
+    occurrences in deck compositions.
+    
     Returns:
-        200: Card type usage statistics
-        500: Statistics calculation failed
+        200: JSON array of card types with their usage counts
+        500: Database query failed
     """
     try:
         stmt = (
@@ -99,13 +102,19 @@ def get_type_popularity():
             .order_by(desc('usage_count'))
         )
         
-        results = db.session.execute(stmt).all()
+        with db.session.begin():
+            results = db.session.execute(stmt).all()
+            
         return jsonify([{
             'card_type': cardtype[0].name,
             'usage_count': cardtype[1]
-        } for cardtype in results]), 200   
+        } for cardtype in results]), 200
+        
     except Exception as e:
-        return jsonify({'error': 'Failed to calculate type popularity', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Failed to calculate type popularity',
+            'details': str(e)
+        }), 500
 
 @cardtype_controller.route('/distribution-by-set', methods=['GET'])
 def get_type_distribution():
