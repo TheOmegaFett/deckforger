@@ -36,10 +36,10 @@ def get_all_sets():
     sets = db.session.scalars(stmt).all()
     return cardsets_schema.dump(sets)
 
-@cardset_controller.route('/<int:set_id>', methods=['GET'])
-def get_set(set_id):
+@cardset_controller.route('/<int:cardset_id>', methods=['GET'])
+def get_set(cardset_id):
     """Get a specific set by ID"""
-    stmt = db.select(CardSet).filter_by(id=set_id)
+    stmt = db.select(CardSet).filter_by(id=cardset_id)
     set = db.session.scalar(stmt)
     if not set:
         return {'error': 'Set not found'}, 404
@@ -78,13 +78,13 @@ def create_set():
     return cardset_schema.jsonify(new_set), 201
 
 
-@cardset_controller.route('/<int:set_id>', methods=['PUT'])
-def update_set(set_id):
+@cardset_controller.route('/<int:cardset_id>', methods=['PUT'])
+def update_set(cardset_id):
     """
     Update a specific Pokemon card set.
     
     Parameters:
-        set_id (int): ID of the set to update
+        cardset_id (int): ID of the set to update
         
     Request Body:
         name (str, optional): New name for the set
@@ -96,7 +96,7 @@ def update_set(set_id):
         404: Set not found
         500: Database operation failed
     """
-    set_ = db.session.get(CardSet, set_id)
+    set_ = db.session.get(CardSet, cardset_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
 
@@ -107,19 +107,19 @@ def update_set(set_id):
     db.session.commit()
     return cardset_schema.jsonify(set_)
 
-@cardset_controller.route('/<int:set_id>', methods=['DELETE'])
-def delete_set(set_id):
+@cardset_controller.route('/<int:cardset_id>', methods=['DELETE'])
+def delete_set(cardset_id):
     """
     Delete a specific Pokemon card set.
     
     Parameters:
-        set_id (int): ID of the set to delete
+        cardset_id (int): ID of the set to delete
         
     Returns:
         200: Set deleted successfully
         404: Set not found
     """
-    set_ = db.session.get(CardSet, set_id)
+    set_ = db.session.get(CardSet, cardset_id)
     if not set_:
         return jsonify({'error': 'Set not found'}), 404
 
@@ -134,10 +134,10 @@ def search_by_name(name):
     sets = db.session.scalars(stmt).all()
     return cardsets_schema.dump(sets)
 
-@cardset_controller.route('/<int:set_id>/cards', methods=['GET'])
-def get_cards_in_set(set_id):
+@cardset_controller.route('/<int:cardset_id>/cards', methods=['GET'])
+def get_cards_in_set(cardset_id):
     """Get all cards in a specific set"""
-    stmt = db.select(CardSet).filter_by(id=set_id)
+    stmt = db.select(CardSet).filter_by(id=cardset_id)
     cardset = db.session.scalar(stmt)
     if not cardset:
         return {'error': 'Set not found'}, 404

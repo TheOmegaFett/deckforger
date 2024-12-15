@@ -56,7 +56,7 @@ def validate_deck(deck_id, format_id):
 
     for deck_card in deck_cards:
         card = db.session.get(Card, deck_card.card_id)
-        card_set = db.session.get(CardSet, card.set_id)
+        card_set = db.session.get(CardSet, card.cardset_id)
 
         if not card or not card_set:
             raise ValidationError(f'Card or card set not found for deck card ID {deck_card.id}')

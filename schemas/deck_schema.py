@@ -33,7 +33,7 @@ class DeckSchema(ma.SQLAlchemySchema):
     created_at = ma.auto_field(dump_only=True)
     updated_at = ma.auto_field(dump_only=True)
     
-    # Enhanced relationships
+    #  relationships
     cards = ma.Nested('DeckCardSchema', many=True)
     deckbox = ma.Nested('DeckBoxSchema', only=['id', 'name'])
     ratings = ma.Nested('RatingSchema', many=True)

@@ -28,7 +28,7 @@ class SetSchema(ma.SQLAlchemySchema):
     description = ma.auto_field(required=True)
     
     # Relationships
-    cards = ma.Nested('CardSchema', many=True, exclude=('set_id',))
+    cards = ma.Nested('CardSchema', many=True, exclude=('cardset_id',))
 
 cardset_schema = SetSchema()
 cardsets_schema = SetSchema(many=True)

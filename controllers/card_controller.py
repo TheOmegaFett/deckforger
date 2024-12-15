@@ -39,7 +39,7 @@ def validate_type(self, value):
         raise ValidationError('Invalid card type format')
 
 
-@validates('set_id')
+@validates('cardset_id')
 def validate_set_id(self, value):
     """Validate set ID is positive"""
     if value <= 0:
@@ -54,7 +54,7 @@ def create_card():
     Request Body:
         name (str): Name of the card
         type (str): Type of the card (grass, fire, water, etc.)
-        set_id (int): ID of the set this card belongs to
+        cardset_id (int): ID of the set this card belongs to
         
     Returns:
         201: Card created successfully
@@ -63,10 +63,10 @@ def create_card():
     """
     data = request.json
 
-    if not data.get('name') or not data.get('cardtype') or not data.get('set_id'):
-        return jsonify({'error': 'Name, cardtype, and set_id are required fields.'}), 400
+    if not data.get('name') or not data.get('cardtype') or not data.get('cardset_id'):
+        return jsonify({'error': 'Name, cardtype, and cardset_id are required fields.'}), 400
 
-    stmt = db.select(Card).filter_by(name=data['name'], set_id=data['set_id'])
+    stmt = db.select(Card).filter_by(name=data['name'], cardset_id=data['cardset_id'])
     existing_card = db.session.scalar(stmt)
 
     if existing_card:
@@ -75,7 +75,7 @@ def create_card():
     card = Card(
         name=data['name'],
         cardtype=data['cardtype'],
-        set_id=data['set_id']
+        cardset_id=data['cardset_id']
     )
     db.session.add(card)
     db.session.commit()
@@ -124,7 +124,7 @@ def update_card(card_id):
     Request Body:
         name (str, optional): New name for the card
         cardtype (str, optional): New type for the card
-        set_id (int, optional): New set ID for the card
+        cardset_id (int, optional): New set ID for the card
         
     Returns:
         200: Card updated successfully
@@ -138,7 +138,7 @@ def update_card(card_id):
     data = request.json
     card.name = data.get('name', card.name)
     card.cardtype = data.get('cardtype', card.cardtype)
-    card.set_id = data.get('set_id', card.set_id)
+    card.cardset_id = data.get('cardset_id', card.cardset_id)
 
     try:
         db.session.commit()
@@ -180,7 +180,7 @@ def search_cards():
     Search Parameters:
         name (str, optional): Card name to search for
         type (str, optional): Card type to filter by
-        set_id (int, optional): Set ID to filter by
+        cardset_id (int, optional): Set ID to filter by
         
     Returns:
         200: List of matching cards
@@ -191,8 +191,8 @@ def search_cards():
         stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
     if card_type := request.args.get('cardtype'):
         stmt = stmt.filter(Card.cardtype.ilike(f'%{card_type}%'))
-    if set_id := request.args.get('set_id'):
-        stmt = stmt.filter(Card.set_id == set_id)
+    if cardset_id := request.args.get('cardset_id'):
+        stmt = stmt.filter(Card.cardset_id == cardset_id)
         
     cards = db.session.scalars(stmt).all()
     return cards_schema.jsonify(cards), 200

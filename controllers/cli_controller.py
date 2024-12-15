@@ -84,33 +84,33 @@ def seed_tables():
 
         # Pokemon cards
         pokemon_cards = [
-            Card(name='Fezandipiti EX', cardtype=type_lookup['Dark'], set_id=1),
-            Card(name='Gengar EX', cardtype=type_lookup['Ghost'], set_id=2),
-            Card(name='Temporal Tyranitar', cardtype=type_lookup['Dark'], set_id=3),
-            Card(name='Mewtwo VMAX', cardtype=type_lookup['Psychic'], set_id=2),
-            Card(name='Darkrai VSTAR', cardtype=type_lookup['Dark'], set_id=1),
-            Card(name='Zoroark GX', cardtype=type_lookup['Dark'], set_id=3),
-            Card(name='Lunala V', cardtype=type_lookup['Psychic'], set_id=2)
+            Card(name='Fezandipiti EX', cardtype=type_lookup['Dark'], cardset_id=1),
+            Card(name='Gengar EX', cardtype=type_lookup['Ghost'], cardset_id=2),
+            Card(name='Temporal Tyranitar', cardtype=type_lookup['Dark'], cardset_id=3),
+            Card(name='Mewtwo VMAX', cardtype=type_lookup['Psychic'], cardset_id=2),
+            Card(name='Darkrai VSTAR', cardtype=type_lookup['Dark'], cardset_id=1),
+            Card(name='Zoroark GX', cardtype=type_lookup['Dark'], cardset_id=3),
+            Card(name='Lunala V', cardtype=type_lookup['Psychic'], cardset_id=2)
         ]
         
         # Trainer cards
         trainer_cards = [
-            Card(name='Dark Patch', cardtype=type_lookup['Supporter'], set_id=1),
-            Card(name='Time Spiral', cardtype=type_lookup['Supporter'], set_id=3),
-            Card(name='Fossil Researcher', cardtype=type_lookup['Supporter'], set_id=2),
-            Card(name='Professor Research', cardtype=type_lookup['Supporter'], set_id=1),
-            Card(name='Boss Orders', cardtype=type_lookup['Supporter'], set_id=2),
-            Card(name='Quick Ball', cardtype=type_lookup['Supporter'], set_id=3),
-            Card(name='Ultra Ball', cardtype=type_lookup['Supporter'], set_id=1)
+            Card(name='Dark Patch', cardtype=type_lookup['Supporter'], cardset_id=1),
+            Card(name='Time Spiral', cardtype=type_lookup['Supporter'], cardset_id=3),
+            Card(name='Fossil Researcher', cardtype=type_lookup['Supporter'], cardset_id=2),
+            Card(name='Professor Research', cardtype=type_lookup['Supporter'], cardset_id=1),
+            Card(name='Boss Orders', cardtype=type_lookup['Supporter'], cardset_id=2),
+            Card(name='Quick Ball', cardtype=type_lookup['Supporter'], cardset_id=3),
+            Card(name='Ultra Ball', cardtype=type_lookup['Supporter'], cardset_id=1)
         ]
 
         # Energy cards
         energy_cards = [
-            Card(name='Basic Dark Energy', cardtype=type_lookup['Energy'], set_id=1),
-            Card(name='Basic Psychic Energy', cardtype=type_lookup['Energy'], set_id=1),
-            Card(name='Crystal Energy', cardtype=type_lookup['Energy'], set_id=2),
-            Card(name='Double Dragon Energy', cardtype=type_lookup['Energy'], set_id=3),
-            Card(name='Horror Energy', cardtype=type_lookup['Energy'], set_id=2)
+            Card(name='Basic Dark Energy', cardtype=type_lookup['Energy'], cardset_id=1),
+            Card(name='Basic Psychic Energy', cardtype=type_lookup['Energy'], cardset_id=1),
+            Card(name='Crystal Energy', cardtype=type_lookup['Energy'], cardset_id=2),
+            Card(name='Double Dragon Energy', cardtype=type_lookup['Energy'], cardset_id=3),
+            Card(name='Horror Energy', cardtype=type_lookup['Energy'], cardset_id=2)
         ]
     
         db.session.add_all(pokemon_cards + trainer_cards + energy_cards)
@@ -199,7 +199,7 @@ def cleanup_database():
     Clean up duplicate entries in database.
     
     Removes duplicate:
-        - Cards with same name and set_id
+        - Cards with same name and cardset_id
         - Sets with same name
     
     Returns:
@@ -209,15 +209,15 @@ def cleanup_database():
     try:
         # Clean up duplicate cards
         stmt = (
-            db.select(Card.name, Card.set_id, db.func.count('*'))
-            .group_by(Card.name, Card.set_id)
+            db.select(Card.name, Card.cardset_id, db.func.count('*'))
+            .group_by(Card.name, Card.cardset_id)
             .having(db.func.count('*') > 1)
         )
         duplicate_cards = db.session.execute(stmt).all()
         
         cards_deleted = 0
-        for name, set_id, count in duplicate_cards:
-            stmt = db.select(Card).filter_by(name=name, set_id=set_id).offset(1)
+        for name, cardset_id, count in duplicate_cards:
+            stmt = db.select(Card).filter_by(name=name, set_id=cardset_id).offset(1)
             duplicates = db.session.scalars(stmt).all()
             for card in duplicates:
                 db.session.delete(card)

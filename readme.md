@@ -84,9 +84,9 @@ flask run/seed
 
 - POST /api/cardsets/ - Create set
 - GET /api/cardsets/ - List all sets
-- GET /api/cardsets/{set_id} - Get specific set
-- PUT /api/cardsets/{set_id} - Update set
-- DELETE /api/cardsets/{set_id} - Delete set
+- GET /api/cardsets/{cardset_id} - Get specific set
+- PUT /api/cardsets/{cardset_id} - Update set
+- DELETE /api/cardsets/{cardset_id} - Delete set
 - GET /api/cardsets/search - Search sets
 
 ### Formats
@@ -166,7 +166,7 @@ POST /api/decks/{deck_id}/ratings
 GET /api/cards/search?cardtype=fire
 
 # Search by set
-GET /api/cards/search?set_id=1
+GET /api/cards/search?cardset_id=1
 ```
 
 ### Managing Deck Boxes
