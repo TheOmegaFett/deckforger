@@ -6,7 +6,7 @@ from models.cardset import CardSet
 from marshmallow import validates, ValidationError
 from datetime import datetime
 
-class SetSchema(ma.SQLAlchemySchema):
+class CardSetSchema(ma.SQLAlchemySchema):
     """
     Schema for CardSet model serialization.
     
