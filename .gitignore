@@ -19,4 +19,4 @@ migrations/
 *.tmp
 *.bat
 makefile
-*.env
+.env
