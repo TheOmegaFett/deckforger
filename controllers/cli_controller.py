@@ -9,6 +9,7 @@ from flask import current_app
 from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format
+from models.cardtype import CardType
 
 
 
@@ -62,8 +63,21 @@ def seed_tables():
         ]
         db.session.add_all(sets)
         db.session.commit()
+        
+        # Seed CardTpyes with Types
+        card_types = [
+            CardType(name=type_name) for type_name in [
+            'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
+            'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug',
+            'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy',
+            'Supporter', 'Energy'
+        ]
+        ]
+        db.session.add_all(card_types)
+        db.session.commit()
 
-        # Seed Cards with Types
+        
+        # Seed Cards
         pokemon_cards = [
             Card(name='Fezandipiti EX', type='Dark', set_id=1),
             Card(name='Gengar EX', type='Ghost', set_id=2),

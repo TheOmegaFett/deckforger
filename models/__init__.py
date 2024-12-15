@@ -6,9 +6,11 @@ from .deckcard import DeckCard
 from .rating import Rating
 from .cardset import CardSet
 from .format import Format
+from models.cardtype import CardType
 
 __all__ = [
-    'Card', 
+    'CardType',
+    'Card',
     'Deck', 
     'DeckBox', 
     'DeckCard',

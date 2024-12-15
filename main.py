@@ -14,6 +14,7 @@ from controllers.card_controller import card_controller
 from controllers.deckcard_controller import deckcard_controller
 from controllers.cardset_controller import cardset_controller
 from controllers.format_controller import format_controller
+from controllers.cardtype_controller import cardtype_controller
 
 
 def create_app():
@@ -44,5 +45,5 @@ def create_app():
     app.register_blueprint(deckcard_controller, url_prefix='/api/deckcards')
     app.register_blueprint(cardset_controller, url_prefix='/api/cardsets')
     app.register_blueprint(format_controller, url_prefix='/api/formats')
-    
+    app.register_blueprint(cardtype_controller, url_prefix='/api/cardtypes')    
     return app

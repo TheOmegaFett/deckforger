@@ -12,22 +12,22 @@ class Card(db.Model):
     Attributes:
         id (int): Primary key for the card
         name (str): Name of the card
-        type (str): Card type (Pokemon, Trainer, Energy)
+        type_id (int): Foreign key reference to the card type
         set_id (int): Foreign key reference to the set
-        set (relationship): Relationship to the parent set
-        decks (relationship): Relationship to associated decks
+        type (relationship): Relationship to the card type
+        sets (relationship): Relationship to the parent set
+        deck_cards (relationship): Relationship to associated decks
     """
     
     __tablename__ = 'cards'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('card_types.id'), nullable=False)
     set_id = db.Column(db.Integer, db.ForeignKey('sets.id'), nullable=False)
    
-    
-
     # Relationships
+    type = db.relationship('CardType', back_populates='cards')
     sets = db.relationship(CardSet, back_populates='cards')
     deck_cards = db.relationship('DeckCard', back_populates='card')
 

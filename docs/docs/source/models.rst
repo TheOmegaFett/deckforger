@@ -26,6 +26,12 @@ DeckCard
         :members:
         :undoc-members:
 
+CardType
+--------
+    .. automodule:: models.cardtype
+        :members:
+        :show-inheritance:
+
 CardSet
 -------
     .. automodule:: models.CardSet

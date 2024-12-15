@@ -8,7 +8,6 @@ from marshmallow import ValidationError, validates
 from init import db
 from models.card import Card
 from schemas.card_schema import CardSchema
-from models.pokemon_types import valid_types
 
 # Blueprint and Schema initialization
 card_controller = Blueprint('card_controller', __name__)

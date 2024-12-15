@@ -29,6 +29,12 @@ DeckCard Schema
    :undoc-members:
    :show-inheritance:
 
+CardType Schema
+---------------
+.. automodule:: schemas.cardtype_schema
+   :members:
+   :show-inheritance:
+
 CardSet Schema
 --------------
 .. automodule:: schemas.cardset_schema

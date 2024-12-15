@@ -1,20 +1,18 @@
 '''Schema for serializing and deserializing Pokemon TCG cards'''
 
+from dataclasses import fields
 from init import ma
 from marshmallow import validates, ValidationError
-from models.card import Card
+from schemas.cardtype_schema import CardTypeSchema
+from schemas.cardset_schema import SetSchema
 
-class CardSchema(ma.SQLAlchemySchema):
-    """Base schema for Card model serialization"""
+class CardSchema(ma.Schema):
+    type = fields.Nested(CardTypeSchema)
+    sets = fields.Nested(SetSchema)
     
     class Meta:
-        model = Card
-        include_fk = True
-
-    id = ma.auto_field()
-    name = ma.auto_field(required=True)
-    type = ma.auto_field(required=True)
-    set_id = ma.auto_field(required=True)
+        fields = ('id', 'name', 'type', 'set_id', 'sets')
+        ordered = True
    
 
 # Schema instances

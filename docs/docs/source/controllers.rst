@@ -29,6 +29,18 @@ DeckBox Controller
       :undoc-members:
       :show-inheritance:
 
+CardType Controller
+-------------------
+   .. automodule:: controllers.cardtype_controller
+      :members:
+      :show-inheritance:
+
+CardSet Controller
+-------------------
+   .. automodule:: controllers.cardset_controller
+      :members:
+      :show-inheritance:
+
 Format Controller
 -----------------
    .. automodule:: controllers.format_controller
