@@ -263,4 +263,4 @@ def search_cards():
         return cards_schema.jsonify(cards), 200
     
     except Exception as e:
-            return jsonify({'error': 'Search failed', 'details': str(e)}), 500        return jsonify({'error': 'Search failed', 'details': str(e)}), 500
+        return jsonify({'error': 'Search failed', 'details': str(e)}), 500        return jsonify({'error': 'Search failed', 'details': str(e)}), 500
