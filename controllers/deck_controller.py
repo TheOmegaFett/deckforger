@@ -273,3 +273,55 @@ def filter_by_rating():
         return decks_schema.jsonify(decks), 200
     except Exception as e:
         return jsonify({'error': 'Filter failed', 'details': str(e)}), 500
+
+def validate_deck(deck_id, format_id):
+    """
+    Validate deck composition and format legality.
+    
+    Parameters:
+        deck_id (int): ID of deck to validate
+        format_id (int): Format to validate against
+        
+    Raises:
+        ValidationError: If deck violates any format or composition rules
+    """
+    standard_date = datetime(2022, 7, 1).date()
+    expanded_date = datetime(2011, 9, 1).date()
+
+    stmt = (
+        db.select(db.func.min(CardSet.release_date))
+        .join(Card)
+        .join(DeckCard)
+        .filter(DeckCard.deck_id == deck_id)
+    )
+    oldest_card_date = db.session.scalar(stmt)
+
+    if format_id == 1 and oldest_card_date < standard_date:
+        raise ValidationError('Deck contains cards not legal in Standard format')
+    elif format_id == 2 and oldest_card_date < expanded_date:
+        raise ValidationError('Deck contains cards not legal in Expanded format')
+
+    stmt = db.select(DeckCard).filter_by(deck_id=deck_id)
+    deck_cards = db.session.scalars(stmt).all()
+
+    card_count = 0
+    card_quantities = {}
+    basic_energy_pattern = re.compile(r'^Basic \w+ Energy', re.IGNORECASE)
+
+    for deck_card in deck_cards:
+        card = db.session.get(Card, deck_card.card_id)
+        card_set = db.session.get(CardSet, card.cardset_id)
+
+        if not card or not card_set:
+            raise ValidationError(f'Card or card set not found for deck card ID {deck_card.id}')
+
+        quantity = deck_card.quantity
+        card_count += quantity
+
+        if not basic_energy_pattern.match(card.name):
+            card_quantities[card.id] = card_quantities.get(card.id, 0) + quantity
+            if card_quantities[card.id] > 4:
+                raise ValidationError(f'Card \'{card.name}\' has more than 4 copies in the deck.')
+
+    if card_count != 60:
+        raise ValidationError(f'Deck must contain exactly 60 cards. Current count: {card_count}')
