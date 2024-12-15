@@ -219,3 +219,32 @@ def filter_by_multiple_sets():
         return jsonify({'error': 'No set IDs provided'}), 400
     except Exception as e:
         return jsonify({'error': 'Failed to filter cards', 'details': str(e)}), 500
+
+@card_controller.route('/search', methods=['GET'])
+def search_cards():
+    """
+    Search for Pokemon cards using filters.
+    
+    Search Parameters:
+        name (str, optional): Card name to search for
+        type (str, optional): Card type to filter by
+        cardset_id (int, optional): Set ID to filter by
+        
+    Returns:
+        200: List of matching cards
+        500: Search operation failed
+    """
+    try:
+        stmt = db.select(Card)
+        
+        if name := request.args.get('name'):
+            stmt = stmt.filter(Card.name.ilike(f'%{name}%'))
+        if card_type := request.args.get('cardtype'):
+            stmt = stmt.filter(Card.cardtype.ilike(f'%{card_type}%'))
+        if cardset_id := request.args.get('cardset_id'):
+            stmt = stmt.filter(Card.cardset_id == cardset_id)
+            
+        cards = db.session.scalars(stmt).all()
+        return cards_schema.jsonify(cards), 200
+    except Exception as e:
+        return jsonify({'error': 'Search failed', 'details': str(e)}), 500
