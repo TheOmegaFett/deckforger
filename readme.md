@@ -51,7 +51,6 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 
    ```
    DATABASE_URL=<your-database-connection-url>
-   OTHER_ENV_VARIABLE=<other-required-values>
    ```
 
 6. **Initialize the database**  
