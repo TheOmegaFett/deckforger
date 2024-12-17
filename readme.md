@@ -18,23 +18,63 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 - Marshmallow
 - PostgreSQL
 
-## Installation
+## Installation and Running the App
 
-1. Clone the repository
-2. Create and activate virtual environment
-3. Install dependencies:
+1. **Clone the repository**
 
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
 
-4. Set up environment variables in .env file
-5. Initialize database:
+2. **Create and activate a virtual environment**
 
-```bash
-flask run/create
-flask run/seed
-```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Install and configure PostgreSQL**
+
+   - Install PostgreSQL on your system.
+   - Create a new database for the application.
+   - Set up database credentials.
+
+5. **Set up environment variables**  
+   Create a `.env` file in the project root and configure the following:
+
+   ```
+   DATABASE_URL=<your-database-connection-url>
+   OTHER_ENV_VARIABLE=<other-required-values>
+   ```
+
+6. **Initialize the database**  
+   Run the following commands to set up and seed the database:
+
+   ```bash
+   flask run/create
+   flask run/seed
+   ```
+
+7. **Start the Flask application**
+
+   ```bash
+   flask run
+   ```
+
+   The API will be available at: [http://localhost:8080](http://localhost:8080)
+
+8. **Health check endpoint**  
+   Use the following command to verify the application is running:
+   ```bash
+   curl http://localhost:8080/health
+   ```
 
 ## API Endpoints
 
