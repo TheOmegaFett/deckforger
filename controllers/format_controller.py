@@ -221,7 +221,9 @@ def validate_deck_format(deck_id, format_id):
         
     oldest_card_date = db.session.scalar(stmt)
     
+    # Convert format.start_date to datetime for comparison
+    format_start_datetime = datetime.combine(format.start_date, datetime.min.time())
+    
     # Check if oldest card is within format's date range
-    if oldest_card_date < format.start_date:
-        raise ValidationError(f"Deck contains cards released before format's start date: {format.start_date}")              
-    raise ValidationError(f"Card {card.name} is from a set not legal in this format")
+    if oldest_card_date < format_start_datetime:
+        raise ValidationError(f"Deck contains cards released before format's start date: {format.start_date}")    raise ValidationError(f"Card {card.name} is from a set not legal in this format")
