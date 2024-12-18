@@ -1,7 +1,7 @@
 '''Schema for serializing and deserializing Pokemon TCG cards'''
 
 from init import ma
-from marshmallow import validates, ValidationError, fields, EXCLUDE
+from marshmallow import EXCLUDE
 from schemas.cardtype_schema import CardTypeSchema
 from schemas.cardset_schema import CardSetSchema
 

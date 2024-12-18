@@ -1,10 +1,7 @@
 '''Controller for managing Pokemon TCG deck box operations'''
 
-# Third-party imports
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
-
-# Local application imports
 from init import db
 from models.deckbox import DeckBox
 from models.deck import Deck

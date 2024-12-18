@@ -1,10 +1,7 @@
 '''Schema for serializing and deserializing Pokemon TCG card sets'''
 
-# Third-party imports
 from init import ma
 from models.cardset import CardSet
-from marshmallow import validates, ValidationError
-from datetime import datetime
 
 class CardSetSchema(ma.SQLAlchemySchema):
     """

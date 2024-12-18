@@ -1,11 +1,8 @@
 '''Controller for managing CLI and database initialization operations'''
 
-# Third-party imports
 from datetime import datetime
 from flask import Blueprint, jsonify
 from flask import current_app
-
-# Local application imports
 from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format

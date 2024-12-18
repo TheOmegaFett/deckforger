@@ -6,6 +6,7 @@ from schemas.deckcard_schema import DeckCardSchema
 from schemas.format_schema import FormatSchema
 from schemas.rating_schema import RatingSchema
 from schemas.cardtype_schema import CardTypeSchema
+
 # Export all schemas
 __all__ = [
     'CardTypeSchema',

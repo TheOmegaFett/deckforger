@@ -1,11 +1,9 @@
 '''Controller for managing Pokemon TCG deck card associations'''
 
-# Third-party imports
+
 from flask import Blueprint, request, jsonify
 from init import db
 import re
-
-# Local application imports
 from models.deckcard import DeckCard
 from schemas.deckcard_schema import DeckCardSchema
 from models.deck import Deck

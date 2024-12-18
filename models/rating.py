@@ -1,6 +1,5 @@
 '''Rating model for managing Pokemon TCG deck ratings'''
 
-# Third-party imports
 from init import db
 
 

@@ -1,9 +1,6 @@
 '''Schema for serializing and deserializing Pokemon TCG decks'''
 
-# Third-party imports
 from init import ma
-
-# Local application imports
 from models.deck import Deck
 
 

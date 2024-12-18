@@ -1,11 +1,8 @@
 '''Controller for managing Pokemon TCG game format operations'''
 
-# Third-party imports
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError, validates
-
-# Local application imports
 from models.card import Card
 from models.cardset import CardSet
 from models.deckcard import DeckCard

@@ -1,9 +1,6 @@
 '''Schema for serializing and deserializing Pokemon TCG deck ratings'''
 
-# Third-party imports
 from init import ma
-
-# Local application imports
 from models.rating import Rating
 
 

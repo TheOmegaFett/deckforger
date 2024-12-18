@@ -1,6 +1,5 @@
 '''Cardset model for managing Pokemon TCG card sets'''
 
-# Third-party imports
 from init import db
 
 

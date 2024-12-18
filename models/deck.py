@@ -1,11 +1,6 @@
 '''Deck model for managing Pokemon TCG decks'''
 
-# Third-party imports
 from init import db
-
-# Local application imports
-from models.format import Format
-from models.deckbox import DeckBox
 
 
 class Deck(db.Model):

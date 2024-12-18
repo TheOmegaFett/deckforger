@@ -1,10 +1,7 @@
 '''Schema for serializing and deserializing Pokemon TCG deck boxes'''
 
-# Third-party imports
 from init import ma
 from marshmallow import validates, ValidationError
-
-# Local application imports
 from models.deckbox import DeckBox
 
 

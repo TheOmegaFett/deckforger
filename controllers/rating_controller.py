@@ -1,11 +1,8 @@
 '''Controller for managing Pokemon TCG deck rating operations'''
 
-# Third-party imports
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
 from sqlalchemy import func, and_, true
-
-# Local application imports
 from init import db
 from models.rating import Rating
 from models.deck import Deck

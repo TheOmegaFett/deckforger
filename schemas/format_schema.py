@@ -1,9 +1,6 @@
 '''Schema for serializing and deserializing Pokemon TCG game formats'''
 
-# Third-party imports
 from init import ma
-
-# Local application imports
 from models.format import Format
 
 

@@ -1,13 +1,10 @@
 '''Controller for managing Pokemon TCG deck operations'''
 
-# Third-party imports
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from datetime import datetime
-from sqlalchemy import func, and_, true
+from sqlalchemy import func
 import re
-
-# Local application imports
 from init import db
 from models.deck import Deck
 from models.deckcard import DeckCard

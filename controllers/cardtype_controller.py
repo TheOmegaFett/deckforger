@@ -1,12 +1,8 @@
 '''Controller for managing Pokemon TCG card type operations'''
 
-# Third-party imports
 from flask import Blueprint, jsonify
 from sqlalchemy import desc, func, text
 from init import db
-
-# Local application imports
-from models import cardtype
 from models.cardtype import CardType
 from models.card import Card
 from models.cardset import CardSet

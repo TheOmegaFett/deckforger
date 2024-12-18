@@ -1,6 +1,5 @@
 '''DeckBox model for managing Pokemon TCG deck storage'''
 
-# Third-party imports
 from init import db
 
 

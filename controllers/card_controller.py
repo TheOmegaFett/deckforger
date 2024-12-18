@@ -1,10 +1,7 @@
 '''Controller for managing Pokemon TCG card operations'''
 
-# Third-party imports
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
-
-# Local application imports
 from init import db
 from models.card import Card
 from models.cardtype import CardType
