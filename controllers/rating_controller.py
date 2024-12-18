@@ -2,7 +2,7 @@
 
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
-from sqlalchemy import func, and_, true
+from sqlalchemy import func, and_, text, true
 from init import db
 from models.rating import Rating
 from models.deck import Deck

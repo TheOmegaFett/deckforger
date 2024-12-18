@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError, validates
 from models.card import Card
 from models.cardset import CardSet
+from models.deck import Deck
 from models.deckcard import DeckCard
 from models.format import Format
 from init import db
@@ -180,6 +181,7 @@ def validate_format_legality(format_id):
         if not format:
             return jsonify({'error': 'Format not found'}), 404
             
+      
         validate_deck_format(deck_id, format_id)
         
         return jsonify({'message': 'Deck is legal in this format'}), 200
@@ -187,3 +189,51 @@ def validate_format_legality(format_id):
         return jsonify({'error': str(e)}), 400
     except Exception as e:
         return jsonify({'error': 'Validation failed', 'details': str(e)}), 500
+    
+def validate_deck_format(deck_id, format_id):
+    """
+    Validates if a deck is legal in a given format
+    
+    Args:
+        deck_id (int): ID of the deck to validate
+        format_id (int): ID of the format to validate against
+        
+    Raises:
+        ValidationError: If deck violates format rules
+    """
+    deck = db.session.get(Deck, deck_id)
+    format = db.session.get(Format, format_id)
+    
+    if not deck:
+        raise ValidationError("Deck not found")
+    if not format:
+        raise ValidationError("Format not found")
+        
+    # Check deck size limits
+    if format.min_deck_size and len(deck.cards) < format.min_deck_size:
+        raise ValidationError(f"Deck contains fewer than {format.min_deck_size} cards")
+    if format.max_deck_size and len(deck.cards) > format.max_deck_size:
+        raise ValidationError(f"Deck contains more than {format.max_deck_size} cards")
+        
+    # Check card limits
+    card_counts = {}
+    for card in deck.cards:
+        card_counts[card.id] = card_counts.get(card.id, 0) + 1
+        
+        # Check if card is banned
+        if card.id in format.banned_cards:
+            raise ValidationError(f"Deck contains banned card: {card.name}")
+            
+        # Check if card is restricted
+        if card.id in format.restricted_cards and card_counts[card.id] > 1:
+            raise ValidationError(f"Deck contains multiple copies of restricted card: {card.name}")
+            
+        # Check max copies per card
+        if format.max_copies_per_card and card_counts[card.id] > format.max_copies_per_card:
+            raise ValidationError(f"Deck contains too many copies of: {card.name}")
+            
+    # Check allowed sets
+    if format.allowed_sets:
+        for card in deck.cards:
+            if card.set_id not in format.allowed_sets:
+                raise ValidationError(f"Card {card.name} is from a set not legal in this format")
