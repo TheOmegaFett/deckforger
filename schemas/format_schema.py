@@ -22,4 +22,5 @@ class FormatSchema(ma.SQLAlchemySchema):
     description = ma.auto_field()
 
     # relationships
+    start_date = ma.auto_field()    
     decks = ma.Nested('DeckSchema', many=True, only=['id', 'name'])

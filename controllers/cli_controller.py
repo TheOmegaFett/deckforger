@@ -58,9 +58,21 @@ def seed_tables():
     try:
         # Seed Formats
         formats = [
-            Format(name='Standard', description='Current sets from Sword & Shield forward'),
-            Format(name='Expanded', description='Black & White forward'),
-            Format(name='Unlimited', description='All cards from all sets')
+            Format(
+                name='Standard', 
+                description='Current sets from Sword & Shield forward',
+                start_date=datetime(2023, 9, 1)  # Adjust date as needed for Standard rotation
+            ),
+            Format(
+                name='Expanded', 
+                description='Black & White forward',
+                start_date=datetime(2011, 4, 6)  # Black & White base set release date
+            ),
+            Format(
+                name='Unlimited', 
+                description='All cards from all sets',
+                start_date=datetime(1996, 1, 9)  # First Pokemon TCG set release
+            )
         ]
         db.session.add_all(formats)
         db.session.commit()
