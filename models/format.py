@@ -30,7 +30,7 @@ class Format(db.Model):
     id = db.Column(db.Integer, primary_key=True, comment="Unique identifier for the format")
     name = db.Column(db.String(50), nullable=False, unique=True, comment="Name of the format (e.g., Standard)")
     description = db.Column(db.String(200), comment="Rules and set restrictions for the format")
-    start_date = db.Column(db.DateTime, nullable=False, comment="Start date for format legality")
+    start_date = db.Column(db.Date, nullable=False, comment="Start date for format legality")
 
     def to_dict(self):
         """
