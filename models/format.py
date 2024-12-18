@@ -31,6 +31,19 @@ class Format(db.Model):
     name = db.Column(db.String(50), nullable=False, unique=True, comment="Name of the format (e.g., Standard)")
     description = db.Column(db.String(200), comment="Rules and set restrictions for the format")
 
+    def to_dict(self):
+        """
+        Convert Format object to dictionary representation.
+
+        Returns:
+            dict: Format data in dictionary format
+        """
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
+
     def __repr__(self):
         """
         String representation of the Format.
