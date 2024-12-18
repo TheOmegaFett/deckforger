@@ -1,6 +1,6 @@
 '''Controller for managing CLI and database initialization operations'''
 
-from datetime import datetime
+from datetime import date
 from flask import Blueprint, jsonify
 from flask import current_app
 from init import db
@@ -61,19 +61,19 @@ def seed_tables():
             Format(
                 name='Standard', 
                 description='Current sets from Sword & Shield forward',
-                start_date=datetime(2023, 9, 1)  # Adjust date as needed for Standard rotation
+                start_date=date(2023, 9, 1)  # Using date instead of datetime
             ),
             Format(
                 name='Expanded', 
                 description='Black & White forward',
-                start_date=datetime(2011, 4, 6)  # Black & White base set release date
+                start_date=date(2011, 4, 6)  # Using date instead of datetime
             ),
             Format(
                 name='Unlimited', 
                 description='All cards from all sets',
-                start_date=datetime(1996, 1, 9)  # First Pokemon TCG set release
+                start_date=date(1996, 1, 9)  # Using date instead of datetime
             )
-        ]
+        ]       
         db.session.add_all(formats)
         db.session.commit()
         
