@@ -417,6 +417,7 @@ def import_deck(deck_name, format_id, deckbox_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to import deck', 'details': str(e)}), 500
+
 def determine_card_type(card_name: str, section: str) -> CardType:
     """Helper function to determine and create card type if needed"""
     
