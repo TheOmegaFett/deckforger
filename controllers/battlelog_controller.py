@@ -51,8 +51,8 @@ def get_deck_stats(deck_id):
     
     return jsonify(stats)
 
-@battlelogs.route('/import/<int:deck_id>', methods=['POST'])
-def import_battlelog(deck_id):
+@battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
+def import_battlelog(deck_id, player_name):
     try:
         log_text = request.get_data(as_text=True)
         lines = log_text.split('\n')
@@ -83,7 +83,7 @@ def import_battlelog(deck_id):
             elif "played" in line or "used" in line:
                 if "played" in line and "to" in line:
                     card_name = line.split("played")[1].split("to")[0].strip()
-                    if current_player in line:
+                    if current_player == player_name:
                         player1_cards.add(card_name)
                     else:
                         player2_cards.add(card_name)
@@ -91,32 +91,29 @@ def import_battlelog(deck_id):
                     
             elif "damage" in line and "breakdown" not in line:
                 damage_amount = int(''.join(filter(str.isdigit, line.split("damage")[0])))
-                if current_player in line:  # Our turn
+                if current_player == player_name:  # Player's turn
                     damage_done += damage_amount
-                else:
+                else:  # Opponent's turn
                     damage_taken += damage_amount
         
         # Get top synergy pairs
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
         
-        # Validate card pools
-        valid_log = (
-            all(card in deck_cards for card in player1_cards) or 
-            all(card in deck_cards for card in player2_cards)
-        )
+        # Validate card pools against player name
+        valid_log = all(card in deck_cards for card in player1_cards)
         
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
             
         total_turns = len([line for line in lines if line.startswith('Turn #')])
-        win_loss = "wins" in lines[-1]
+        win_loss = f"{player_name} wins" in lines[-1]
         
         battlelog_data = {
             'deck_id': deck_id,
             'win_loss': win_loss,
             'total_turns': total_turns,
-            'most_used_cards': list(player1_cards if len(player1_cards) > len(player2_cards) else player2_cards),
+            'most_used_cards': list(player1_cards),
             'key_synergy_cards': key_synergy_cards,
             'damage_done': damage_done,
             'damage_taken': damage_taken
