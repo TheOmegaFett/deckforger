@@ -34,21 +34,19 @@
 <span></span><span class="sd">&#39;&#39;&#39;Schema for serializing and deserializing Pokemon TCG cards&#39;&#39;&#39;</span>
 
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">ma</span>
-<span class="kn">from</span> <span class="nn">marshmallow</span> <span class="kn">import</span> <span class="n">validates</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">EXCLUDE</span>
+<span class="kn">from</span> <span class="nn">marshmallow</span> <span class="kn">import</span> <span class="n">EXCLUDE</span>
 <span class="kn">from</span> <span class="nn">schemas.cardtype_schema</span> <span class="kn">import</span> <span class="n">CardTypeSchema</span>
 <span class="kn">from</span> <span class="nn">schemas.cardset_schema</span> <span class="kn">import</span> <span class="n">CardSetSchema</span>
 
 <div class="viewcode-block" id="CardSchema">
 <a class="viewcode-back" href="../../schemas.html#schemas.card_schema.CardSchema">[docs]</a>
 <span class="k">class</span> <span class="nc">CardSchema</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">Schema</span><span class="p">):</span>
-   
-    
 <div class="viewcode-block" id="CardSchema.Meta">
 <a class="viewcode-back" href="../../schemas.html#schemas.card_schema.CardSchema.Meta">[docs]</a>
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;cardtype&#39;</span><span class="p">,</span> <span class="s1">&#39;cardset&#39;</span><span class="p">)</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;cardtype&#39;</span><span class="p">,</span> <span class="s1">&#39;cardset&#39;</span><span class="p">,</span> <span class="s1">&#39;card_number&#39;</span><span class="p">)</span>
         <span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">unknown</span> <span class="o">=</span> <span class="n">EXCLUDE</span>  <span class="c1"># Ignore unknown fields like cardset_id</span></div>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="n">EXCLUDE</span></div>
 
         
     <span class="c1"># Relationships</span>

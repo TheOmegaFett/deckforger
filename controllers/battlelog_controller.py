@@ -38,17 +38,13 @@ def get_deck_stats(deck_id):
         
     total_games = len(battlelogs)
     wins = sum(1 for log in battlelogs if log.win_loss)
-    
     stats = {
         "total_games": total_games,
         "wins": wins,
         "losses": total_games - wins,
         "win_rate": round((wins / total_games) * 100, 2),
-        "avg_damage_dealt": round(sum(log.damage_done for log in battlelogs) / total_games),
-        "avg_damage_taken": round(sum(log.damage_taken for log in battlelogs) / total_games),
         "avg_turns": round(sum(log.total_turns for log in battlelogs) / total_games)
     }
-    
     return jsonify(stats)
   
 @battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
@@ -189,12 +185,10 @@ def import_battlelog(deck_id, player_name):
 
         battlelog_data = {
             'deck_id': deck_id,
-            'win_loss': win_loss,  # Include win/loss result
+            'win_loss': win_loss,
             'total_turns': total_turns,
             'most_used_cards': most_used_cards,
-            'key_synergy_cards': key_synergy_cards,
-            'damage_done': damage_done,
-            'damage_taken': damage_taken
+            'key_synergy_cards': key_synergy_cards
         }
     
         battlelog = Battlelog(**battlelog_data)

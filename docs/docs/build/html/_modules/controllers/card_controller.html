@@ -33,11 +33,8 @@
   <h1>Source code for controllers.card_controller</h1><div class="highlight"><pre>
 <span></span><span class="sd">&#39;&#39;&#39;Controller for managing Pokemon TCG card operations&#39;&#39;&#39;</span>
 
-<span class="c1"># Third-party imports</span>
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
 <span class="kn">from</span> <span class="nn">marshmallow</span> <span class="kn">import</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">validates</span>
-
-<span class="c1"># Local application imports</span>
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
 <span class="kn">from</span> <span class="nn">models.card</span> <span class="kn">import</span> <span class="n">Card</span>
 <span class="kn">from</span> <span class="nn">models.cardtype</span> <span class="kn">import</span> <span class="n">CardType</span>
@@ -184,6 +181,7 @@
 <span class="sd">        name (str, optional): New name for the card</span>
 <span class="sd">        cardtype (str, optional): New type for the card</span>
 <span class="sd">        cardset_id (int, optional): New set ID for the card</span>
+<span class="sd">        card_number (str, optional): New card number for the card</span>
 <span class="sd">        </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        200: Card updated successfully</span>
@@ -203,6 +201,8 @@
             <span class="n">card</span><span class="o">.</span><span class="n">cardtype</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardtype&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="s1">&#39;cardset_id&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">card</span><span class="o">.</span><span class="n">cardset_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cardset_id&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;card_number&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">card_number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;card_number&#39;</span><span class="p">]</span>
 
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">card_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">card</span><span class="p">),</span> <span class="mi">200</span>
@@ -212,7 +212,6 @@
             <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Database operation failed&#39;</span><span class="p">,</span>
             <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="p">}),</span> <span class="mi">500</span></div>
-
 
 <div class="viewcode-block" id="delete_card">
 <a class="viewcode-back" href="../../controllers.html#controllers.card_controller.delete_card">[docs]</a>

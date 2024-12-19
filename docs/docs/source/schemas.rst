@@ -1,6 +1,13 @@
 Schemas
 =======
 
+Battlelog Schema
+----------------
+.. automodule:: schemas.battlelog_schema
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Card Schema
 -----------
 .. automodule:: schemas.card_schema

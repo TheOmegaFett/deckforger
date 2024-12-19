@@ -1,6 +1,13 @@
 Controllers
 ===========
 
+Battlelog Controller
+--------------------
+   .. automodule:: controllers.battlelog_controller
+      :members:
+      :undoc-members:
+      :show-inheritance:
+
 CLI Controller
 --------------
    .. automodule:: controllers.cli_controller

@@ -35,6 +35,41 @@
             
   <section id="controllers">
 <h1>Controllers<a class="headerlink" href="#controllers" title="Link to this heading">¶</a></h1>
+<section id="battlelog-controller">
+<h2>Battlelog Controller<a class="headerlink" href="#battlelog-controller" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><dl class="py function" id="module-controllers.battlelog_controller">
+<dt class="sig sig-object py" id="controllers.battlelog_controller.create_battlelog">
+<span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">create_battlelog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#create_battlelog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.create_battlelog" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.battlelog_controller.get_battlelog">
+<span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_battlelog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_battlelog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_battlelog" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.battlelog_controller.get_battlelogs">
+<span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_battlelogs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_battlelogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_battlelogs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.battlelog_controller.get_deck_battlelogs">
+<span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_deck_battlelogs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_deck_battlelogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_deck_battlelogs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.battlelog_controller.get_deck_stats">
+<span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_deck_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_deck_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_deck_stats" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.battlelog_controller.import_battlelog">
+<span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">import_battlelog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">player_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#import_battlelog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.import_battlelog" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+</section>
 <section id="cli-controller">
 <h2>CLI Controller<a class="headerlink" href="#cli-controller" title="Link to this heading">¶</a></h2>
 <blockquote>
@@ -282,7 +317,8 @@ cardset_id (int, optional): Exact set ID to filter by</p>
 <dl class="simple">
 <dt>Request Body:</dt><dd><p>name (str, optional): New name for the card
 cardtype (str, optional): New type for the card
-cardset_id (int, optional): New set ID for the card</p>
+cardset_id (int, optional): New set ID for the card
+card_number (str, optional): New card number for the card</p>
 </dd>
 </dl>
 <dl class="field-list simple">
@@ -339,6 +375,31 @@ deckbox_id (int): ID of the deckbox to contain this deck</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>201</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.deck_controller.determine_card_type">
+<span class="sig-prename descclassname"><span class="pre">controllers.deck_controller.</span></span><span class="sig-name descname"><span class="pre">determine_card_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">card_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="models.html#models.cardtype.CardType" title="models.cardtype.CardType"><span class="pre">CardType</span></a></span></span><a class="reference internal" href="_modules/controllers/deck_controller.html#determine_card_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deck_controller.determine_card_type" title="Link to this definition">¶</a></dt>
+<dd><p>Helper function to determine and create card type if needed</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.deck_controller.export_deck">
+<span class="sig-prename descclassname"><span class="pre">controllers.deck_controller.</span></span><span class="sig-name descname"><span class="pre">export_deck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deck_controller.html#export_deck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deck_controller.export_deck" title="Link to this definition">¶</a></dt>
+<dd><p>Export a deck to TCG Live format text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>deck_id</strong> (<em>int</em>) – ID of the deck to export</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plain text deck list in TCG Live format
+404: Deck not found
+500: Export operation failed</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
 </dd>
 </dl>
 </dd></dl>
@@ -427,6 +488,30 @@ max (float): Maximum rating</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.deck_controller.import_deck">
+<span class="sig-prename descclassname"><span class="pre">controllers.deck_controller.</span></span><span class="sig-name descname"><span class="pre">import_deck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deckbox_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deck_controller.html#import_deck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deck_controller.import_deck" title="Link to this definition">¶</a></dt>
+<dd><p>Import a deck from TCG Live format text.</p>
+<dl class="simple">
+<dt>URL Parameters:</dt><dd><p>deck_name (str): Name for the imported deck
+format_id (int): Format ID for the deck
+deckbox_id (int): Deck box to store the deck in</p>
+</dd>
+<dt>Body:</dt><dd><p>Raw text in TCG Live format</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Deck imported successfully
+400: Invalid deck list format
+500: Import operation failed</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>201</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1048,6 +1133,23 @@ description (str, optional): New description</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="controllers.format_controller.validate_deck_format">
+<span class="sig-prename descclassname"><span class="pre">controllers.format_controller.</span></span><span class="sig-name descname"><span class="pre">validate_deck_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/format_controller.html#validate_deck_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.format_controller.validate_deck_format" title="Link to this definition">¶</a></dt>
+<dd><p>Validates if a deck is legal in a given format based on card release dates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>deck_id</strong> (<em>int</em>) – ID of the deck to validate</p></li>
+<li><p><strong>format_id</strong> (<em>int</em>) – ID of the format to validate against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – If deck contains cards outside format’s date range</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="controllers.format_controller.validate_format_legality">
 <span class="sig-prename descclassname"><span class="pre">controllers.format_controller.</span></span><span class="sig-name descname"><span class="pre">validate_format_legality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/format_controller.html#validate_format_legality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.format_controller.validate_format_legality" title="Link to this definition">¶</a></dt>
 <dd><p>Validate deck legality for a specific format.</p>
@@ -1106,6 +1208,7 @@ description (str, optional): New description</p>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Controllers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#battlelog-controller">Battlelog Controller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cli-controller">CLI Controller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#card-controller">Card Controller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#deck-controller">Deck Controller</a></li>

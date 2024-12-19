@@ -33,14 +33,13 @@
   <h1>Source code for controllers.format_controller</h1><div class="highlight"><pre>
 <span></span><span class="sd">&#39;&#39;&#39;Controller for managing Pokemon TCG game format operations&#39;&#39;&#39;</span>
 
-<span class="c1"># Third-party imports</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">marshmallow</span> <span class="kn">import</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">validates</span>
-
-<span class="c1"># Local application imports</span>
+<span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">card</span>
 <span class="kn">from</span> <span class="nn">models.card</span> <span class="kn">import</span> <span class="n">Card</span>
 <span class="kn">from</span> <span class="nn">models.cardset</span> <span class="kn">import</span> <span class="n">CardSet</span>
+<span class="kn">from</span> <span class="nn">models.deck</span> <span class="kn">import</span> <span class="n">Deck</span>
 <span class="kn">from</span> <span class="nn">models.deckcard</span> <span class="kn">import</span> <span class="n">DeckCard</span>
 <span class="kn">from</span> <span class="nn">models.format</span> <span class="kn">import</span> <span class="n">Format</span>
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
@@ -119,7 +118,8 @@
 
         <span class="n">new_format</span> <span class="o">=</span> <span class="n">Format</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
-            <span class="n">description</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">],</span>
+            <span class="n">start_date</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">]</span>
         <span class="p">)</span>
         
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_format</span><span class="p">)</span>
@@ -233,6 +233,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">format</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Format not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
             
+      
         <span class="n">validate_deck_format</span><span class="p">(</span><span class="n">deck_id</span><span class="p">,</span> <span class="n">format_id</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Deck is legal in this format&#39;</span><span class="p">}),</span> <span class="mi">200</span>
@@ -240,6 +241,43 @@
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Validation failed&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+
+    
+<div class="viewcode-block" id="validate_deck_format">
+<a class="viewcode-back" href="../../controllers.html#controllers.format_controller.validate_deck_format">[docs]</a>
+<span class="k">def</span> <span class="nf">validate_deck_format</span><span class="p">(</span><span class="n">deck_id</span><span class="p">,</span> <span class="n">format_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validates if a deck is legal in a given format based on card release dates</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        deck_id (int): ID of the deck to validate</span>
+<span class="sd">        format_id (int): ID of the format to validate against</span>
+<span class="sd">        </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: If deck contains cards outside format&#39;s date range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">deck</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Deck</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">)</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Format</span><span class="p">,</span> <span class="n">format_id</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">deck</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Deck not found&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">format</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Format not found&quot;</span><span class="p">)</span>
+        
+    <span class="c1"># Get oldest card&#39;s release date from the deck</span>
+    <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">CardSet</span><span class="o">.</span><span class="n">release_date</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">DeckCard</span><span class="o">.</span><span class="n">deck_id</span> <span class="o">==</span> <span class="n">deck_id</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">CardSet</span><span class="o">.</span><span class="n">release_date</span><span class="o">.</span><span class="n">asc</span><span class="p">())</span>\
+        <span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+    <span class="n">oldest_card_date</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+    
+    <span class="c1"># Just compare the dates directly</span>
+    <span class="k">if</span> <span class="n">oldest_card_date</span> <span class="o">&lt;</span> <span class="nb">format</span><span class="o">.</span><span class="n">start_date</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deck contains cards released before format&#39;s start date: </span><span class="si">{</span><span class="nb">format</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Card </span><span class="si">{</span><span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is from a set not legal in this format&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

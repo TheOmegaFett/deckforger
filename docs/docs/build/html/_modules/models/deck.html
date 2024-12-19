@@ -33,12 +33,7 @@
   <h1>Source code for models.deck</h1><div class="highlight"><pre>
 <span></span><span class="sd">&#39;&#39;&#39;Deck model for managing Pokemon TCG decks&#39;&#39;&#39;</span>
 
-<span class="c1"># Third-party imports</span>
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
-
-<span class="c1"># Local application imports</span>
-<span class="kn">from</span> <span class="nn">models.format</span> <span class="kn">import</span> <span class="n">Format</span>
-<span class="kn">from</span> <span class="nn">models.deckbox</span> <span class="kn">import</span> <span class="n">DeckBox</span>
 
 
 <span class="k">class</span> <span class="nc">Deck</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
@@ -52,10 +47,6 @@
 <span class="sd">        format_id (int): Foreign key reference to the format</span>
 <span class="sd">        deckbox_id (int): Foreign key reference to the deckbox</span>
 <span class="sd">        created_at (datetime): Timestamp of deck creation</span>
-<span class="sd">        updated_at (datetime): Timestamp of last deck update</span>
-<span class="sd">        deck_cards (relationship): Relationship to associated cards</span>
-<span class="sd">        deckbox (relationship): Relationship to the deck box</span>
-<span class="sd">        ratings (relationship): Relationship to deck ratings</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;decks&#39;</span>
@@ -72,6 +63,7 @@
     <span class="n">deck_cards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="s1">&#39;DeckCard&#39;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s1">&#39;deck&#39;</span><span class="p">)</span>
     <span class="n">deckbox</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="s1">&#39;DeckBox&#39;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s1">&#39;decks&#39;</span><span class="p">)</span>
     <span class="n">rating</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="s1">&#39;Rating&#39;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s1">&#39;deck&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="s1">&#39;dynamic&#39;</span><span class="p">)</span>
+    <span class="n">battlelogs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="s1">&#39;Battlelog&#39;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s1">&#39;deck&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Deck </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&gt;&#39;</span>

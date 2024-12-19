@@ -35,12 +35,15 @@
 
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -48,14 +51,32 @@
  | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="controllers.html#controllers.deckbox_controller.add_deck_to_deckbox">add_deck_to_deckbox() (in module controllers.deckbox_controller)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#models.battlelog.Battlelog">Battlelog (class in models.battlelog)</a>
+</li>
+      <li><a href="schemas.html#schemas.deck_schema.DeckSchema.battlelogs">battlelogs (schemas.deck_schema.DeckSchema attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schemas.html#schemas.battlelog_schema.BattlelogSchema">BattlelogSchema (class in schemas.battlelog_schema)</a>
+</li>
+      <li><a href="schemas.html#schemas.battlelog_schema.BattlelogSchema.Meta">BattlelogSchema.Meta (class in schemas.battlelog_schema)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -71,6 +92,8 @@
         <li><a href="schemas.html#schemas.deckcard_schema.DeckCardSchema.card_id">(schemas.deckcard_schema.DeckCardSchema attribute)</a>
 </li>
       </ul></li>
+      <li><a href="models.html#models.Card.card_number">card_number (in module models.Card)</a>
+</li>
       <li><a href="models.html#models.CardSet.cards">cards (in module models.CardSet)</a>
 
       <ul>
@@ -106,14 +129,21 @@
       <li><a href="controllers.html#controllers.cli_controller.cleanup_database">cleanup_database() (in module controllers.cli_controller)</a>
 </li>
       <li>
+    controllers.battlelog_controller
+
+      <ul>
+        <li><a href="controllers.html#module-controllers.battlelog_controller">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
     controllers.card_controller
 
       <ul>
         <li><a href="controllers.html#module-controllers.card_controller">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     controllers.cardset_controller
 
@@ -156,6 +186,8 @@
         <li><a href="controllers.html#module-controllers.format_controller">module</a>
 </li>
       </ul></li>
+      <li><a href="controllers.html#controllers.battlelog_controller.create_battlelog">create_battlelog() (in module controllers.battlelog_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.card_controller.create_card">create_card() (in module controllers.card_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.deck_controller.create_deck">create_deck() (in module controllers.deck_controller)</a>
@@ -180,26 +212,24 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schemas.html#schemas.deckcard_schema.DeckCardSchema.deck">deck (schemas.deckcard_schema.DeckCardSchema attribute)</a>
-</li>
-      <li><a href="models.html#models.Card.deck_cards">deck_cards (in module models.Card)</a>
+      <li><a href="models.html#models.battlelog.Battlelog.deck">deck (models.battlelog.Battlelog attribute)</a>
 
       <ul>
-        <li><a href="models.html#models.Deck.deck_cards">(in module models.Deck)</a>
+        <li><a href="schemas.html#schemas.deckcard_schema.DeckCardSchema.deck">(schemas.deckcard_schema.DeckCardSchema attribute)</a>
 </li>
       </ul></li>
+      <li><a href="models.html#models.Card.deck_cards">deck_cards (in module models.Card)</a>
+</li>
       <li><a href="models.html#models.DeckCard.deck_id">deck_id (in module models.DeckCard)</a>
 
       <ul>
+        <li><a href="models.html#models.battlelog.Battlelog.deck_id">(models.battlelog.Battlelog attribute)</a>
+</li>
         <li><a href="schemas.html#schemas.deckcard_schema.DeckCardSchema.deck_id">(schemas.deckcard_schema.DeckCardSchema attribute)</a>
 </li>
       </ul></li>
-      <li><a href="models.html#models.Deck.deckbox">deckbox (in module models.Deck)</a>
-
-      <ul>
-        <li><a href="schemas.html#schemas.deck_schema.DeckSchema.deckbox">(schemas.deck_schema.DeckSchema attribute)</a>
+      <li><a href="schemas.html#schemas.deck_schema.DeckSchema.deckbox">deckbox (schemas.deck_schema.DeckSchema attribute)</a>
 </li>
-      </ul></li>
       <li><a href="models.html#models.Deck.deckbox_id">deckbox_id (in module models.Deck)</a>
 </li>
       <li><a href="schemas.html#schemas.deckbox_schema.DeckBoxSchema">DeckBoxSchema (class in schemas.deckbox_schema)</a>
@@ -216,10 +246,10 @@
         <li><a href="schemas.html#schemas.deckbox_schema.DeckBoxSchema.decks">(schemas.deckbox_schema.DeckBoxSchema attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schemas.html#schemas.deck_schema.DeckSchema">DeckSchema (class in schemas.deck_schema)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schemas.html#schemas.deck_schema.DeckSchema.Meta">DeckSchema.Meta (class in schemas.deck_schema)</a>
 </li>
       <li><a href="controllers.html#controllers.card_controller.delete_card">delete_card() (in module controllers.card_controller)</a>
@@ -248,7 +278,17 @@
         <li><a href="schemas.html#schemas.format_schema.FormatSchema.description">(schemas.format_schema.FormatSchema attribute)</a>
 </li>
       </ul></li>
+      <li><a href="controllers.html#controllers.deck_controller.determine_card_type">determine_card_type() (in module controllers.deck_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.cli_controller.drop_tables">drop_tables() (in module controllers.cli_controller)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="controllers.html#controllers.deck_controller.export_deck">export_deck() (in module controllers.deck_controller)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -256,9 +296,11 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schemas.html#schemas.card_schema.CardSchema.Meta.fields">fields (schemas.card_schema.CardSchema.Meta attribute)</a>
+      <li><a href="schemas.html#schemas.battlelog_schema.BattlelogSchema.Meta.fields">fields (schemas.battlelog_schema.BattlelogSchema.Meta attribute)</a>
 
       <ul>
+        <li><a href="schemas.html#schemas.card_schema.CardSchema.Meta.fields">(schemas.card_schema.CardSchema.Meta attribute)</a>
+</li>
         <li><a href="schemas.html#schemas.cardtype_schema.CardTypeSchema.Meta.fields">(schemas.cardtype_schema.CardTypeSchema.Meta attribute)</a>
 </li>
       </ul></li>
@@ -268,10 +310,10 @@
 </li>
       <li><a href="controllers.html#controllers.deck_controller.filter_by_rating">filter_by_rating() (in module controllers.deck_controller)</a>
 </li>
-      <li><a href="controllers.html#controllers.deckbox_controller.filter_deckbox_decks">filter_deckbox_decks() (in module controllers.deckbox_controller)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="controllers.html#controllers.deckbox_controller.filter_deckbox_decks">filter_deckbox_decks() (in module controllers.deckbox_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.deck_controller.filter_decks_by_cardtype">filter_decks_by_cardtype() (in module controllers.deck_controller)</a>
 </li>
       <li><a href="models.html#models.format.Format">Format (class in models.format)</a>
@@ -300,6 +342,10 @@
 </li>
       <li><a href="controllers.html#controllers.cardtype_controller.get_all_types">get_all_types() (in module controllers.cardtype_controller)</a>
 </li>
+      <li><a href="controllers.html#controllers.battlelog_controller.get_battlelog">get_battlelog() (in module controllers.battlelog_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.battlelog_controller.get_battlelogs">get_battlelogs() (in module controllers.battlelog_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.cardset_controller.get_card_distribution">get_card_distribution() (in module controllers.cardset_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.cardtype_controller.get_cards_by_type">get_cards_by_type() (in module controllers.cardtype_controller)</a>
@@ -308,6 +354,10 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="controllers.html#controllers.battlelog_controller.get_deck_battlelogs">get_deck_battlelogs() (in module controllers.battlelog_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.battlelog_controller.get_deck_stats">get_deck_stats() (in module controllers.battlelog_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.format_controller.get_format">get_format() (in module controllers.format_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.format_controller.get_formats">get_formats() (in module controllers.format_controller)</a>
@@ -349,6 +399,8 @@
 </li>
         <li><a href="models.html#models.DeckCard.id">(in module models.DeckCard)</a>
 </li>
+        <li><a href="models.html#models.battlelog.Battlelog.id">(models.battlelog.Battlelog attribute)</a>
+</li>
         <li><a href="models.html#models.cardtype.CardType.id">(models.cardtype.CardType attribute)</a>
 </li>
         <li><a href="models.html#models.format.Format.id">(models.format.Format attribute)</a>
@@ -366,6 +418,10 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="controllers.html#controllers.battlelog_controller.import_battlelog">import_battlelog() (in module controllers.battlelog_controller)</a>
+</li>
+      <li><a href="controllers.html#controllers.deck_controller.import_deck">import_deck() (in module controllers.deck_controller)</a>
+</li>
       <li>
     init
 
@@ -373,6 +429,14 @@
         <li><a href="init.html#module-init">module</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#models.battlelog.Battlelog.key_synergy_cards">key_synergy_cards (models.battlelog.Battlelog attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -401,6 +465,13 @@
         <li><a href="schemas.html#schemas.deckcard_schema.DeckCardSchema.Meta.model">(schemas.deckcard_schema.DeckCardSchema.Meta attribute)</a>
 </li>
         <li><a href="schemas.html#schemas.format_schema.FormatSchema.Meta.model">(schemas.format_schema.FormatSchema.Meta attribute)</a>
+</li>
+      </ul></li>
+      <li>
+    models.battlelog
+
+      <ul>
+        <li><a href="models.html#module-models.battlelog">module</a>
 </li>
       </ul></li>
       <li>
@@ -456,6 +527,8 @@
     module
 
       <ul>
+        <li><a href="controllers.html#module-controllers.battlelog_controller">controllers.battlelog_controller</a>
+</li>
         <li><a href="controllers.html#module-controllers.card_controller">controllers.card_controller</a>
 </li>
         <li><a href="controllers.html#module-controllers.cardset_controller">controllers.cardset_controller</a>
@@ -472,6 +545,8 @@
 </li>
         <li><a href="init.html#module-init">init</a>
 </li>
+        <li><a href="models.html#module-models.battlelog">models.battlelog</a>
+</li>
         <li><a href="models.html#module-models.Card">models.Card</a>
 </li>
         <li><a href="models.html#module-models.CardSet">models.CardSet</a>
@@ -485,6 +560,8 @@
         <li><a href="models.html#module-models.DeckCard">models.DeckCard</a>
 </li>
         <li><a href="models.html#module-models.format">models.format</a>
+</li>
+        <li><a href="schemas.html#module-schemas.battlelog_schema">schemas.battlelog_schema</a>
 </li>
         <li><a href="schemas.html#module-schemas.card_schema">schemas.card_schema</a>
 </li>
@@ -501,6 +578,10 @@
         <li><a href="schemas.html#module-schemas.format_schema">schemas.format_schema</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#models.battlelog.Battlelog.most_used_cards">most_used_cards (models.battlelog.Battlelog attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -535,9 +616,11 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schemas.html#schemas.card_schema.CardSchema.opts">opts (schemas.card_schema.CardSchema attribute)</a>
+      <li><a href="schemas.html#schemas.battlelog_schema.BattlelogSchema.opts">opts (schemas.battlelog_schema.BattlelogSchema attribute)</a>
 
       <ul>
+        <li><a href="schemas.html#schemas.card_schema.CardSchema.opts">(schemas.card_schema.CardSchema attribute)</a>
+</li>
         <li><a href="schemas.html#schemas.cardset_schema.CardSetSchema.opts">(schemas.cardset_schema.CardSetSchema attribute)</a>
 </li>
         <li><a href="schemas.html#schemas.cardtype_schema.CardTypeSchema.opts">(schemas.cardtype_schema.CardTypeSchema attribute)</a>
@@ -553,9 +636,11 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schemas.html#schemas.card_schema.CardSchema.Meta.ordered">ordered (schemas.card_schema.CardSchema.Meta attribute)</a>
+      <li><a href="schemas.html#schemas.battlelog_schema.BattlelogSchema.Meta.ordered">ordered (schemas.battlelog_schema.BattlelogSchema.Meta attribute)</a>
 
       <ul>
+        <li><a href="schemas.html#schemas.card_schema.CardSchema.Meta.ordered">(schemas.card_schema.CardSchema.Meta attribute)</a>
+</li>
         <li><a href="schemas.html#schemas.cardtype_schema.CardTypeSchema.Meta.ordered">(schemas.cardtype_schema.CardTypeSchema.Meta attribute)</a>
 </li>
       </ul></li>
@@ -572,17 +657,17 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#models.battlelog.Battlelog.query">query (models.battlelog.Battlelog attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="models.html#models.Deck.ratings">ratings (in module models.Deck)</a>
-
-      <ul>
-        <li><a href="schemas.html#schemas.deck_schema.DeckSchema.ratings">(schemas.deck_schema.DeckSchema attribute)</a>
+      <li><a href="schemas.html#schemas.deck_schema.DeckSchema.ratings">ratings (schemas.deck_schema.DeckSchema attribute)</a>
 </li>
-      </ul></li>
       <li><a href="controllers.html#controllers.deckbox_controller.read_all_deckboxes">read_all_deckboxes() (in module controllers.deckbox_controller)</a>
 </li>
   </ul></td>
@@ -601,6 +686,13 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    schemas.battlelog_schema
+
+      <ul>
+        <li><a href="schemas.html#module-schemas.battlelog_schema">module</a>
+</li>
+      </ul></li>
       <li>
     schemas.card_schema
 
@@ -643,6 +735,8 @@
         <li><a href="schemas.html#module-schemas.deckcard_schema">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     schemas.format_schema
 
@@ -650,8 +744,6 @@
         <li><a href="schemas.html#module-schemas.format_schema">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="controllers.html#controllers.cardset_controller.search_by_name">search_by_name() (in module controllers.cardset_controller)</a>
 
       <ul>
@@ -680,32 +772,46 @@
         <li><a href="schemas.html#schemas.format_schema.FormatSchema.Meta.sqla_session">(schemas.format_schema.FormatSchema.Meta attribute)</a>
 </li>
       </ul></li>
+      <li><a href="models.html#models.format.Format.start_date">start_date (models.format.Format attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#models.format.Format.to_dict">to_dict() (models.format.Format method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#models.battlelog.Battlelog.total_turns">total_turns (models.battlelog.Battlelog attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schemas.html#schemas.card_schema.CardSchema.Meta.unknown">unknown (schemas.card_schema.CardSchema.Meta attribute)</a>
+      <li><a href="schemas.html#schemas.battlelog_schema.BattlelogSchema.Meta.unknown">unknown (schemas.battlelog_schema.BattlelogSchema.Meta attribute)</a>
+
+      <ul>
+        <li><a href="schemas.html#schemas.card_schema.CardSchema.Meta.unknown">(schemas.card_schema.CardSchema.Meta attribute)</a>
 </li>
+      </ul></li>
       <li><a href="controllers.html#controllers.card_controller.update_card">update_card() (in module controllers.card_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.deck_controller.update_deck">update_deck() (in module controllers.deck_controller)</a>
 </li>
-      <li><a href="controllers.html#controllers.deckbox_controller.update_deckbox">update_deckbox() (in module controllers.deckbox_controller)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="controllers.html#controllers.deckbox_controller.update_deckbox">update_deckbox() (in module controllers.deckbox_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.format_controller.update_format">update_format() (in module controllers.format_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.cardset_controller.update_set">update_set() (in module controllers.cardset_controller)</a>
 </li>
-      <li><a href="models.html#models.Deck.updated_at">updated_at (in module models.Deck)</a>
-
-      <ul>
-        <li><a href="schemas.html#schemas.deck_schema.DeckSchema.updated_at">(schemas.deck_schema.DeckSchema attribute)</a>
+      <li><a href="schemas.html#schemas.deck_schema.DeckSchema.updated_at">updated_at (schemas.deck_schema.DeckSchema attribute)</a>
 </li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -714,17 +820,27 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="controllers.html#controllers.deck_controller.validate_deck">validate_deck() (in module controllers.deck_controller)</a>
 </li>
-      <li><a href="controllers.html#controllers.deck_controller.validate_deck_rules">validate_deck_rules() (in module controllers.deck_controller)</a>
+      <li><a href="controllers.html#controllers.format_controller.validate_deck_format">validate_deck_format() (in module controllers.format_controller)</a>
 </li>
-      <li><a href="controllers.html#controllers.format_controller.validate_format_legality">validate_format_legality() (in module controllers.format_controller)</a>
+      <li><a href="controllers.html#controllers.deck_controller.validate_deck_rules">validate_deck_rules() (in module controllers.deck_controller)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="controllers.html#controllers.format_controller.validate_format_legality">validate_format_legality() (in module controllers.format_controller)</a>
+</li>
       <li><a href="controllers.html#controllers.card_controller.validate_name">validate_name() (in module controllers.card_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.card_controller.validate_set_id">validate_set_id() (in module controllers.card_controller)</a>
 </li>
       <li><a href="controllers.html#controllers.card_controller.validate_type">validate_type() (in module controllers.card_controller)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#models.battlelog.Battlelog.win_loss">win_loss (models.battlelog.Battlelog attribute)</a>
 </li>
   </ul></td>
 </tr></table>

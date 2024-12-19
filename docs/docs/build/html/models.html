@@ -87,6 +87,17 @@ CardType and CardSet models, as well as connecting to decks through DeckCards.</
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="models.Card.card_number">
+<span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">card_number</span></span><a class="headerlink" href="#models.Card.card_number" title="Link to this definition">¶</a></dt>
+<dd><p>Number of the card within its set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="models.Card.cardtype">
 <span class="sig-prename descclassname"><span class="pre">models.Card.</span></span><span class="sig-name descname"><span class="pre">cardtype</span></span><a class="headerlink" href="#models.Card.cardtype" title="Link to this definition">¶</a></dt>
 <dd><p>Relationship to the card type</p>
@@ -187,50 +198,6 @@ CardType and CardSet models, as well as connecting to decks through DeckCards.</
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>datetime</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="models.Deck.updated_at">
-<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">updated_at</span></span><a class="headerlink" href="#models.Deck.updated_at" title="Link to this definition">¶</a></dt>
-<dd><p>Timestamp of last deck update</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>datetime</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="models.Deck.deck_cards">
-<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">deck_cards</span></span><a class="headerlink" href="#models.Deck.deck_cards" title="Link to this definition">¶</a></dt>
-<dd><p>Relationship to associated cards</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>relationship</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="models.Deck.deckbox">
-<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">deckbox</span></span><a class="headerlink" href="#models.Deck.deckbox" title="Link to this definition">¶</a></dt>
-<dd><p>Relationship to the deck box</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>relationship</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="models.Deck.ratings">
-<span class="sig-prename descclassname"><span class="pre">models.Deck.</span></span><span class="sig-name descname"><span class="pre">ratings</span></span><a class="headerlink" href="#models.Deck.ratings" title="Link to this definition">¶</a></dt>
-<dd><p>Relationship to deck ratings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>relationship</p>
 </dd>
 </dl>
 </dd></dl>
@@ -342,6 +309,110 @@ allowing cards to be included in multiple decks with specific quantities.</p>
 card: Reference to the associated Card</p>
 </dd>
 </dl>
+</div></blockquote>
+</section>
+<section id="battlelog">
+<h2>Battlelog<a class="headerlink" href="#battlelog" title="Link to this heading">¶</a></h2>
+<blockquote>
+<div><p id="module-models.battlelog">Battlelog model for managing Pokemon TCG battle logs</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.battlelog.</span></span><span class="sig-name descname"><span class="pre">Battlelog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models/battlelog.html#Battlelog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.battlelog.Battlelog" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Represents a battle log entry in the database.</p>
+<p>This model stores statistics and outcomes from individual Pokemon TCG matches,
+tracking metrics like card usage, synergies, and game duration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.battlelog.Battlelog.id" title="Link to this definition">¶</a></dt>
+<dd><p>Primary key identifier for the battle log</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.deck_id">
+<span class="sig-name descname"><span class="pre">deck_id</span></span><a class="headerlink" href="#models.battlelog.Battlelog.deck_id" title="Link to this definition">¶</a></dt>
+<dd><p>Foreign key linking to the deck used in battle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.win_loss">
+<span class="sig-name descname"><span class="pre">win_loss</span></span><a class="headerlink" href="#models.battlelog.Battlelog.win_loss" title="Link to this definition">¶</a></dt>
+<dd><p>True for win, False for loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.total_turns">
+<span class="sig-name descname"><span class="pre">total_turns</span></span><a class="headerlink" href="#models.battlelog.Battlelog.total_turns" title="Link to this definition">¶</a></dt>
+<dd><p>Number of turns the battle lasted</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.most_used_cards">
+<span class="sig-name descname"><span class="pre">most_used_cards</span></span><a class="headerlink" href="#models.battlelog.Battlelog.most_used_cards" title="Link to this definition">¶</a></dt>
+<dd><p>Array of frequently played cards during the match</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.key_synergy_cards">
+<span class="sig-name descname"><span class="pre">key_synergy_cards</span></span><a class="headerlink" href="#models.battlelog.Battlelog.key_synergy_cards" title="Link to this definition">¶</a></dt>
+<dd><p>Array of cards that created effective combinations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.deck">
+<span class="sig-name descname"><span class="pre">deck</span></span><a class="headerlink" href="#models.battlelog.Battlelog.deck" title="Link to this definition">¶</a></dt>
+<dd><p>Relationship to associated Deck model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>relationship</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.query">
+<span class="sig-name descname"><span class="pre">query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">t.ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Query</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#models.battlelog.Battlelog.query" title="Link to this definition">¶</a></dt>
+<dd><p>A SQLAlchemy query for a model. Equivalent to <code class="docutils literal notranslate"><span class="pre">db.session.query(Model)</span></code>. Can be
+customized per-model by overriding <code class="xref py py-attr docutils literal notranslate"><span class="pre">query_class</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The query interface is considered legacy in SQLAlchemy. Prefer using
+<code class="docutils literal notranslate"><span class="pre">session.execute(select())</span></code> instead.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </div></blockquote>
 </section>
 <section id="cardtype">
@@ -505,6 +576,25 @@ release dates and set legality. Examples include:</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.format.Format.start_date">
+<span class="sig-name descname"><span class="pre">start_date</span></span><a class="headerlink" href="#models.format.Format.start_date" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="models.format.Format.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/models/format.html#Format.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.format.Format.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert Format object to dictionary representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Format data in dictionary format</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div></blockquote>
@@ -545,6 +635,7 @@ release dates and set legality. Examples include:</p>
 <li class="toctree-l2"><a class="reference internal" href="#deck">Deck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#deckbox">DeckBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#deckcard">DeckCard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#battlelog">Battlelog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cardtype">CardType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cardset">CardSet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#format">Format</a></li>
