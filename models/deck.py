@@ -14,10 +14,6 @@ class Deck(db.Model):
         format_id (int): Foreign key reference to the format
         deckbox_id (int): Foreign key reference to the deckbox
         created_at (datetime): Timestamp of deck creation
-        updated_at (datetime): Timestamp of last deck update
-        deck_cards (relationship): Relationship to associated cards
-        deckbox (relationship): Relationship to the deck box
-        ratings (relationship): Relationship to deck ratings
     """
     
     __tablename__ = 'decks'

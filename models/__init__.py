@@ -7,7 +7,8 @@ from .rating import Rating
 from .cardtype import CardType
 from .cardset import CardSet
 from .format import Format
-from models.cardtype import CardType
+from .cardtype import CardType
+from .battlelog import Battlelog
 
 __all__ = [
     'Card',
@@ -17,5 +18,6 @@ __all__ = [
     'Rating', 
     'CardType',
     'CardSet', 
-    'Format'
+    'Format',
+    'Battlelog'
 ]

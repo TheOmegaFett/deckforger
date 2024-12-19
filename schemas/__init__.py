@@ -6,6 +6,7 @@ from schemas.deckcard_schema import DeckCardSchema
 from schemas.format_schema import FormatSchema
 from schemas.rating_schema import RatingSchema
 from schemas.cardtype_schema import CardTypeSchema
+from schemas.battlelog_schema import BattlelogSchema
 
 # Export all schemas
 __all__ = [
@@ -16,5 +17,6 @@ __all__ = [
     'DeckBoxSchema',
     'DeckCardSchema',
     'FormatSchema',
-    'RatingSchema'
+    'RatingSchema',
+    'BattlelogSchema'
 ]

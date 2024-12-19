@@ -3,7 +3,6 @@
 from init import ma
 from models.deck import Deck
 
-
 class DeckSchema(ma.SQLAlchemySchema):
     """
     Schema for Deck model serialization.
@@ -18,6 +17,7 @@ class DeckSchema(ma.SQLAlchemySchema):
         cards: Nested relationship to cards in deck
         deckbox: Nested relationship to deck box
         ratings: Nested relationship to deck ratings
+        battlelogs: Nested relationship to battle logs
     """
     
     class Meta:
@@ -34,7 +34,7 @@ class DeckSchema(ma.SQLAlchemySchema):
     cards = ma.Nested('DeckCardSchema', many=True)
     deckbox = ma.Nested('DeckBoxSchema', only=['id', 'name'])
     ratings = ma.Nested('RatingSchema', many=True)
-
+    battlelogs = ma.Nested('BattlelogSchema', many=True)
 
 deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
