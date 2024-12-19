@@ -484,7 +484,7 @@ def export_deck(deck_id):
         
         for deck_card in deck.deck_cards:
             card = deck_card.card
-            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name} {card.number}"
+            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name}"
             
             if card.cardtype.name == 'Pokemon':
                 pokemon_cards.append(card_line)
