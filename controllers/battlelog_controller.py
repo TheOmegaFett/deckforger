@@ -53,105 +53,65 @@ def get_deck_stats(deck_id):
 
 @battlelogs.route('/import/<int:deck_id>', methods=['POST'])
 def import_battlelog(deck_id):
-    log_text = request.get_data(as_text=True)
-    lines = log_text.split('\n')
-    
-    # Get deck to validate against
-    deck = Deck.query.get_or_404(deck_id)
-    deck_cards = {card.name for card in deck.cards}
-    
-    # Track cards played by each player
-    player1_cards = set()
-    player2_cards = set()
-    current_player = None
-    
-    for line in lines:
-        if "Turn #" in line:
-            current_player = line.split("-")[1].strip().split("'")[0]
-        elif "played" in line and "to" in line and current_player:
-            card_name = line.split("played")[1].split("to")[0].strip()
-            if current_player in line:
-                player1_cards.add(card_name)
-            else:
-                player2_cards.add(card_name)
-    
-    # Check if either player's card pool matches the deck
-    valid_log = (
-        all(card in deck_cards for card in player1_cards) or 
-        all(card in deck_cards for card in player2_cards)
-    )
-    
-    if not valid_log:
-        return jsonify({"error": "Battle log doesn't match specified deck"}), 400
-    
-    # Initialize tracking
-    current_turn_cards = []
-    card_interactions = {}
-    
-    for line in lines:
-        if line.startswith('Turn #'):
-            # Process previous turn's interactions
-            for i, card1 in enumerate(current_turn_cards):
-                for card2 in current_turn_cards[i+1:]:
-                    pair = tuple(sorted([card1, card2]))
-                    card_interactions[pair] = card_interactions.get(pair, 0) + 1
-            current_turn_cards = []
+    try:
+        log_text = request.get_data(as_text=True)
+        lines = log_text.split('\n')
         
-        elif "played" in line or "used" in line:
-            card_name = line.split("played")[1].split("to")[0].strip() if "played" in line else line.split("used")[0].strip()
-            current_turn_cards.append(card_name)
-    
-    # Get top synergy pairs
-    key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
-    key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
-    
-    # Parse total turns
-    turns = [line for line in lines if line.startswith('Turn #')]
-    total_turns = len(turns)
-    
-    # Parse win/loss from final line
-    win_loss = "wins" in lines[-1]
-    
-    # Track card usage frequency
-    card_counts = {}
-    for line in lines:
-        if "played" in line and "to" in line:
-            card_name = line.split("played")[1].split("to")[0].strip()
-            card_counts[card_name] = card_counts.get(card_name, 0) + 1
-    
-    # Get most used cards (top 5)
-    most_used_cards = sorted(card_counts.items(), key=lambda x: x[1], reverse=True)[:5]
-    most_used_cards = [card[0] for card in most_used_cards]
-    
-    # Calculate damage stats
-    damage_done = 0
-    damage_taken = 0
-    for line in lines:
-        if "damage" in line and "breakdown" not in line:
-            damage_amount = int(''.join(filter(str.isdigit, line.split("damage")[0])))
-            if "on" in line:  # Damage dealt to opponent
-                damage_done += damage_amount
-            else:  # Damage taken
-                damage_taken += damage_amount
-    
-    # Create initial battlelog entry
-    battlelog_data = {
-        'deck_id': deck_id,
-        'win_loss': win_loss,
-        'total_turns': total_turns,
-        'most_used_cards': most_used_cards,
-        'key_synergy_cards': key_synergy_cards,
-        'damage_done': damage_done,
-        'damage_taken': damage_taken
-    }
-    
-    battlelog = Battlelog(**battlelog_data)
-    db.session.add(battlelog)
-    db.session.commit()
-    
-    return jsonify({
-        "message": "Battle log imported successfully", 
-        "id": battlelog.id,
-        "raw_log": log_text,
-        "stats": battlelog_data
-    }), 201
+        # Get deck to validate against
+        deck = Deck.query.get_or_404(deck_id)
+        deck_cards = {card.name for card in deck.cards}
+        
+        # Track cards played by each player
+        player1_cards = set()
+        player2_cards = set()
+        current_player = None
+        
+        for line in lines:
+            if "Turn #" in line:
+                current_player = line.split("-")[1].strip().split("'")[0]
+            elif "played" in line and "to" in line and current_player:
+                card_name = line.split("played")[1].split("to")[0].strip()
+                if current_player in line:
+                    player1_cards.add(card_name)
+                else:
+                    player2_cards.add(card_name)
+        
+        # Validate card pools
+        valid_log = (
+            all(card in deck_cards for card in player1_cards) or 
+            all(card in deck_cards for card in player2_cards)
+        )
+        
+        if not valid_log:
+            return jsonify({"error": "Battle log doesn't match specified deck"}), 400
+            
+        # Parse game data
+        total_turns = len([line for line in lines if line.startswith('Turn #')])
+        win_loss = "wins" in lines[-1]
+        
+        battlelog_data = {
+            'deck_id': deck_id,
+            'win_loss': win_loss,
+            'total_turns': total_turns,
+            'most_used_cards': list(player1_cards if len(player1_cards) > len(player2_cards) else player2_cards),
+            'key_synergy_cards': [],
+            'damage_done': 0,
+            'damage_taken': 0
+        }
+        
+        battlelog = Battlelog(**battlelog_data)
+        db.session.add(battlelog)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Battle log imported successfully",
+            "id": battlelog.id,
+            "stats": battlelog_data
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Failed to import battle log",
+            "details": str(e)
+        }), 500
