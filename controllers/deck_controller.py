@@ -485,13 +485,13 @@ def export_deck(deck_id):
             card = deck_card.card
             card_line = f"{deck_card.quantity} {card.name} {card.cardset.name}"
             
-            # Ensure energies go in energy section
-            if 'Energy' in card.name:
+            # Use card type for categorization
+            if card.cardtype.name == 'Energy':
                 energy_cards.append(card_line)
-            elif card.cardtype.name == 'Pokemon':
-                pokemon_cards.append(card_line)
-            elif card.cardtype.name in ['Supporter', 'Item', 'Stadium']:
+            elif card.cardtype.name in ['Supporter', 'Item', 'Stadium', 'Tool']:
                 trainer_cards.append(card_line)
+            else:
+                pokemon_cards.append(card_line)
 
         # Build deck list with correct section counts
         deck_list = [
