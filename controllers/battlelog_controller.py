@@ -111,18 +111,6 @@ def import_battlelog(deck_id, player_name):
                             'damage': 0
                         }
                         
-                    # Track poison damage accumulation
-                    elif "damage counter" in line and "Poisoned" in line:
-                        pokemon_name = line.split("'s")[1].split("for")[0].strip()
-                        owner = line.split("'s")[0].strip()
-                        if pokemon_name in poisoned_pokemon:
-                            poison_damage = 10
-                            poisoned_pokemon[pokemon_name]['damage'] += poison_damage
-                            if owner == player_name:
-                                damage_taken += poison_damage
-                            else:
-                                damage_done += poison_damage
-                                
                     # Track poison removal/recovery
                     elif "recovered from all Special Conditions" in line or "is no longer" in line:
                         pokemon_name = line.split("'s")[1].split("has")[0].strip()
@@ -135,26 +123,46 @@ def import_battlelog(deck_id, player_name):
                                 damage_done += accumulated_damage
                             del poisoned_pokemon[pokemon_name]
                     
-                    # Track each attack's total damage:
-                    if "Total damage:" in line:
-                        damage_text = line.split("Total damage:")[1].split("damage")[0]
-                        damage_digits = ''.join(filter(str.isdigit, damage_text))
-                        if damage_digits and current_player == player_name:
-                            damage_done += int(damage_digits)
-                
-                    # Track opponent attacks and self-damage:
-                    if current_player != player_name and "for" in line:
-                        # Opponent's attacks (Blood Moon = 240)
-                        damage_text = line.split("for")[1].split("damage")[0]
-                        damage_digits = ''.join(filter(str.isdigit, damage_text))
-                        if damage_digits:
-                            damage_taken += int(damage_digits)
-                    elif "took" in line and current_player == player_name:
-                        # Self-damage (Frenzied Gouging = 200)
-                        damage_text = line.split("took")[1].split("damage")[0]
-                        damage_digits = ''.join(filter(str.isdigit, damage_text))
-                        if damage_digits:
-                            damage_taken += int(damage_digits)
+                    elif "damage" in line and "breakdown" not in line:
+                        try:
+                            # Total damage from attacks (captures full damage including weakness)
+                            if "Total damage:" in line:
+                                damage_text = line.split("Total damage:")[1].split("damage")[0]
+                                damage_digits = ''.join(filter(str.isdigit, damage_text))
+                                if damage_digits:
+                                    total_damage = int(damage_digits)
+                                    if current_player == player_name:
+                                        damage_done += total_damage
+                                    else:
+                                        damage_taken += total_damage
+
+                            # Direct damage statements (captures base damage)
+                            elif "for" in line and "damage" in line:
+                                damage_text = line.split("for")[1].split("damage")[0]
+                                damage_digits = ''.join(filter(str.isdigit, damage_text))
+                                if damage_digits:
+                                    direct_damage = int(damage_digits)
+                                    if current_player == player_name:
+                                        damage_done += direct_damage
+                                    else:
+                                        damage_taken += direct_damage
+
+                            # Self-inflicted damage
+                            elif "took" in line and current_player == player_name:
+                                damage_text = line.split("took")[1].split("damage")[0]
+                                damage_digits = ''.join(filter(str.isdigit, damage_text))
+                                if damage_digits:
+                                    damage_taken += int(damage_digits)
+
+                            # Poison damage tracking
+                            elif "damage counter" in line and "Poisoned" in line:
+                                if current_player == player_name:
+                                    damage_taken += 10
+                                else:
+                                    damage_done += 10
+
+                        except ValueError:
+                            continue
 
                 except ValueError:
                     continue        
