@@ -135,35 +135,26 @@ def import_battlelog(deck_id, player_name):
                                 damage_done += accumulated_damage
                             del poisoned_pokemon[pokemon_name]
                     
-                    # Handle damage text parsing
+                    # Track each attack's total damage:
                     if "Total damage:" in line:
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
                         damage_digits = ''.join(filter(str.isdigit, damage_text))
-                        if damage_digits:
-                            total_damage = int(damage_digits)
-                            if current_player == player_name:
-                                damage_done += total_damage
-                            else:
-                                damage_taken += total_damage
+                        if damage_digits and current_player == player_name:
+                            damage_done += int(damage_digits)
                 
-                    # Handle direct damage statements
-                    elif "for" in line and "damage" in line:
+                    # Track opponent attacks and self-damage:
+                    if current_player != player_name and "for" in line:
+                        # Opponent's attacks (Blood Moon = 240)
                         damage_text = line.split("for")[1].split("damage")[0]
                         damage_digits = ''.join(filter(str.isdigit, damage_text))
                         if damage_digits:
-                            direct_damage = int(damage_digits)
-                            if current_player == player_name:
-                                damage_done += direct_damage
-                            else:
-                                damage_taken += direct_damage
-                
-                    # Handle self-inflicted damage
+                            damage_taken += int(damage_digits)
                     elif "took" in line and current_player == player_name:
+                        # Self-damage (Frenzied Gouging = 200)
                         damage_text = line.split("took")[1].split("damage")[0]
                         damage_digits = ''.join(filter(str.isdigit, damage_text))
                         if damage_digits:
-                            self_damage = int(damage_digits)
-                            damage_taken += self_damage
+                            damage_taken += int(damage_digits)
 
                 except ValueError:
                     continue        
@@ -175,10 +166,12 @@ def import_battlelog(deck_id, player_name):
 
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
+        # Clean the lines when we first get them
+        lines = [line.strip() for line in log_text.split('\n') if line.strip()]
 
         total_turns = len([line for line in lines if line.startswith('Turn #')])
     
-        # Check win condition at end of processing
+        # Then at the end, check the last actual line
         win_loss = any(
             condition in lines[-1] 
             for condition in [
