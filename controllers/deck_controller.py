@@ -468,9 +468,29 @@ def export_deck(deck_id):
         deck_id (int): ID of the deck to export
         
     Returns:
-        200: Deck list in TCG Live format
+        200: Plain text deck list in TCG Live format
         404: Deck not found
         500: Export operation failed
+        
+    Example Response:
+        Pokémon: 3
+        
+        4 Fezandipiti ex SFA
+        1 Radiant Greninja ASR
+        4 Roaring Moon ex PAR
+        
+        Trainer: 13
+        
+        4 Switch Cart ASR
+        4 Dark Patch ASR
+        ...
+        
+        Energy: 3
+        
+        11 Basic Dark Energy SVE
+        2 Jet Energy PAL
+        
+        Total Cards: 60
     """
     try:
         deck = db.session.get(Deck, deck_id)
@@ -494,19 +514,23 @@ def export_deck(deck_id):
                 energy_cards.append(card_line)
 
         # Build deck list string
-        deck_list = []
-        deck_list.append(f"Pokémon: {len(pokemon_cards)}\n")
-        deck_list.extend(pokemon_cards)
-        deck_list.append(f"\nTrainer: {len(trainer_cards)}\n")
-        deck_list.extend(trainer_cards)
-        deck_list.append(f"\nEnergy: {len(energy_cards)}\n")
-        deck_list.extend(energy_cards)
-        deck_list.append(f"\nTotal Cards: {sum(dc.quantity for dc in deck.deck_cards)}")
+        deck_list = [
+            f"Pokémon: {len(pokemon_cards)}",
+            "",
+            *pokemon_cards,
+            "",
+            f"Trainer: {len(trainer_cards)}",
+            "",
+            *trainer_cards,
+            "",
+            f"Energy: {len(energy_cards)}",
+            "",
+            *energy_cards,
+            "",
+            f"Total Cards: {sum(dc.quantity for dc in deck.deck_cards)}"
+        ]
 
-        return {
-            'deck_name': deck.name,
-            'deck_list': '\n'.join(deck_list)
-        }, 200
+        return '\n'.join(deck_list), 200, {'Content-Type': 'text/plain'}
 
     except Exception as e:
         return jsonify({'error': 'Export failed', 'details': str(e)}), 500
