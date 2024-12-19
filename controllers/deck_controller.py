@@ -327,18 +327,18 @@ def validate_deck(deck_id, format_id):
     if card_count != 60:
         raise ValidationError(f'Deck must contain exactly 60 cards. Current count: {card_count}')
 
-@deck_controller.route('/import', methods=['POST'])
-def import_deck():
+@deck_controller.route('/import/<deck_name>/<int:format_id>/<int:deckbox_id>', methods=['POST'])
+def import_deck(deck_name, format_id, deckbox_id):
     """
     Import a deck from TCG Live format text.
     
-    Request Body:
-        Raw text in TCG Live format
+    URL Parameters:
+        deck_name (str): Name for the imported deck
+        format_id (int): Format ID for the deck
+        deckbox_id (int): Deck box to store the deck in
         
-    Query Parameters:
-        deck_name (str, optional): Name for the imported deck
-        format_id (int, optional): Format ID for the deck (defaults to 1)
-        deckbox_id (int, optional): Deck box ID (defaults to 1)
+    Body:
+        Raw text in TCG Live format
         
     Returns:
         201: Deck imported successfully
@@ -347,9 +347,6 @@ def import_deck():
     """
     try:
         deck_list = request.get_data(as_text=True)
-        deck_name = request.args.get('deck_name', 'Imported Deck')
-        format_id = request.args.get('format_id', 1, type=int)
-        deckbox_id = request.args.get('deckbox_id', 1, type=int)        
         # Create new deck
         new_deck = Deck(
             name=deck_name,
