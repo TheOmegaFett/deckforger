@@ -326,3 +326,135 @@ def validate_deck(deck_id, format_id):
 
     if card_count != 60:
         raise ValidationError(f'Deck must contain exactly 60 cards. Current count: {card_count}')
+
+@deck_controller.route('/import', methods=['POST'])
+def import_deck():
+    """
+    Import a deck from TCG Live format text.
+    
+    Request Body:
+        deck_list (str): Full deck list in TCG Live format
+        deck_name (str): Name for the imported deck
+        format_id (int): Format ID for the deck
+        deckbox_id (int): Deck box to store the deck in
+        
+    Returns:
+        201: Deck imported successfully
+        400: Invalid deck list format
+        500: Import operation failed
+    """
+    try:
+        data = request.get_json()
+        deck_list = data.get('deck_list')
+        deck_name = data.get('deck_name', 'Imported Deck')
+        format_id = data.get('format_id', 1)  # Default to Standard
+        deckbox_id = data.get('deckbox_id', 1)  # Default to first deck box
+        
+        # Create new deck
+        new_deck = Deck(
+            name=deck_name,
+            description="Imported from TCG Live",
+            format_id=format_id,
+            deckbox_id=deckbox_id
+        )
+        db.session.add(new_deck)
+        db.session.flush()  # Get deck ID while maintaining transaction
+        
+        # Parse deck list
+        sections = deck_list.split('\n\n')
+        for section in sections:
+            if not section.strip():
+                continue
+                
+            lines = section.strip().split('\n')
+            for line in lines[1:]:  # Skip section header
+                if not line.strip():
+                    continue
+                    
+                # Parse card line (e.g., "4 Fezandipiti ex SFA 38")
+                parts = line.strip().split(' ')
+                quantity = int(parts[0])
+                set_code = parts[-2]
+                card_number = parts[-1]
+                card_name = ' '.join(parts[1:-2])
+                
+                # Find or create card set
+                stmt = db.select(CardSet).filter_by(name=set_code)
+                card_set = db.session.scalar(stmt)
+                if not card_set:
+                    card_set = CardSet(
+                        name=set_code,
+                        release_date=datetime.now().date(),  # Default to today
+                        description=f"Set {set_code}"
+                    )
+                    db.session.add(card_set)
+                    db.session.flush()
+                
+                # Find or create card
+                stmt = db.select(Card).filter_by(name=card_name, cardset_id=card_set.id)
+                card = db.session.scalar(stmt)
+                if not card:
+                    # Determine card type from name/section
+                    card_type = determine_card_type(card_name, section)
+                    card = Card(
+                        name=card_name,
+                        cardtype_id=card_type.id,
+                        cardset_id=card_set.id
+                    )
+                    db.session.add(card)
+                    db.session.flush()
+                
+                # Add card to deck
+                deck_card = DeckCard(
+                    deck_id=new_deck.id,
+                    card_id=card.id,
+                    quantity=quantity
+                )
+                db.session.add(deck_card)
+        
+        db.session.commit()
+        return jsonify(deck_schema.dump(new_deck)), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to import deck', 'details': str(e)}), 500
+
+def determine_card_type(card_name: str, section: str) -> CardType:
+    """Helper function to determine and create card type if needed"""
+    
+    # Map common card indicators to types
+    type_indicators = {
+        'Stadium': 'Stadium',
+        'Item': 'Item',
+        'Tool': 'Item',
+        'ex': 'Pokemon',
+        'V ': 'Pokemon',
+        'VMAX': 'Pokemon',
+        'VSTAR': 'Pokemon',
+        'Basic Energy': 'Energy',
+        'Special Energy': 'Energy'
+    }
+    
+    # Determine type from card name and section
+    card_type_name = 'Pokemon'  # Default type
+    
+    if 'Trainer' in section:
+        for indicator, type_name in type_indicators.items():
+            if indicator in card_name:
+                card_type_name = type_name
+                break
+        if card_name.endswith("'s"):  # Supporter cards typically end with 's
+            card_type_name = 'Supporter'
+    elif 'Energy' in section:
+        card_type_name = 'Energy'
+    
+    # Find or create the card type
+    stmt = db.select(CardType).filter_by(name=card_type_name)
+    card_type = db.session.scalar(stmt)
+    
+    if not card_type:
+        card_type = CardType(name=card_type_name)
+        db.session.add(card_type)
+        db.session.flush()
+    
+    return card_type

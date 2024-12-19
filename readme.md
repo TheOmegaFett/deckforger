@@ -261,7 +261,7 @@ Main Developer: Shane W Miller
 
 ## Feedback
 
-[Go To Feedback Log](docs\Feedback.md)
+[Go To Feedback](docs\Feedback.md)
 
 ## Deployment
 
