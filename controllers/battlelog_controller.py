@@ -125,41 +125,33 @@ def import_battlelog(deck_id, player_name):
                     
                     elif "damage" in line and "breakdown" not in line:
                         try:
-                            # Total damage from attacks (captures full damage including weakness)
+                            # Track damage based on line context
                             if "Total damage:" in line:
+                                # This captures the final damage after weakness/resistance
                                 damage_text = line.split("Total damage:")[1].split("damage")[0]
                                 damage_digits = ''.join(filter(str.isdigit, damage_text))
                                 if damage_digits:
                                     total_damage = int(damage_digits)
                                     if current_player == player_name:
-                                        damage_done += total_damage
+                                        damage_done += total_damage  # Will capture 220, 200, 200, 240
                                     else:
-                                        damage_taken += total_damage
+                                        damage_taken += total_damage  # Will capture opponent's attacks
 
-                            # Direct damage statements (captures base damage)
-                            elif "for" in line and "damage" in line:
-                                damage_text = line.split("for")[1].split("damage")[0]
-                                damage_digits = ''.join(filter(str.isdigit, damage_text))
-                                if damage_digits:
-                                    direct_damage = int(damage_digits)
-                                    if current_player == player_name:
-                                        damage_done += direct_damage
-                                    else:
-                                        damage_taken += direct_damage
-
-                            # Self-inflicted damage
-                            elif "took" in line and current_player == player_name:
+                            elif "took" in line:
+                                # This captures self-inflicted damage like Frenzied Gouging
                                 damage_text = line.split("took")[1].split("damage")[0]
                                 damage_digits = ''.join(filter(str.isdigit, damage_text))
-                                if damage_digits:
-                                    damage_taken += int(damage_digits)
+                                if damage_digits and current_player == player_name:
+                                    damage_taken += int(damage_digits)  # Will capture 200
 
                             # Poison damage tracking
-                            elif "damage counter" in line and "Poisoned" in line:
-                                if current_player == player_name:
-                                    damage_taken += 10
+                            if "damage counter" in line and "Poisoned" in line:
+                                pokemon_name = line.split("'s")[1].split("for")[0].strip()
+                                owner = line.split("'s")[0].strip()
+                                if owner == player_name:
+                                    damage_taken += 10  # Each counter = 10 damage
                                 else:
-                                    damage_done += 10
+                                    damage_done += 10  # Poison damage we deal
 
                         except ValueError:
                             continue
