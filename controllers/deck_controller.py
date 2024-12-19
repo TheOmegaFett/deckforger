@@ -371,38 +371,42 @@ def import_deck():
                 if not line.strip():
                     continue
                     
-                # Parse card line (e.g., "4 Fezandipiti ex SFA 38")
-                parts = line.strip().split(' ')
-                quantity = int(parts[0])
-                set_code = parts[-2]
-                card_number = parts[-1]
-                card_name = ' '.join(parts[1:-2])
-                
-                # Find or create card set
-                stmt = db.select(CardSet).filter_by(name=set_code)
-                card_set = db.session.scalar(stmt)
-                if not card_set:
-                    card_set = CardSet(
-                        name=set_code,
-                        release_date=datetime.now().date(),  # Default to today
-                        description=f"Set {set_code}"
-                    )
-                    db.session.add(card_set)
-                    db.session.flush()
-                
-                # Find or create card
-                stmt = db.select(Card).filter_by(name=card_name, cardset_id=card_set.id)
-                card = db.session.scalar(stmt)
-                if not card:
-                    # Determine card type from name/section
-                    card_type = determine_card_type(card_name, section)
-                    card = Card(
-                        name=card_name,
-                        cardtype_id=card_type.id,
-                        cardset_id=card_set.id
-                    )
-                    db.session.add(card)
-                    db.session.flush()
+        # Parse card line (e.g., "4 Fezandipiti ex SFA 38")
+        parts = line.strip().split(' ')
+        quantity = int(parts[0])
+        set_code = parts[-2]
+        card_number = parts[-1]
+        # Remove card number and set code, then join remaining parts for name
+        name_parts = parts[1:-2]
+        # Special handling for card variants
+        variants = ['ex', 'VMAX', 'VSTAR', 'V', 'GX']
+        card_name = ' '.join(name_parts)
+                    
+        # Find or create card set
+        stmt = db.select(CardSet).filter_by(name=set_code)
+        card_set = db.session.scalar(stmt)
+        if not card_set:
+            card_set = CardSet(
+                name=set_code,
+                release_date=datetime.now().date(),  # Default to today - fix to actual set date in database cleanup (to be added)
+                description=f"Set {set_code}"
+                )
+            db.session.add(card_set)
+            db.session.flush()
+                    
+            # Find or create card
+            stmt = db.select(Card).filter_by(name=card_name, cardset_id=card_set.id)
+            card = db.session.scalar(stmt)
+            if not card:
+                # Determine card type from name/section
+                card_type = determine_card_type(card_name, section)
+                card = Card(
+                    name=card_name,
+                    cardtype_id=card_type.id,
+                    cardset_id=card_set.id
+                )
+                db.session.add(card)
+                db.session.flush()
                 
                 # Add card to deck
                 deck_card = DeckCard(
@@ -411,8 +415,8 @@ def import_deck():
                     quantity=quantity
                 )
                 db.session.add(deck_card)
-        
-        db.session.commit()
+
+                db.session.commit()
         return jsonify(deck_schema.dump(new_deck)), 201
         
     except Exception as e:
@@ -504,7 +508,7 @@ def export_deck(deck_id):
         
         for deck_card in deck.deck_cards:
             card = deck_card.card
-            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name}"
+            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name} {card.card_number}"
             
             if card.cardtype.name == 'Pokemon':
                 pokemon_cards.append(card_line)

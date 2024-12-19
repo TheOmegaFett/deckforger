@@ -100,6 +100,35 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 - GET /api/decks/top-rated - Get top rated decks
 - GET /api/decks/filter/by-rating-range?min=4&max=5 - Filter decks by rating range
 
+### Deck Import/Export
+
+- POST /api/decks/import - Import deck from TCG Live format
+
+  {
+  "deck_list": "Pokémon: 4\n\n1 Pecharunt ex SFA...",
+  "deck_name": "Dark Box",
+  "format_id": 1,
+  "deckbox_id": 1
+  }
+
+  This endpoint will:
+
+  - Parse the TCG Live format deck list
+  - Automatically create new cards, sets, and types if they don't exist
+  - Create the deck with the imported cards
+
+- GET /api/decks/{deck_id}/export - Export deck to TCG Live format
+
+  Returns plain text deck list compatible with TCG Live:
+  Pokémon: 4
+  1 Pecharunt ex SFA
+  4 Fezandipiti ex SFA
+  ...
+
+- GET /api/decks/{deck_id}/export?format=json - Export deck in JSON format
+
+  Returns a JSON object containing the deck information and card list
+
 ### Deck Boxes
 
 - POST /api/deckboxes/ - Create deck box

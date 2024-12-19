@@ -15,6 +15,7 @@ class Card(db.Model):
         name (str): Name of the card
         cardtype_id (int): Foreign key reference to the card type
         cardset_id (int): Foreign key reference to the set
+        card_number (str): Number of the card within its set
         cardtype (relationship): Relationship to the card type
         cardset (relationship): Relationship to the parent set
         deck_cards (relationship): Relationship to associated decks
@@ -27,6 +28,7 @@ class Card(db.Model):
     name = db.Column(db.String(100), nullable=False)
     cardtype_id = db.Column(db.Integer, db.ForeignKey('card_types.id'), nullable=False)
     cardset_id = db.Column(db.Integer, db.ForeignKey('cardsets.id'), nullable=False)
+    card_number = db.Column(db.String(20), nullable=True)
     
     # Relationships to other models
     cardtype = db.relationship('CardType', back_populates='cards')

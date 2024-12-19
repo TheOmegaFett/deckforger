@@ -128,6 +128,7 @@ def update_card(card_id):
         name (str, optional): New name for the card
         cardtype (str, optional): New type for the card
         cardset_id (int, optional): New set ID for the card
+        card_number (str, optional): New card number for the card
         
     Returns:
         200: Card updated successfully
@@ -147,6 +148,8 @@ def update_card(card_id):
             card.cardtype = data['cardtype']
         if 'cardset_id' in data:
             card.cardset_id = data['cardset_id']
+        if 'card_number' in data:
+            card.card_number = data['card_number']
 
         db.session.commit()
         return card_schema.jsonify(card), 200
@@ -156,7 +159,6 @@ def update_card(card_id):
             'error': 'Database operation failed',
             'details': str(e)
         }), 500
-
 @card_controller.route('/<int:card_id>', methods=['DELETE'])
 def delete_card(card_id):
     """

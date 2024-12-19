@@ -6,12 +6,10 @@ from schemas.cardtype_schema import CardTypeSchema
 from schemas.cardset_schema import CardSetSchema
 
 class CardSchema(ma.Schema):
-   
-    
     class Meta:
-        fields = ('id', 'name', 'cardtype', 'cardset')
+        fields = ('id', 'name', 'cardtype', 'cardset', 'card_number')
         ordered = True
-        unknown = EXCLUDE  # Ignore unknown fields like cardset_id
+        unknown = EXCLUDE
         
     # Relationships
     cardtype = ma.Nested(CardTypeSchema)
