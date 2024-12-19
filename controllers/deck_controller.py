@@ -458,3 +458,55 @@ def determine_card_type(card_name: str, section: str) -> CardType:
         db.session.flush()
     
     return card_type
+
+@deck_controller.route('/<int:deck_id>/export', methods=['GET'])
+def export_deck(deck_id):
+    """
+    Export a deck to TCG Live format text.
+    
+    Parameters:
+        deck_id (int): ID of the deck to export
+        
+    Returns:
+        200: Deck list in TCG Live format
+        404: Deck not found
+        500: Export operation failed
+    """
+    try:
+        deck = db.session.get(Deck, deck_id)
+        if not deck:
+            return jsonify({'error': 'Deck not found'}), 404
+
+        # Group cards by type
+        pokemon_cards = []
+        trainer_cards = []
+        energy_cards = []
+        
+        for deck_card in deck.deck_cards:
+            card = deck_card.card
+            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name} {card.number}"
+            
+            if card.cardtype.name == 'Pokemon':
+                pokemon_cards.append(card_line)
+            elif card.cardtype.name in ['Supporter', 'Item', 'Stadium']:
+                trainer_cards.append(card_line)
+            elif card.cardtype.name == 'Energy':
+                energy_cards.append(card_line)
+
+        # Build deck list string
+        deck_list = []
+        deck_list.append(f"Pokémon: {len(pokemon_cards)}\n")
+        deck_list.extend(pokemon_cards)
+        deck_list.append(f"\nTrainer: {len(trainer_cards)}\n")
+        deck_list.extend(trainer_cards)
+        deck_list.append(f"\nEnergy: {len(energy_cards)}\n")
+        deck_list.extend(energy_cards)
+        deck_list.append(f"\nTotal Cards: {sum(dc.quantity for dc in deck.deck_cards)}")
+
+        return jsonify({
+            'deck_name': deck.name,
+            'deck_list': '\n'.join(deck_list)
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': 'Export failed', 'details': str(e)}), 500
