@@ -100,15 +100,17 @@ def import_battlelog(deck_id, player_name):
                 try:
                     damage_text = line.split("damage")[0]
                     damage_digits = ''.join(filter(str.isdigit, damage_text))
-                    if damage_digits:  # Only parse if we have digits
+                    if damage_digits:
                         damage_amount = int(damage_digits)
-                        if current_player == player_name:  # Player's turn
+                        if "took" in line and current_player == player_name:
+                            # Self-inflicted damage counts as damage taken
+                            damage_taken += damage_amount
+                        elif current_player == player_name:
                             damage_done += damage_amount
-                        else:  # Opponent's turn
+                        else:
                             damage_taken += damage_amount
                 except ValueError:
-                    continue  # Skip this line if damage can't be parsed        
-        # Get top synergy pairs
+                    continue        # Get top synergy pairs
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
         
