@@ -117,40 +117,35 @@ def import_battlelog(deck_id, player_name):
                     elif "damage counter" in line and "Poisoned" in line:
                         pokemon_name = line.split("'s")[1].split("for")[0].strip()
                         if pokemon_name in poisoned_pokemon:
-                            # Extract the number of damage counters
-                            counter_digits = ''.join(filter(str.isdigit, line))
-                            if counter_digits:
-                                counter_amount = int(counter_digits)
-                                poison_damage = counter_amount * 10
+                            poison_digits = ''.join(filter(str.isdigit, line))
+                            if poison_digits:
+                                poison_damage = int(poison_digits) * 10
                                 poisoned_pokemon[pokemon_name] += poison_damage
                                 if current_player == player_name:
                                     damage_taken += poison_damage
-                    # Track each attack with full damage including weakness
+                                    
+                    # Regular damage tracking continues...
                     if "Total damage:" in line:
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
-                        damage_amount = int(''.join(filter(str.isdigit, damage_text)))
-                        if current_player == player_name:
-                            damage_done += damage_amount
                     elif "took" in line:
                         damage_text = line.split("took")[1].split("damage")[0]
                     elif "for" in line and "damage" in line:
                         damage_text = line.split("for")[1].split("damage")[0]
                     else:
                         damage_text = line.split("damage")[0]
-
+                        
                     damage_digits = ''.join(filter(str.isdigit, damage_text))
                     if damage_digits:
                         damage_amount = int(damage_digits)
-                        # Track opponent damage, self-damage, and poison
                         if current_player == player_name:
-                            if "took" in line:  # Self-damage (200)
+                            if "took" in line:
                                 damage_taken += damage_amount
-                        elif "for" in line:  # Opponent damage (240)
-                            damage_taken += damage_amount
-
-                        # Poison tracking
-                        poisoned_pokemon[pokemon_name] = poisoned_pokemon.get(pokemon_name, 0) + (counter_amount * 10)
-
+                            elif "Total damage:" in line:
+                                damage_done += damage_amount
+                        else:
+                            if "for" in line:
+                                damage_taken += damage_amount
+                                
                 except ValueError:
                     continue        
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
