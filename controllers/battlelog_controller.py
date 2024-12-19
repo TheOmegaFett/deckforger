@@ -58,8 +58,8 @@ def import_battlelog(deck_id, player_name):
         deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
     
         # Track cards and interactions
-        player1_cards = set()
-        player2_cards = set()
+        player_cards = set()
+        opponent_cards = set()
         current_turn_cards = []
         card_interactions = {}
         current_player = None
@@ -88,14 +88,12 @@ def import_battlelog(deck_id, player_name):
                 # In the card tracking loop
                 if "played" in line and "to" in line:
                     card_name = line.split("played")[1].split("to")[0].strip()
-                    if card_name not in basic_energies:  # Only track non-basic energy cards
-                        if current_player == player_name:
-                            player1_cards.add(card_name)
-                            # Increment usage count
-                            card_usage_count[card_name] = card_usage_count.get(card_name, 0) + 1
-                        else:
-                            player2_cards.add(card_name)
-                        current_turn_cards.append(card_name)
+                    # Compare against player_name from URL
+                    if current_player == player_name:  
+                        player_cards.add(card_name)
+                    else:
+                        opponent_cards.add(card_name)
+                    current_turn_cards.append(card_name)
             elif "damage" in line:
                 try:
                     # Track poison application
@@ -161,11 +159,10 @@ def import_battlelog(deck_id, player_name):
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
 
         # Validate card pools against player name
-        valid_log = all(card in deck_cards for card in (player1_cards if current_player == player_name else player2_cards))
+        valid_log = all(card in deck_cards for card in player1_cards)
 
         if not valid_log:
-            return jsonify({"error": "Battle log doesn't match specified deck"}), 400
-        # Clean the lines when we first get them
+            return jsonify({"error": "Battle log doesn't match specified deck"}), 400        # Clean the lines when we first get them
         lines = [line.strip() for line in log_text.split('\n') if line.strip()]
 
         total_turns = len([line for line in lines if line.startswith('Turn #')])
