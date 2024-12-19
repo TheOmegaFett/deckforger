@@ -95,11 +95,16 @@ def import_battlelog(deck_id, player_name):
                     if card_name not in basic_energies:  # Only track non-basic energy cards
                         if current_player == player_name:
                             player1_cards.add(card_name)
-                            # Increment usage count
-                            card_usage_count[card_name] = card_usage_count.get(card_name, 0) + 1
                         else:
                             player2_cards.add(card_name)
                         current_turn_cards.append(card_name)
+                
+                if current_player == player_name:
+                    # Extract card names from the line
+                    for card_name in deck_cards:  # Use deck_cards to check valid cards
+                        if card_name in line and card_name not in basic_energies:
+                            card_usage_count[card_name] = card_usage_count.get(card_name, 0) + 1
+
             elif "damage" in line and "breakdown" not in line:
                 try:
                     # Handle damage text parsing
