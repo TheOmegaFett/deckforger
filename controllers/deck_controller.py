@@ -503,10 +503,10 @@ def export_deck(deck_id):
         deck_list.extend(energy_cards)
         deck_list.append(f"\nTotal Cards: {sum(dc.quantity for dc in deck.deck_cards)}")
 
-        return jsonify({
+        return {
             'deck_name': deck.name,
             'deck_list': '\n'.join(deck_list)
-        }), 200
+        }, 200
 
     except Exception as e:
         return jsonify({'error': 'Export failed', 'details': str(e)}), 500
