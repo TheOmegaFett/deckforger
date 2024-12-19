@@ -127,20 +127,19 @@ def import_battlelog(deck_id, player_name):
                         try:
                             # Track damage based on line context
                             if "damage" in line and "breakdown" not in line:
-                                try:
-                                    if "Total damage:" in line:
-                                        # Extract target Pokemon's owner
-                                        target_owner = line.split("'s")[0].strip()
-                                        
-                                        damage_text = line.split("Total damage:")[1].split("damage")[0]
-                                        damage_digits = ''.join(filter(str.isdigit, damage_text))
-                                        if damage_digits:
-                                            total_damage = int(damage_digits)
-                                            # Only count damage to opponent's Pokemon as damage_done
-                                            if current_player == player_name and target_owner != player_name:
-                                                damage_done += total_damage
-                                            elif current_player != player_name and target_owner == player_name:
-                                                damage_taken += total_damage
+                                if "Total damage:" in line:
+                                    # Extract target Pokemon's owner
+                                    target_owner = line.split("'s")[0].strip()
+                                    
+                                    damage_text = line.split("Total damage:")[1].split("damage")[0]
+                                    damage_digits = ''.join(filter(str.isdigit, damage_text))
+                                    if damage_digits:
+                                        total_damage = int(damage_digits)
+                                        # Only count damage to opponent's Pokemon as damage_done
+                                        if current_player == player_name and target_owner != player_name:
+                                            damage_done += total_damage
+                                        elif current_player != player_name and target_owner == player_name:
+                                            damage_taken += total_damage
                             elif "took" in line:
                                 # This captures self-inflicted damage like Frenzied Gouging
                                 damage_text = line.split("took")[1].split("damage")[0]
