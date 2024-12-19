@@ -154,6 +154,13 @@ def import_battlelog(deck_id, player_name):
 
                 except ValueError:
                     continue        
+
+            if current_player == player_name:
+                # Extract card names from the line
+                for card_name in deck_cards:  # Use deck_cards to check valid cards
+                    if card_name in line:  # Check any mention of the card
+                        card_usage_count[card_name] = card_usage_count.get(card_name, 0) + 1
+
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
 
