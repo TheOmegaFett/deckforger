@@ -81,21 +81,33 @@ def import_battlelog(deck_id, player_name):
                 current_turn_cards = []
                 
             elif "played" in line or "used" in line:
+                # List of basic energy names to filter
+                basic_energies = ['Basic Grass Energy', 'Basic Fire Energy', 'Basic Water Energy', 
+                 'Basic Lightning Energy', 'Basic Psychic Energy', 'Basic Fighting Energy', 
+                 'Basic Darkness Energy', 'Basic Metal Energy', 'Basic Fairy Energy']
+
+                # In the card tracking loop
                 if "played" in line and "to" in line:
                     card_name = line.split("played")[1].split("to")[0].strip()
-                    if current_player == player_name:
-                        player1_cards.add(card_name)
-                    else:
-                        player2_cards.add(card_name)
-                    current_turn_cards.append(card_name)
+                    if card_name not in basic_energies:  # Only track non-basic energy cards
+                        if current_player == player_name:
+                            player1_cards.add(card_name)
+                        else:
+                            player2_cards.add(card_name)
+                        current_turn_cards.append(card_name)
                     
             elif "damage" in line and "breakdown" not in line:
-                damage_amount = int(''.join(filter(str.isdigit, line.split("damage")[0])))
-                if current_player == player_name:  # Player's turn
-                    damage_done += damage_amount
-                else:  # Opponent's turn
-                    damage_taken += damage_amount
-        
+                try:
+                    damage_text = line.split("damage")[0]
+                    damage_digits = ''.join(filter(str.isdigit, damage_text))
+                    if damage_digits:  # Only parse if we have digits
+                        damage_amount = int(damage_digits)
+                        if current_player == player_name:  # Player's turn
+                            damage_done += damage_amount
+                        else:  # Opponent's turn
+                            damage_taken += damage_amount
+                except ValueError:
+                    continue  # Skip this line if damage can't be parsed        
         # Get top synergy pairs
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
