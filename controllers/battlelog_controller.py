@@ -97,9 +97,16 @@ def import_battlelog(deck_id, player_name):
                         current_turn_cards.append(card_name)
             elif "damage" in line and "breakdown" not in line:
                 try:
-                    # Check for total damage in breakdown first
+                    # First check for total damage in breakdown
                     if "Total damage:" in line:
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
+                    # Then check for poison damage
+                    elif "poison" in line.lower():
+                        damage_text = line.split("damage")[0]
+                    # Then check for direct damage statements
+                    elif "for" in line and "damage" in line:
+                        damage_text = line.split("for")[1].split("damage")[0]
+                    # Finally check other damage instances
                     else:
                         damage_text = line.split("damage")[0]
                         
@@ -107,18 +114,21 @@ def import_battlelog(deck_id, player_name):
                     if damage_digits:
                         damage_amount = int(damage_digits)
                         
-                        # Track damage based on context
+                        # Track all damage instances
                         if current_player == player_name:
                             if "took" in line:
                                 damage_taken += damage_amount
-                            elif "Total damage:" in line:
+                            else:
                                 damage_done += damage_amount
                         else:
-                            if "Total damage:" in line or "for" in line:
-                                damage_taken += damage_amount
+                            damage_taken += damage_amount
+                            
+                    # Track poison damage
+                    if "poison" in line.lower():
+                        damage_taken += 40
+                        
                 except ValueError:
-                    continue    
-        
+                    continue        
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
         
