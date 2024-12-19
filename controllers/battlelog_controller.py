@@ -70,6 +70,9 @@ def import_battlelog(deck_id, player_name):
         damage_done = 0
         damage_taken = 0
         
+        poisoned_pokemon = {}  # Track {pokemon_name: accumulated_damage}
+        
+        
         for line in lines:
             if "Turn #" in line:
                 current_player = line.split("-")[1].strip().split("'")[0]
@@ -97,42 +100,51 @@ def import_battlelog(deck_id, player_name):
                         current_turn_cards.append(card_name)
             elif "damage" in line and "breakdown" not in line:
                 try:
-                    # Parse damage amounts based on specific line patterns
+                    # First handle poison application
+                    if "is now Poisoned" in line:
+                        pokemon_name = line.split("'s")[1].split("is")[0].strip()
+                        poisoned_pokemon[pokemon_name] = 0
+                        
+                    # Handle poison removal
+                    elif "recovered from all Special Conditions" in line or "is no longer" in line:
+                        pokemon_name = line.split("'s")[1].split("has")[0].strip()
+                        if pokemon_name in poisoned_pokemon:
+                            if current_player == player_name:
+                                damage_taken += poisoned_pokemon[pokemon_name]
+                            del poisoned_pokemon[pokemon_name]
+                            
+                    # Track poison damage accumulation
+                    elif "damage counter" in line and "Poisoned" in line:
+                        pokemon_name = line.split("'s")[1].split("for")[0].strip()
+                        if pokemon_name in poisoned_pokemon:
+                            counter_amount = int(''.join(filter(str.isdigit, line)))
+                            poison_damage = counter_amount * 10
+                            poisoned_pokemon[pokemon_name] += poison_damage
+                            if current_player == player_name:
+                                damage_taken += poison_damage
+                                
+                    # Regular damage tracking continues...
                     if "Total damage:" in line:
-                        # Get the total damage including weakness/resistance
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
                     elif "took" in line:
-                        # Handle direct damage taken statements
                         damage_text = line.split("took")[1].split("damage")[0]
                     elif "for" in line and "damage" in line:
-                        # Handle direct attack statements
                         damage_text = line.split("for")[1].split("damage")[0]
                     else:
-                        # Handle other damage instances
                         damage_text = line.split("damage")[0]
                         
                     damage_digits = ''.join(filter(str.isdigit, damage_text))
                     if damage_digits:
                         damage_amount = int(damage_digits)
-                        
-                        # Track damage based on specific scenarios
                         if current_player == player_name:
                             if "took" in line:
-                                # Self-inflicted damage (Frenzied Gouging = 200)
                                 damage_taken += damage_amount
                             elif "Total damage:" in line:
-                                # Direct attacks (220 + 200 + 200 + 240 = 860)
                                 damage_done += damage_amount
                         else:
                             if "for" in line:
-                                # Opponent's direct attacks (Blood Moon = 240)
                                 damage_taken += damage_amount
                                 
-                        # Handle poison damage separately
-                        if "damage counter" in line and "Poisoned" in line:
-                            poison_damage = 10  # Each poison counter = 10 damage
-                            damage_taken += poison_damage
-                            
                 except ValueError:
                     continue        
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
