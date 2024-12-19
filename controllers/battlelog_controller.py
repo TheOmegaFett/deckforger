@@ -100,52 +100,36 @@ def import_battlelog(deck_id, player_name):
                         current_turn_cards.append(card_name)
             elif "damage" in line and "breakdown" not in line:
                 try:
-                    # First handle poison application
-                    if "is now Poisoned" in line:
-                        pokemon_name = line.split("'s")[1].split("is")[0].strip()
-                        poisoned_pokemon[pokemon_name] = 0
-                        
-                    # Handle poison removal
-                    elif "recovered from all Special Conditions" in line or "is no longer" in line:
-                        pokemon_name = line.split("'s")[1].split("has")[0].strip()
-                        if pokemon_name in poisoned_pokemon:
-                            if current_player == player_name:
-                                damage_taken += poisoned_pokemon[pokemon_name]
-                            del poisoned_pokemon[pokemon_name]
-                            
-                    # Track poison damage accumulation
-                    elif "damage counter" in line and "Poisoned" in line:
-                        pokemon_name = line.split("'s")[1].split("for")[0].strip()
-                        if pokemon_name in poisoned_pokemon:
-                            poison_digits = ''.join(filter(str.isdigit, line))
-                            if poison_digits:
-                                poison_damage = int(poison_digits) * 10
-                                poisoned_pokemon[pokemon_name] += poison_damage
-                                if current_player == player_name:
-                                    damage_taken += poison_damage
-                                    
-                    # Regular damage tracking continues...
+                    # Handle damage text parsing
                     if "Total damage:" in line:
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
-                    elif "took" in line:
-                        damage_text = line.split("took")[1].split("damage")[0]
+                        damage_digits = ''.join(filter(str.isdigit, damage_text))
+                        if damage_digits:
+                            total_damage = int(damage_digits)
+                            if current_player == player_name:
+                                damage_done += total_damage
+                            else:
+                                damage_taken += total_damage
+                                
+                    # Handle direct damage statements
                     elif "for" in line and "damage" in line:
                         damage_text = line.split("for")[1].split("damage")[0]
-                    else:
-                        damage_text = line.split("damage")[0]
-                        
-                    damage_digits = ''.join(filter(str.isdigit, damage_text))
-                    if damage_digits:
-                        damage_amount = int(damage_digits)
-                        if current_player == player_name:
-                            if "took" in line:
-                                damage_taken += damage_amount
-                            elif "Total damage:" in line:
-                                damage_done += damage_amount
-                        else:
-                            if "for" in line:
-                                damage_taken += damage_amount
+                        damage_digits = ''.join(filter(str.isdigit, damage_text))
+                        if damage_digits:
+                            direct_damage = int(damage_digits)
+                            if current_player == player_name:
+                                damage_done += direct_damage
+                            else:
+                                damage_taken += direct_damage
                                 
+                    # Handle self-inflicted damage
+                    elif "took" in line and current_player == player_name:
+                        damage_text = line.split("took")[1].split("damage")[0]
+                        damage_digits = ''.join(filter(str.isdigit, damage_text))
+                        if damage_digits:
+                            self_damage = int(damage_digits)
+                            damage_taken += self_damage
+
                 except ValueError:
                     continue        
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
@@ -158,7 +142,7 @@ def import_battlelog(deck_id, player_name):
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
             
         total_turns = len([line for line in lines if line.startswith('Turn #')])
-            # Update the win condition check
+        # Win condition check
         win_loss = any(
             condition in lines[-1] 
             for condition in [
