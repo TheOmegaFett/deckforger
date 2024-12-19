@@ -478,24 +478,24 @@ def export_deck(deck_id):
         if not deck:
             return jsonify({'error': 'Deck not found'}), 404
 
-        # Group cards by type
+        # Group cards by type with correct counting
         pokemon_cards = []
         trainer_cards = []
         energy_cards = []
         
         for deck_card in deck.deck_cards:
             card = deck_card.card
-            card_number = f" {card.card_number}" if card.card_number else ""
-            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name}{card_number}"
+            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name}"
             
-            if card.cardtype.name == 'Pokemon':
+            # Ensure energies go in energy section
+            if 'Energy' in card.name:
+                energy_cards.append(card_line)
+            elif card.cardtype.name == 'Pokemon':
                 pokemon_cards.append(card_line)
             elif card.cardtype.name in ['Supporter', 'Item', 'Stadium']:
                 trainer_cards.append(card_line)
-            elif 'Energy' in card.cardtype.name:
-                energy_cards.append(card_line)
 
-        # Build deck list string with correct section counts
+        # Build deck list with correct section counts
         deck_list = [
             f"Pokémon: {len(pokemon_cards)}",
             "",
