@@ -59,7 +59,7 @@ def import_battlelog(deck_id, player_name):
         
         # Get deck to validate against
         deck = Deck.query.get_or_404(deck_id)
-        deck_cards = {card.name for card in deck.cards}
+        deck_cards = {card.name for card in deck.deck_cards}  # Using deck_cards here
         
         # Track cards and interactions
         player1_cards = set()
