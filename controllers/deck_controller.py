@@ -514,4 +514,3 @@ def export_deck(deck_id):
 
     except Exception as e:
         return jsonify({'error': 'Export failed', 'details': str(e)}), 500
-        return jsonify({'error': 'Export failed', 'details': str(e)}), 500
