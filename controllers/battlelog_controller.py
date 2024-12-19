@@ -117,11 +117,14 @@ def import_battlelog(deck_id, player_name):
                     elif "damage counter" in line and "Poisoned" in line:
                         pokemon_name = line.split("'s")[1].split("for")[0].strip()
                         if pokemon_name in poisoned_pokemon:
-                            counter_amount = int(''.join(filter(str.isdigit, line)))
-                            poison_damage = counter_amount * 10
-                            poisoned_pokemon[pokemon_name] += poison_damage
-                            if current_player == player_name:
-                                damage_taken += poison_damage
+                            # Extract the number of damage counters
+                            counter_digits = ''.join(filter(str.isdigit, line))
+                            if counter_digits:
+                                counter_amount = int(counter_digits)
+                                poison_damage = counter_amount * 10
+                                poisoned_pokemon[pokemon_name] += poison_damage
+                                if current_player == player_name:
+                                    damage_taken += poison_damage
                     # Track each attack with full damage including weakness
                     if "Total damage:" in line:
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
