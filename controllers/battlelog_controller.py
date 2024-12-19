@@ -106,6 +106,9 @@ def import_battlelog(deck_id, player_name):
                     # Then check for direct damage statements
                     elif "for" in line and "damage" in line:
                         damage_text = line.split("for")[1].split("damage")[0]
+                    # Check for "took" damage
+                    elif "took" in line:
+                        damage_text = line.split("took")[1].split("damage")[0]
                     # Finally check other damage instances
                     else:
                         damage_text = line.split("damage")[0]
@@ -114,23 +117,24 @@ def import_battlelog(deck_id, player_name):
                     if damage_digits:
                         damage_amount = int(damage_digits)
                         
-                        # Track damage based on context and player
+                        # Track all damage instances
                         if current_player == player_name:
                             if "took" in line:
-                                # Self-inflicted damage counts for both
-                                damage_done += damage_amount
+                                # Self-inflicted damage (like Frenzied Gouging)
                                 damage_taken += damage_amount
-                            elif "Total damage:" in line or "for" in line:
+                            elif "Total damage:" in line:
+                                # Direct attack damage including weakness
                                 damage_done += damage_amount
                         else:
                             if "Total damage:" in line or "for" in line:
+                                # Damage from opponent
                                 damage_taken += damage_amount
                                 
-                    # Track poison counters
+                    # Track poison damage
                     if "damage counter" in line.lower() and "placed" in line.lower():
                         counter_amount = int(''.join(filter(str.isdigit, line)))
-                        if current_player == player_name:
-                            damage_taken += counter_amount * 10  # Each counter is 10 damage
+                        if "Poisoned" in line:
+                            damage_taken += counter_amount * 10
                             
                 except ValueError:
                     continue        
