@@ -59,7 +59,7 @@ def import_battlelog(deck_id, player_name):
         
         # Get deck to validate against
         deck = Deck.query.get_or_404(deck_id)
-        deck_cards = {card.name for card in deck.deck_cards}  # Using deck_cards here
+        deck_cards = {card.name for card in deck.deck_cards}
         
         # Track cards and interactions
         player1_cards = set()
@@ -101,7 +101,7 @@ def import_battlelog(deck_id, player_name):
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
         
         # Validate card pools against player name
-        valid_log = all(card in deck_cards for card in player1_cards)
+        valid_log = all(card in deck_cards for card in (player1_cards if current_player == player_name else player2_cards))
         
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
