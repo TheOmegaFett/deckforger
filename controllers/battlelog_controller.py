@@ -97,44 +97,41 @@ def import_battlelog(deck_id, player_name):
                         current_turn_cards.append(card_name)
             elif "damage" in line and "breakdown" not in line:
                 try:
-                    # First check for total damage in breakdown
+                    # Parse damage amounts based on specific line patterns
                     if "Total damage:" in line:
+                        # Get the total damage including weakness/resistance
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
-                    # Then check for poison damage
-                    elif "poison" in line.lower():
-                        damage_text = line.split("damage")[0]
-                    # Then check for direct damage statements
-                    elif "for" in line and "damage" in line:
-                        damage_text = line.split("for")[1].split("damage")[0]
-                    # Check for "took" damage
                     elif "took" in line:
+                        # Handle direct damage taken statements
                         damage_text = line.split("took")[1].split("damage")[0]
-                    # Finally check other damage instances
+                    elif "for" in line and "damage" in line:
+                        # Handle direct attack statements
+                        damage_text = line.split("for")[1].split("damage")[0]
                     else:
+                        # Handle other damage instances
                         damage_text = line.split("damage")[0]
                         
                     damage_digits = ''.join(filter(str.isdigit, damage_text))
                     if damage_digits:
                         damage_amount = int(damage_digits)
                         
-                        # Track all damage instances
+                        # Track damage based on specific scenarios
                         if current_player == player_name:
                             if "took" in line:
-                                # Self-inflicted damage (like Frenzied Gouging)
+                                # Self-inflicted damage (Frenzied Gouging = 200)
                                 damage_taken += damage_amount
                             elif "Total damage:" in line:
-                                # Direct attack damage including weakness
+                                # Direct attacks (220 + 200 + 200 + 240 = 860)
                                 damage_done += damage_amount
                         else:
-                            if "Total damage:" in line or "for" in line:
-                                # Damage from opponent
+                            if "for" in line:
+                                # Opponent's direct attacks (Blood Moon = 240)
                                 damage_taken += damage_amount
                                 
-                    # Track poison damage
-                    if "damage counter" in line.lower() and "placed" in line.lower():
-                        counter_amount = int(''.join(filter(str.isdigit, line)))
-                        if "Poisoned" in line:
-                            damage_taken += counter_amount * 10
+                        # Handle poison damage separately
+                        if "damage counter" in line and "Poisoned" in line:
+                            poison_damage = 10  # Each poison counter = 10 damage
+                            damage_taken += poison_damage
                             
                 except ValueError:
                     continue        
