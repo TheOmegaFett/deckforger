@@ -61,20 +61,44 @@ def import_battlelog(deck_id):
         deck = Deck.query.get_or_404(deck_id)
         deck_cards = {card.name for card in deck.cards}
         
-        # Track cards played by each player
+        # Track cards and interactions
         player1_cards = set()
         player2_cards = set()
+        current_turn_cards = []
+        card_interactions = {}
         current_player = None
+        damage_done = 0
+        damage_taken = 0
         
         for line in lines:
             if "Turn #" in line:
                 current_player = line.split("-")[1].strip().split("'")[0]
-            elif "played" in line and "to" in line and current_player:
-                card_name = line.split("played")[1].split("to")[0].strip()
-                if current_player in line:
-                    player1_cards.add(card_name)
+                # Process previous turn's interactions
+                for i, card1 in enumerate(current_turn_cards):
+                    for card2 in current_turn_cards[i+1:]:
+                        pair = tuple(sorted([card1, card2]))
+                        card_interactions[pair] = card_interactions.get(pair, 0) + 1
+                current_turn_cards = []
+                
+            elif "played" in line or "used" in line:
+                if "played" in line and "to" in line:
+                    card_name = line.split("played")[1].split("to")[0].strip()
+                    if current_player in line:
+                        player1_cards.add(card_name)
+                    else:
+                        player2_cards.add(card_name)
+                    current_turn_cards.append(card_name)
+                    
+            elif "damage" in line and "breakdown" not in line:
+                damage_amount = int(''.join(filter(str.isdigit, line.split("damage")[0])))
+                if current_player in line:  # Our turn
+                    damage_done += damage_amount
                 else:
-                    player2_cards.add(card_name)
+                    damage_taken += damage_amount
+        
+        # Get top synergy pairs
+        key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
+        key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
         
         # Validate card pools
         valid_log = (
@@ -85,7 +109,6 @@ def import_battlelog(deck_id):
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
             
-        # Parse game data
         total_turns = len([line for line in lines if line.startswith('Turn #')])
         win_loss = "wins" in lines[-1]
         
@@ -94,9 +117,9 @@ def import_battlelog(deck_id):
             'win_loss': win_loss,
             'total_turns': total_turns,
             'most_used_cards': list(player1_cards if len(player1_cards) > len(player2_cards) else player2_cards),
-            'key_synergy_cards': [],
-            'damage_done': 0,
-            'damage_taken': 0
+            'key_synergy_cards': key_synergy_cards,
+            'damage_done': damage_done,
+            'damage_taken': damage_taken
         }
         
         battlelog = Battlelog(**battlelog_data)
