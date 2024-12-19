@@ -46,6 +46,7 @@
 - Render dashboard provides deployment logs
 - Database metrics available through Neon console
 - Health endpoint enables uptime monitoring
+- Uptime monitoring and alerts through Render and UptimeRobot
 
 ## Security Measures
 
