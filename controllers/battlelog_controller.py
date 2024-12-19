@@ -97,16 +97,16 @@ def import_battlelog(deck_id, player_name):
                         current_turn_cards.append(card_name)
             elif "damage" in line and "breakdown" not in line:
                 try:
-                    # First check for total damage in breakdown
+                    # Handle different damage scenarios
                     if "Total damage:" in line:
+                        # Get final damage including modifiers
                         damage_text = line.split("Total damage:")[1].split("damage")[0]
-                    # Then check for poison damage
-                    elif "poison" in line.lower():
-                        damage_text = line.split("damage")[0]
-                    # Then check for direct damage statements
-                    elif "for" in line and "damage" in line:
+                    elif "took" in line:
+                        # Handle direct damage taken
+                        damage_text = line.split("took")[1].split("damage")[0]
+                    elif "for" in line:
+                        # Handle direct attack damage
                         damage_text = line.split("for")[1].split("damage")[0]
-                    # Finally check other damage instances
                     else:
                         damage_text = line.split("damage")[0]
                         
@@ -114,19 +114,25 @@ def import_battlelog(deck_id, player_name):
                     if damage_digits:
                         damage_amount = int(damage_digits)
                         
-                        # Track all damage instances
+                        # Track damage based on context
                         if current_player == player_name:
                             if "took" in line:
+                                # Self-inflicted damage counts as taken
                                 damage_taken += damage_amount
-                            else:
+                            elif "Total damage:" in line or "for" in line:
+                                # Attack damage counts as done
                                 damage_done += damage_amount
                         else:
-                            damage_taken += damage_amount
+                            if "Total damage:" in line or "for" in line:
+                                # Opponent's attacks count as taken
+                                damage_taken += damage_amount
+                                
+                    # Handle poison damage tracking
+                    if "damage counter" in line.lower():
+                        poison_amount = int(''.join(filter(str.isdigit, line)))
+                        if current_player == player_name:
+                            damage_taken += poison_amount
                             
-                    # Track poison damage
-                    if "poison" in line.lower():
-                        damage_taken += 40
-                        
                 except ValueError:
                     continue        
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
