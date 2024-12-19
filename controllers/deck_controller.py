@@ -421,31 +421,15 @@ def import_deck(deck_name, format_id, deckbox_id):
 def determine_card_type(card_name: str, section: str) -> CardType:
     """Helper function to determine and create card type if needed"""
     
-    # Map common card indicators to types
-    type_indicators = {
-        'Stadium': 'Stadium',
-        'Item': 'Item',
-        'Tool': 'Item',
-        'ex': 'Pokemon',
-        'V ': 'Pokemon',
-        'VMAX': 'Pokemon',
-        'VSTAR': 'Pokemon',
-        'Basic Energy': 'Energy',
-        'Special Energy': 'Energy'
+    # Map sections to card types
+    section_types = {
+        'Pokémon': 'Pokemon',
+        'Trainer': 'Trainer',
+        'Energy': 'Energy'
     }
     
-    # Determine type from card name and section
-    card_type_name = 'Pokemon'  # Default type
-    
-    if 'Trainer' in section:
-        for indicator, type_name in type_indicators.items():
-            if indicator in card_name:
-                card_type_name = type_name
-                break
-        if card_name.endswith("'s"):  # Supporter cards typically end with 's
-            card_type_name = 'Supporter'
-    elif 'Energy' in section:
-        card_type_name = 'Energy'
+    # Get type name from section header
+    card_type_name = section_types.get(section.split(':')[0], 'Pokemon')
     
     # Find or create the card type
     stmt = db.select(CardType).filter_by(name=card_type_name)
