@@ -1,6 +1,6 @@
 '''Controller for managing CLI and database initialization operations'''
 
-from datetime import date
+from datetime import date, datetime
 from flask import Blueprint, jsonify
 from flask import current_app
 from init import db

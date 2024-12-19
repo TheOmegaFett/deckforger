@@ -333,10 +333,12 @@ def import_deck():
     Import a deck from TCG Live format text.
     
     Request Body:
-        deck_list (str): Full deck list in TCG Live format
-        deck_name (str): Name for the imported deck
-        format_id (int): Format ID for the deck
-        deckbox_id (int): Deck box to store the deck in
+        Raw text in TCG Live format
+        
+    Query Parameters:
+        deck_name (str, optional): Name for the imported deck
+        format_id (int, optional): Format ID for the deck (defaults to 1)
+        deckbox_id (int, optional): Deck box ID (defaults to 1)
         
     Returns:
         201: Deck imported successfully
@@ -344,12 +346,10 @@ def import_deck():
         500: Import operation failed
     """
     try:
-        data = request.get_json()
-        deck_list = data.get('deck_list')
-        deck_name = data.get('deck_name', 'Imported Deck')
-        format_id = data.get('format_id', 1)  # Default to Standard
-        deckbox_id = data.get('deckbox_id', 1)  # Default to first deck box
-        
+        deck_list = request.get_data(as_text=True)
+        deck_name = request.args.get('deck_name', 'Imported Deck')
+        format_id = request.args.get('format_id', 1, type=int)
+        deckbox_id = request.args.get('deckbox_id', 1, type=int)        
         # Create new deck
         new_deck = Deck(
             name=deck_name,
@@ -475,26 +475,6 @@ def export_deck(deck_id):
         200: Plain text deck list in TCG Live format
         404: Deck not found
         500: Export operation failed
-        
-    Example Response:
-        Pokémon: 3
-        
-        4 Fezandipiti ex SFA
-        1 Radiant Greninja ASR
-        4 Roaring Moon ex PAR
-        
-        Trainer: 13
-        
-        4 Switch Cart ASR
-        4 Dark Patch ASR
-        ...
-        
-        Energy: 3
-        
-        11 Basic Dark Energy SVE
-        2 Jet Energy PAL
-        
-        Total Cards: 60
     """
     try:
         deck = db.session.get(Deck, deck_id)
@@ -508,16 +488,17 @@ def export_deck(deck_id):
         
         for deck_card in deck.deck_cards:
             card = deck_card.card
-            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name} {card.card_number}"
+            card_number = f" {card.card_number}" if card.card_number else ""
+            card_line = f"{deck_card.quantity} {card.name} {card.cardset.name}{card_number}"
             
             if card.cardtype.name == 'Pokemon':
                 pokemon_cards.append(card_line)
             elif card.cardtype.name in ['Supporter', 'Item', 'Stadium']:
                 trainer_cards.append(card_line)
-            elif card.cardtype.name == 'Energy':
+            elif 'Energy' in card.cardtype.name:
                 energy_cards.append(card_line)
 
-        # Build deck list string
+        # Build deck list string with correct section counts
         deck_list = [
             f"Pokémon: {len(pokemon_cards)}",
             "",
@@ -537,4 +518,5 @@ def export_deck(deck_id):
         return '\n'.join(deck_list), 200, {'Content-Type': 'text/plain'}
 
     except Exception as e:
+        return jsonify({'error': 'Export failed', 'details': str(e)}), 500
         return jsonify({'error': 'Export failed', 'details': str(e)}), 500
