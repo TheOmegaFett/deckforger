@@ -102,14 +102,14 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 
 ### Deck Import/Export
 
-- POST /api/decks/import - Import deck from TCG Live format
+- POST /api/decks/import/{deck_name}/{format_id}/{deckbox_id} - Import deck from TCG Live format
 
-  {
-  "deck_list": "Pokémon: 4\n\n1 Pecharunt ex SFA...",
-  "deck_name": "Dark Box",
-  "format_id": 1,
-  "deckbox_id": 1
-  }
+  Body: Raw text in TCG Live format
+  Example:
+  Pokémon: 4
+  1 Pecharunt ex SFA 39
+  4 Fezandipiti ex SFA 38
+  ...
 
   This endpoint will:
 
@@ -121,8 +121,8 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 
   Returns plain text deck list compatible with TCG Live:
   Pokémon: 4
-  1 Pecharunt ex SFA
-  4 Fezandipiti ex SFA
+  1 Pecharunt ex SFA 39
+  4 Fezandipiti ex SFA 38
   ...
 
 - GET /api/decks/{deck_id}/export?format=json - Export deck in JSON format
