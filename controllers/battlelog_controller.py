@@ -46,16 +46,17 @@ def get_deck_stats(deck_id):
         "avg_turns": round(sum(log.total_turns for log in battlelogs) / total_games)
     }
     return jsonify(stats)
-  
+   
 @battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
 def import_battlelog(deck_id, player_name):
     try:
         log_text = request.get_data(as_text=True)
         lines = log_text.split('\n')
-        
+    
         # Get deck to validate against
         deck = Deck.query.get_or_404(deck_id)
         deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
+    
         # Track cards and interactions
         player_cards = set()
         opponent_cards = set()
@@ -68,17 +69,32 @@ def import_battlelog(deck_id, player_name):
         card_usage_count = {}  # Track {card_name: usage_count}
         poisoned_pokemon = {}  # Initialize poisoned_pokemon dictionary
 
+        def is_meaningful_interaction(card1, card2, line):
+            # Define meaningful interactions
+            interactions = [
+                # Stadium sacrificed for attack
+                (lambda c1, c2: "Stadium" in c1 and "discarded" in line and c2 in line and "used" in line),
+                # Energy attachment and Pokemon
+                (lambda c1, c2: "Energy" in c1 and "attached" in line and c2 in line),
+                # Tool/Item card used on Pokemon
+                (lambda c1, c2: ("Tool" in c1 or "Capsule" in c1) and "attached" in line and c2 in line)
+            ]
+            return any(check(card1, card2) or check(card2, card1) for check in interactions)
+
         for line in lines:
             if "Turn #" in line:
                 current_player = line.split("-")[1].strip().split("'")[0]
-                # Process previous turn's interactions only between player's cards
-                for i, card1 in enumerate(current_turn_player_cards):
-                    for card2 in current_turn_player_cards[i+1:]:
-                        pair = tuple(sorted([card1, card2]))
-                        card_interactions[pair] = card_interactions.get(pair, 0) + 1
-                current_turn_player_cards = []  # Reset for next turn
+        
+            if current_player == player_name:
+                # Check for meaningful interactions in each line
+                for card1 in deck_cards:
+                    for card2 in deck_cards:
+                        if card1 != card2 and card1 in line and card2 in line:
+                            if is_meaningful_interaction(card1, card2, line):
+                                pair = tuple(sorted([card1, card2]))
+                                card_interactions[pair] = card_interactions.get(pair, 0) + 1
 
-            elif "played" in line and "to" in line:
+            if "played" in line and "to" in line:
                 card_name = line.split("played")[1].split("to")[0].strip()
                 if current_player == player_name:
                     player_cards.add(card_name)
@@ -95,7 +111,7 @@ def import_battlelog(deck_id, player_name):
                             'owner': owner,
                             'damage': 0
                         }
-                        
+                
                     # Track poison removal/recovery
                     elif "recovered from all Special Conditions" in line or "is no longer" in line:
                         pokemon_name = line.split("'s")[1].split("has")[0].strip()
@@ -107,45 +123,39 @@ def import_battlelog(deck_id, player_name):
                             else:
                                 damage_done += accumulated_damage
                             del poisoned_pokemon[pokemon_name]
-                    
+                
                     elif "damage" in line and "breakdown" not in line:
-                        try:
-                            # Track damage based on line context
-                            if "damage" in line and "breakdown" not in line:
-                                if "Total damage:" in line:
-                                    # Extract target Pokemon's owner
-                                    target_owner = line.split("'s")[0].strip()
-                                    
-                                    damage_text = line.split("Total damage:")[1].split("damage")[0]
-                                    damage_digits = ''.join(filter(str.isdigit, damage_text))
-                                    if damage_digits:
-                                        total_damage = int(damage_digits)
-                                        # Only count damage to opponent's Pokemon as damage_done
-                                        if current_player == player_name and target_owner != player_name:
-                                            damage_done += total_damage
-                                        elif current_player != player_name and target_owner == player_name:
-                                            damage_taken += total_damage
-                            elif "took" in line:
-                                # This captures self-inflicted damage like Frenzied Gouging
-                                damage_text = line.split("took")[1].split("damage")[0]
-                                damage_digits = ''.join(filter(str.isdigit, damage_text))
-                                if damage_digits and current_player == player_name:
-                                    damage_taken += int(damage_digits)  # Will capture 200
+                        if "Total damage:" in line:
+                            # Extract target Pokemon's owner
+                            target_owner = line.split("'s")[0].strip()
+                        
+                            damage_text = line.split("Total damage:")[1].split("damage")[0]
+                            damage_digits = ''.join(filter(str.isdigit, damage_text))
+                            if damage_digits:
+                                total_damage = int(damage_digits)
+                                # Only count damage to opponent's Pokemon as damage_done
+                                if current_player == player_name and target_owner != player_name:
+                                    damage_done += total_damage
+                                elif current_player != player_name and target_owner == player_name:
+                                    damage_taken += total_damage
+                        elif "took" in line:
+                            # This captures self-inflicted damage like Frenzied Gouging
+                            damage_text = line.split("took")[1].split("damage")[0]
+                            damage_digits = ''.join(filter(str.isdigit, damage_text))
+                            if damage_digits and current_player == player_name:
+                                damage_taken += int(damage_digits)  # Will capture 200
 
-                            # Poison damage tracking
-                            if "damage counter" in line and "Poisoned" in line:
-                                pokemon_name = line.split("'s")[1].split("for")[0].strip()
-                                owner = line.split("'s")[0].strip()
-                                if owner == player_name:
-                                    damage_taken += 10  # Each counter = 10 damage
-                                else:
-                                    damage_done += 10  # Poison damage we deal
-
-                        except ValueError:
-                            continue
+                        # Poison damage tracking
+                        if "damage counter" in line and "Poisoned" in line:
+                            pokemon_name = line.split("'s")[1].split("for")[0].strip()
+                            owner = line.split("'s")[0].strip()
+                            if owner == player_name:
+                                damage_taken += 10  # Each counter = 10 damage
+                            else:
+                                damage_done += 10  # Poison damage we deal
 
                 except ValueError:
-                    continue        
+                    continue
 
             if current_player == player_name:
                 # Extract card names from the line
@@ -160,11 +170,13 @@ def import_battlelog(deck_id, player_name):
         valid_log = all(card in deck_cards for card in player_cards)  # Using new variable name
 
         if not valid_log:
-            return jsonify({"error": "Battle log doesn't match specified deck"}), 400        # Clean the lines when we first get them
+            return jsonify({"error": "Battle log doesn't match specified deck"}), 400
+
+        # Clean the lines when we first get them
         lines = [line.strip() for line in log_text.split('\n') if line.strip()]
 
         total_turns = len([line for line in lines if line.startswith('Turn #')])
-    
+
         # Then at the end, check the last actual line
         win_loss = any(
             condition in lines[-1] 
@@ -185,11 +197,11 @@ def import_battlelog(deck_id, player_name):
             'most_used_cards': most_used_cards,
             'key_synergy_cards': key_synergy_cards
         }
-    
+
         battlelog = Battlelog(**battlelog_data)
         db.session.add(battlelog)
         db.session.commit()
-    
+
         return jsonify({
             "message": "Battle log imported successfully",
             "id": battlelog.id,
