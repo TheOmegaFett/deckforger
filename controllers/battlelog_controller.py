@@ -52,14 +52,14 @@ def import_battlelog(deck_id, player_name):
     try:
         log_text = request.get_data(as_text=True)
         lines = log_text.split('\n')
-    
+        
         # Get deck to validate against
         deck = Deck.query.get_or_404(deck_id)
         deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
-    
+        
         # Track cards and interactions
-        player_cards = set()
-        opponent_cards = set()
+        player_cards = set()  # Changed from player1_cards
+        opponent_cards = set()  # Changed from player2_cards
         current_turn_cards = []
         card_interactions = {}
         current_player = None
@@ -88,11 +88,10 @@ def import_battlelog(deck_id, player_name):
                 # In the card tracking loop
                 if "played" in line and "to" in line:
                     card_name = line.split("played")[1].split("to")[0].strip()
-                    # Compare against player_name from URL
-                    if current_player == player_name:  
-                        player_cards.add(card_name)
+                    if current_player == player_name:
+                        player_cards.add(card_name)  # Using new variable name
                     else:
-                        opponent_cards.add(card_name)
+                        opponent_cards.add(card_name)  # Using new variable name
                     current_turn_cards.append(card_name)
             elif "damage" in line:
                 try:
@@ -159,7 +158,7 @@ def import_battlelog(deck_id, player_name):
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
 
         # Validate card pools against player name
-        valid_log = all(card in deck_cards for card in player1_cards)
+        valid_log = all(card in deck_cards for card in player_cards)  # Using new variable name
 
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400        # Clean the lines when we first get them
