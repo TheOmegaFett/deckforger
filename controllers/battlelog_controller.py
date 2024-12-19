@@ -97,7 +97,12 @@ def import_battlelog(deck_id, player_name):
                         current_turn_cards.append(card_name)
             elif "damage" in line and "breakdown" not in line:
                 try:
-                    damage_text = line.split("damage")[0]
+                    if "Total damage:" in line:
+                        # Get the total damage including weakness/resistance
+                        damage_text = line.split("Total damage:")[1].split("damage")[0]
+                    else:
+                        damage_text = line.split("damage")[0]
+                        
                     damage_digits = ''.join(filter(str.isdigit, damage_text))
                     if damage_digits:
                         damage_amount = int(damage_digits)
@@ -109,7 +114,7 @@ def import_battlelog(deck_id, player_name):
                         else:
                             damage_taken += damage_amount
                 except ValueError:
-                    continue
+                    continue       
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
         
