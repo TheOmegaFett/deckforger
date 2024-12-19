@@ -60,7 +60,6 @@ def import_battlelog(deck_id, player_name):
         # Get deck to validate against
         deck = Deck.query.get_or_404(deck_id)
         deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
-        
         # Track cards and interactions
         player1_cards = set()
         player2_cards = set()
@@ -69,10 +68,11 @@ def import_battlelog(deck_id, player_name):
         current_player = None
         damage_done = 0
         damage_taken = 0
-        
+
         poisoned_pokemon = {}  # Track {pokemon_name: accumulated_damage}
-        
-        
+
+        card_usage_count = {}  # Track {card_name: usage_count}
+
         for line in lines:
             if "Turn #" in line:
                 current_player = line.split("-")[1].strip().split("'")[0]
@@ -82,12 +82,12 @@ def import_battlelog(deck_id, player_name):
                         pair = tuple(sorted([card1, card2]))
                         card_interactions[pair] = card_interactions.get(pair, 0) + 1
                 current_turn_cards = []
-                
+    
             elif "played" in line or "used" in line:
                 # List of basic energy names to filter
                 basic_energies = ['Basic Grass Energy', 'Basic Fire Energy', 'Basic Water Energy', 
-                 'Basic Lightning Energy', 'Basic Psychic Energy', 'Basic Fighting Energy', 
-                 'Basic Darkness Energy', 'Basic Metal Energy', 'Basic Fairy Energy']
+        'Basic Lightning Energy', 'Basic Psychic Energy', 'Basic Fighting Energy', 
+        'Basic Darkness Energy', 'Basic Metal Energy', 'Basic Fairy Energy']
 
                 # In the card tracking loop
                 if "played" in line and "to" in line:
@@ -95,6 +95,8 @@ def import_battlelog(deck_id, player_name):
                     if card_name not in basic_energies:  # Only track non-basic energy cards
                         if current_player == player_name:
                             player1_cards.add(card_name)
+                            # Increment usage count
+                            card_usage_count[card_name] = card_usage_count.get(card_name, 0) + 1
                         else:
                             player2_cards.add(card_name)
                         current_turn_cards.append(card_name)
@@ -110,7 +112,7 @@ def import_battlelog(deck_id, player_name):
                                 damage_done += total_damage
                             else:
                                 damage_taken += total_damage
-                                
+                    
                     # Handle direct damage statements
                     elif "for" in line and "damage" in line:
                         damage_text = line.split("for")[1].split("damage")[0]
@@ -121,7 +123,7 @@ def import_battlelog(deck_id, player_name):
                                 damage_done += direct_damage
                             else:
                                 damage_taken += direct_damage
-                                
+                    
                     # Handle self-inflicted damage
                     elif "took" in line and current_player == player_name:
                         damage_text = line.split("took")[1].split("damage")[0]
@@ -134,13 +136,13 @@ def import_battlelog(deck_id, player_name):
                     continue        
         key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
         key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
-        
+
         # Validate card pools against player name
         valid_log = all(card in deck_cards for card in (player1_cards if current_player == player_name else player2_cards))
-        
+
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
-            
+
         total_turns = len([line for line in lines if line.startswith('Turn #')])
         # Win condition check
         win_loss = any(
@@ -150,17 +152,21 @@ def import_battlelog(deck_id, player_name):
                 f"Opponent conceded. {player_name} wins"
             ]
         )
-        
+
+        # Get top 3 most used cards by usage count
+        most_used = sorted(card_usage_count.items(), key=lambda x: x[1], reverse=True)[:3]
+        most_used_cards = [card[0] for card in most_used]
+
+        # Update battlelog_data
         battlelog_data = {
             'deck_id': deck_id,
             'win_loss': win_loss,
             'total_turns': total_turns,
-            'most_used_cards': list(player1_cards),
+            'most_used_cards': most_used_cards,  # Now contains top 3 by actual usage
             'key_synergy_cards': key_synergy_cards,
             'damage_done': damage_done,
             'damage_taken': damage_taken
         }
-        
         battlelog = Battlelog(**battlelog_data)
         db.session.add(battlelog)
         db.session.commit()
