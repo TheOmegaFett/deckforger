@@ -56,11 +56,10 @@ def import_battlelog(deck_id, player_name):
         # Get deck to validate against
         deck = Deck.query.get_or_404(deck_id)
         deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
-        
         # Track cards and interactions
-        player_cards = set()  # Changed from player1_cards
-        opponent_cards = set()  # Changed from player2_cards
-        current_turn_cards = []
+        player_cards = set()
+        opponent_cards = set()
+        current_turn_player_cards = []  # Only track player's cards per turn
         card_interactions = {}
         current_player = None
         damage_done = 0
@@ -72,27 +71,20 @@ def import_battlelog(deck_id, player_name):
         for line in lines:
             if "Turn #" in line:
                 current_player = line.split("-")[1].strip().split("'")[0]
-                # Process previous turn's interactions
-                for i, card1 in enumerate(current_turn_cards):
-                    for card2 in current_turn_cards[i+1:]:
+                # Process previous turn's interactions only between player's cards
+                for i, card1 in enumerate(current_turn_player_cards):
+                    for card2 in current_turn_player_cards[i+1:]:
                         pair = tuple(sorted([card1, card2]))
                         card_interactions[pair] = card_interactions.get(pair, 0) + 1
-                current_turn_cards = []
+                current_turn_player_cards = []  # Reset for next turn
 
-            elif "played" in line or "used" in line:
-                # List of basic energy names to filter
-                basic_energies = ['Basic Grass Energy', 'Basic Fire Energy', 'Basic Water Energy', 
-        'Basic Lightning Energy', 'Basic Psychic Energy', 'Basic Fighting Energy', 
-        'Basic Darkness Energy', 'Basic Metal Energy', 'Basic Fairy Energy']
-
-                # In the card tracking loop
-                if "played" in line and "to" in line:
-                    card_name = line.split("played")[1].split("to")[0].strip()
-                    if current_player == player_name:
-                        player_cards.add(card_name)  # Using new variable name
-                    else:
-                        opponent_cards.add(card_name)  # Using new variable name
-                    current_turn_cards.append(card_name)
+            elif "played" in line and "to" in line:
+                card_name = line.split("played")[1].split("to")[0].strip()
+                if current_player == player_name:
+                    player_cards.add(card_name)
+                    current_turn_player_cards.append(card_name)  # Only add player's cards
+                else:
+                    opponent_cards.add(card_name)
             elif "damage" in line:
                 try:
                     # Track poison application
