@@ -203,22 +203,37 @@ def search_decks():
 
 @deck_controller.route('/filter/by-cardtype', methods=['GET'])
 def filter_decks_by_cardtype():
-    """
-    Get decks filtered by card type distribution.
-    
-    Returns:
-        200: Decks with their card type breakdowns
-        500: Filter operation failed
-    """
     try:
-        stmt = db.select(Deck, func.count(CardType.id).label('type_count')).\
-               join(DeckCard).join(Card).join(CardType).\
-               group_by(Deck.id)
+        stmt = (
+            db.select(
+                Deck,
+                func.count(CardType.id).label('type_count'),
+                CardType.name.label('type_name')
+            )
+            .join(DeckCard, Deck.id == DeckCard.deck_id)
+            .join(Card, DeckCard.card_id == Card.id)
+            .join(CardType, Card.cardtype_id == CardType.id)
+            .group_by(Deck.id, CardType.name)
+        )
         
-        decks = db.session.execute(stmt).all()
-        return decks_schema.jsonify(decks), 200
+        results = db.session.execute(stmt).all()
+        
+        deck_type_data = {}
+        for deck, type_count, type_name in results:
+            if deck.id not in deck_type_data:
+                deck_type_data[deck.id] = {
+                    'deck': decks_schema.dump([deck])[0],
+                    'type_distribution': {}
+                }
+            deck_type_data[deck.id]['type_distribution'][type_name] = type_count
+            
+        return jsonify(list(deck_type_data.values())), 200
+        
     except Exception as e:
-        return jsonify({'error': 'Filter failed', 'details': str(e)}), 500
+        return jsonify({
+            "error": "Filter operation failed",
+            "details": str(e)
+        }), 500
 
 @deck_controller.route('/top-rated', methods=['GET'])
 def get_top_rated_decks():
