@@ -5,7 +5,7 @@ from marshmallow import EXCLUDE
 
 class BattlelogSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'deck_id', 'win_loss', 'total_turns', 'most_used_cards', 'key_synergy_cards')
+        fields = ('id', 'deck_id', 'win_loss', 'total_turns', 'most_used_cards', 'key_synergy_cards', 'raw_log')
         ordered = True
         unknown = EXCLUDE
 

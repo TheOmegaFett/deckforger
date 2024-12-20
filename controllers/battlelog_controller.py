@@ -168,7 +168,6 @@ def import_battlelog(deck_id, player_name):
 
         # Validate card pools against player name
         valid_log = all(card in deck_cards for card in player_cards)  # Using new variable name
-
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
 
@@ -190,18 +189,32 @@ def import_battlelog(deck_id, player_name):
         most_used = sorted(card_usage_count.items(), key=lambda x: x[1], reverse=True)[:3]
         most_used_cards = [card[0] for card in most_used]
 
+        # After valid_log check, before creating new battlelog
+        stmt = db.select(Battlelog).where(
+            db.and_(
+                Battlelog.deck_id == deck_id,
+                Battlelog.raw_log == log_text
+            )
+        )
+        existing_log = db.session.execute(stmt).scalar_one_or_none()
+
+        if existing_log:
+            return jsonify({
+                "error": "This battle log has already been imported",
+                "existing_log_id": existing_log.id
+            }), 409  # HTTP 409 Conflict
+        # If no match found, proceed with creating new battlelog
         battlelog_data = {
             'deck_id': deck_id,
             'win_loss': win_loss,
             'total_turns': total_turns,
             'most_used_cards': most_used_cards,
-            'key_synergy_cards': key_synergy_cards
+            'key_synergy_cards': key_synergy_cards,
+            'raw_log': log_text
         }
-
         battlelog = Battlelog(**battlelog_data)
         db.session.add(battlelog)
         db.session.commit()
-
         return jsonify({
             "message": "Battle log imported successfully",
             "id": battlelog.id,
