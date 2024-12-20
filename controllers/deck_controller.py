@@ -302,6 +302,7 @@ def filter_by_rating():
             db.select(Deck.id, func.avg(Rating.score).label('avg_rating'))
             .join(Rating)
             .group_by(Deck.id)
+            .order_by(func.avg(Rating.score).desc())  # Match top-rated sorting
         )
         
         if min_rating is not None:
