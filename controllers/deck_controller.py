@@ -13,6 +13,8 @@ from models.cardset import CardSet
 from models.cardtype import CardType
 from models.rating import Rating
 from schemas.deck_schema import DeckSchema
+from models.rating import Rating
+from sqlalchemy import func
 
 deck_controller = Blueprint('deck_controller', __name__)
 deck_schema = DeckSchema()
@@ -264,7 +266,6 @@ def get_top_rated_decks():
     except Exception as e:
         return jsonify({'error': 'Failed to get top rated decks', 'details': str(e)}), 500
 
-from sqlalchemy import text
 
 @deck_controller.route('/filter/by-rating-range', methods=['GET'])
 def filter_by_rating():
@@ -283,18 +284,17 @@ def filter_by_rating():
         min_rating = request.args.get('min', type=float)
         max_rating = request.args.get('max', type=float)
         
-        # First get the average rating for each deck from the ratings relationship
+        # Use Rating.rating instead of Rating.value
         stmt = (
-            db.select(Deck.id, func.avg(Rating.value).label('avg_rating'))
+            db.select(Deck.id, func.avg(Rating.rating).label('avg_rating'))
             .join(Rating)
             .group_by(Deck.id)
         )
         
-        # Then apply the rating filters
         if min_rating is not None:
-            stmt = stmt.having(func.avg(Rating.value) >= min_rating)
+            stmt = stmt.having(func.avg(Rating.rating) >= min_rating)
         if max_rating is not None:
-            stmt = stmt.having(func.avg(Rating.value) <= max_rating)
+            stmt = stmt.having(func.avg(Rating.rating) <= max_rating)
             
         result = db.session.execute(stmt)
         deck_ids = [row[0] for row in result]
