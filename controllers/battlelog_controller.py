@@ -1,3 +1,5 @@
+'''Controller for managing Battlelog operations'''
+
 from flask import Blueprint, jsonify, request
 from init import db
 from models.battlelog import Battlelog
@@ -9,17 +11,19 @@ battlelogs = Blueprint('battlelogs', __name__, url_prefix='/battlelogs')
 def get_battlelogs():
     """
     Get all battle logs with pagination.
-
+    
     Query Parameters:
         page (int): Page number (default: 1)
         per_page (int): Items per page (default: 10)
-    
+        
     Returns:
         200: JSON object containing:
             - battlelogs: List of battlelog objects
             - pagination: Pagination metadata
+        
         500: Error response if retrieval fails
     """
+    
     try:
         # Get pagination parameters from query string
         page = request.args.get('page', 1, type=int)
@@ -54,7 +58,18 @@ def get_battlelogs():
             
 @battlelogs.route('/<int:id>', methods=['GET'])
 def get_battlelog(id):
-    """Get specific battle log by ID"""
+    """
+    Get a specific battle log by ID.
+    
+    Args:
+        id (int): Unique identifier of the battlelog
+        
+    Returns:
+        200: Single battlelog object
+        404: If battlelog not found
+        500: Error response if retrieval fails
+    """
+
     try:
         stmt = db.select(Battlelog).where(Battlelog.id == id)
         battlelog = db.session.execute(stmt).scalar_one_or_404()
@@ -67,7 +82,18 @@ def get_battlelog(id):
 
 @battlelogs.route('/deck/<int:deck_id>', methods=['GET'])
 def get_deck_battlelogs(deck_id):
-    """Get all battle logs for a specific deck"""
+    """
+    Get all battle logs for a specific deck.
+    
+    Args:
+        deck_id (int): Unique identifier of the deck
+        
+    Returns:
+        200: List of battlelog objects for the deck
+        404: If no logs found for deck
+        500: Error response if retrieval fails
+    """
+
     try:
         stmt = db.select(Battlelog).where(Battlelog.deck_id == deck_id)
         deck_battlelogs = db.session.execute(stmt).scalars().all()
@@ -82,7 +108,13 @@ def get_deck_battlelogs(deck_id):
 
 @battlelogs.route('/', methods=['POST'])
 def create_battlelog():
-    """Direct battlelog creation endpoint (disabled)"""
+    """
+    Direct battlelog creation endpoint (disabled).
+    
+    Returns:
+        405: Method not allowed response directing to import endpoint
+    """
+
     return jsonify({
         "error": "Direct battlelog creation not allowed",
         "message": "Please use /battlelogs/import/{deck_id}/{player_name} endpoint"
@@ -90,6 +122,25 @@ def create_battlelog():
 
 @battlelogs.route('/stats/<int:deck_id>', methods=['GET'])
 def get_deck_stats(deck_id):
+    """
+    Get aggregated statistics for a deck's battle logs.
+    
+    Args:
+        deck_id (int): Unique identifier of the deck
+        
+    Returns:
+        200: JSON object containing:
+            - total_games: Number of recorded battles
+            - wins: Number of victories
+            - losses: Number of defeats
+            - win_rate: Percentage of games won
+            - avg_turns: Average game duration in turns
+        
+        404: If no logs found for deck
+        
+        500: Error response if calculation fails
+    """
+
     try:
         stmt = db.select(Battlelog).where(Battlelog.deck_id == deck_id)
         battlelogs = db.session.execute(stmt).scalars().all()
@@ -118,7 +169,31 @@ def get_deck_stats(deck_id):
 
 @battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
 def import_battlelog(deck_id, player_name):
-    """Import and process a battle log"""
+    """
+    Import and process a battle log.
+    
+    Args:
+        deck_id (int): Unique identifier of the deck used
+        player_name (str): Name of the player in the battle
+        
+    Request Body:
+        Raw text content of the battle log
+        
+    Returns:
+        201: JSON object containing:
+            - message: Success confirmation
+            - id: New battlelog ID
+            - stats: Processed battle statistics
+        
+        400: If log validation fails
+        
+        404: If deck not found
+        
+        409: If duplicate log detected
+        
+        500: Error response if import fails
+    """
+    
     try:
         # Deck validation
         deck = Deck.query.get_or_404(deck_id)  # 404 if deck not found
@@ -301,4 +376,4 @@ def import_battlelog(deck_id, player_name):
         return jsonify({
             "error": "Failed to import battle log",
             "details": str(e)
-        }), 500  # Internal Server Error        }), 500
+        }), 500  # Internal Server Error

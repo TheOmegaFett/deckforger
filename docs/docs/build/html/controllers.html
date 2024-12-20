@@ -38,35 +38,152 @@
 <section id="battlelog-controller">
 <h2>Battlelog Controller<a class="headerlink" href="#battlelog-controller" title="Link to this heading">¶</a></h2>
 <blockquote>
-<div><dl class="py function" id="module-controllers.battlelog_controller">
+<div><p id="module-controllers.battlelog_controller">Controller for managing Battlelog operations</p>
+<dl class="py function">
 <dt class="sig sig-object py" id="controllers.battlelog_controller.create_battlelog">
 <span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">create_battlelog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#create_battlelog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.create_battlelog" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Direct battlelog creation endpoint (disabled).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Method not allowed response directing to import endpoint</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>405</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.battlelog_controller.get_battlelog">
 <span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_battlelog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_battlelog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_battlelog" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get a specific battle log by ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Unique identifier of the battlelog</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Single battlelog object
+404: If battlelog not found
+500: Error response if retrieval fails</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.battlelog_controller.get_battlelogs">
 <span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_battlelogs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_battlelogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_battlelogs" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get all battle logs with pagination.</p>
+<dl class="simple">
+<dt>Query Parameters:</dt><dd><p>page (int): Page number (default: 1)
+per_page (int): Items per page (default: 10)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>JSON object containing:</dt><dd><ul class="simple">
+<li><p>battlelogs: List of battlelog objects</p></li>
+<li><p>pagination: Pagination metadata</p></li>
+</ul>
+</dd>
+</dl>
+<p>500: Error response if retrieval fails</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.battlelog_controller.get_deck_battlelogs">
 <span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_deck_battlelogs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_deck_battlelogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_deck_battlelogs" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get all battle logs for a specific deck.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>deck_id</strong> (<em>int</em>) – Unique identifier of the deck</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of battlelog objects for the deck
+404: If no logs found for deck
+500: Error response if retrieval fails</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.battlelog_controller.get_deck_stats">
 <span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">get_deck_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#get_deck_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.get_deck_stats" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get aggregated statistics for a deck’s battle logs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>deck_id</strong> (<em>int</em>) – Unique identifier of the deck</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>JSON object containing:</dt><dd><ul class="simple">
+<li><p>total_games: Number of recorded battles</p></li>
+<li><p>wins: Number of victories</p></li>
+<li><p>losses: Number of defeats</p></li>
+<li><p>win_rate: Percentage of games won</p></li>
+<li><p>avg_turns: Average game duration in turns</p></li>
+</ul>
+</dd>
+</dl>
+<p>404: If no logs found for deck</p>
+<p>500: Error response if calculation fails</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.battlelog_controller.import_battlelog">
 <span class="sig-prename descclassname"><span class="pre">controllers.battlelog_controller.</span></span><span class="sig-name descname"><span class="pre">import_battlelog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">player_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/battlelog_controller.html#import_battlelog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.battlelog_controller.import_battlelog" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Import and process a battle log.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>deck_id</strong> (<em>int</em>) – Unique identifier of the deck used</p></li>
+<li><p><strong>player_name</strong> (<em>str</em>) – Name of the player in the battle</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Request Body:</dt><dd><p>Raw text content of the battle log</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>JSON object containing:</dt><dd><ul class="simple">
+<li><p>message: Success confirmation</p></li>
+<li><p>id: New battlelog ID</p></li>
+<li><p>stats: Processed battle statistics</p></li>
+</ul>
+</dd>
+</dl>
+<p>400: If log validation fails</p>
+<p>404: If deck not found</p>
+<p>409: If duplicate log detected</p>
+<p>500: Error response if import fails</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>201</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div></blockquote>
 </section>

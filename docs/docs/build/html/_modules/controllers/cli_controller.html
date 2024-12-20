@@ -40,6 +40,7 @@
 <span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">Card</span><span class="p">,</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">DeckBox</span><span class="p">,</span> <span class="n">DeckCard</span><span class="p">,</span> <span class="n">CardSet</span>
 <span class="kn">from</span> <span class="nn">models.format</span> <span class="kn">import</span> <span class="n">Format</span>
 <span class="kn">from</span> <span class="nn">models.cardtype</span> <span class="kn">import</span> <span class="n">CardType</span>
+<span class="kn">from</span> <span class="nn">models.rating</span> <span class="kn">import</span> <span class="n">Rating</span>
 
 <span class="n">cli_controller</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;cli&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
 
@@ -245,7 +246,24 @@
         <span class="p">]</span>
 
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add_all</span><span class="p">(</span><span class="n">psychic_control_cards</span> <span class="o">+</span> <span class="n">dark_box_cards</span> <span class="o">+</span> <span class="n">test_dragons_cards</span><span class="p">)</span>
-        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>       
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="c1"># After seeding decks and deck cards, add ratings</span>
+        <span class="n">ratings</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Strong deck with good synergy&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Excellent performance in tournaments&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Decent control deck, needs refinement&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Good against aggressive decks&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Top tier Mewtwo VMAX build&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Perfect balance of power and control&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Versatile dark type lineup&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Strong but inconsistent at times&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Needs more testing and tuning&quot;</span><span class="p">),</span>
+            <span class="n">Rating</span><span class="p">(</span><span class="n">deck_id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Shows promise but requires optimization&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add_all</span><span class="p">(</span><span class="n">ratings</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Database seeded successfully!&#39;</span><span class="p">}),</span> <span class="mi">200</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -254,7 +272,6 @@
             <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Seeding failed&#39;</span><span class="p">,</span>
             <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="p">}),</span> <span class="mi">500</span></div>
-
 
 <div class="viewcode-block" id="cleanup_database">
 <a class="viewcode-back" href="../../controllers.html#controllers.cli_controller.cleanup_database">[docs]</a>
