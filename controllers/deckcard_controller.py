@@ -133,7 +133,7 @@ def remove_card_from_deck(deck_id, card_id):
 @deckcard_controller.route('/<int:deck_id>', methods=['PATCH'])
 def update_deck_cards(deck_id):
     """
-    Update card quantities in a deck.
+    Update card quantities in a deck with card validation.
     
     Args:
         deck_id (int): ID of the deck to update
@@ -145,7 +145,7 @@ def update_deck_cards(deck_id):
             
     Returns:
         200: Cards updated successfully
-        400: Invalid input data
+        400: Invalid input data or card IDs
         404: Deck not found
         500: Update operation failed
     """
@@ -158,14 +158,28 @@ def update_deck_cards(deck_id):
         if not isinstance(updates, list):
             return jsonify({'error': 'Expected list of card updates'}), 400
 
+        # Validate all card IDs exist before making any changes
+        card_ids = [update.get('card_id') for update in updates]
+        existing_cards = db.session.scalars(
+            db.select(Card).where(Card.id.in_(card_ids))
+        ).all()
+        existing_card_ids = {card.id for card in existing_cards}
+        
+        # Check for invalid card IDs
+        invalid_cards = set(card_ids) - existing_card_ids
+        if invalid_cards:
+            return jsonify({
+                'error': 'Invalid card IDs',
+                'invalid_ids': list(invalid_cards)
+            }), 400
+
         for update in updates:
             card_id = update.get('card_id')
             new_quantity = update.get('quantity')
 
-            if not all([card_id, isinstance(new_quantity, int)]):
-                return jsonify({'error': 'Invalid update format'}), 400
+            if not isinstance(new_quantity, int):
+                return jsonify({'error': f'Invalid quantity for card {card_id}'}), 400
 
-            # Get or create deckcard entry
             deckcard = db.session.scalar(
                 db.select(DeckCard)
                 .filter_by(deck_id=deck_id, card_id=card_id)
@@ -192,6 +206,5 @@ def update_deck_cards(deck_id):
         return jsonify({
             'error': 'Failed to update deck cards',
             'details': str(e)
-        }), 500       
-        
+        }), 500        
         
