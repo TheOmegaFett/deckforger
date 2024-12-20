@@ -263,6 +263,8 @@ def get_top_rated_decks():
     except Exception as e:
         return jsonify({'error': 'Failed to get top rated decks', 'details': str(e)}), 500
 
+from sqlalchemy import text
+
 @deck_controller.route('/filter/by-rating-range', methods=['GET'])
 def filter_by_rating():
     """
@@ -280,13 +282,12 @@ def filter_by_rating():
         min_rating = request.args.get('min', type=float)
         max_rating = request.args.get('max', type=float)
         
-        conditions = []
+        stmt = db.select(Deck.id)
+        
         if min_rating is not None:
-            conditions.append(Deck.rating >= min_rating)
+            stmt = stmt.where(text(f"rating >= {min_rating}"))
         if max_rating is not None:
-            conditions.append(Deck.rating <= max_rating)
-            
-        stmt = db.select(Deck.id).where(db.and_(*conditions))
+            stmt = stmt.where(text(f"rating <= {max_rating}"))
             
         result = db.session.execute(stmt)
         deck_ids = [row[0] for row in result]
