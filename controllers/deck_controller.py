@@ -280,13 +280,13 @@ def filter_by_rating():
         min_rating = request.args.get('min', type=float)
         max_rating = request.args.get('max', type=float)
         
-        stmt = db.select(Deck.id)
-        
-        # Use native SQLAlchemy comparison operators
+        conditions = []
         if min_rating is not None:
-            stmt = stmt.where(Deck.rating >= min_rating)
+            conditions.append(Deck.rating >= min_rating)
         if max_rating is not None:
-            stmt = stmt.where(Deck.rating <= max_rating)
+            conditions.append(Deck.rating <= max_rating)
+            
+        stmt = db.select(Deck.id).where(db.and_(*conditions))
             
         result = db.session.execute(stmt)
         deck_ids = [row[0] for row in result]
