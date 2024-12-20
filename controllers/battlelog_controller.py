@@ -223,16 +223,10 @@ def import_battlelog(deck_id, player_name):
 
         # Track cards and interactions
         player_cards = set()
-        opponent_cards = set()
-        current_turn_player_cards = []  # Only track player's cards per turn
         card_interactions = {}
         current_player = None
-        damage_done = 0
-        damage_taken = 0
-
         card_usage_count = {}  # Track {card_name: usage_count}
-        poisoned_pokemon = {}  # Initialize poisoned_pokemon dictionary
-
+     
         def is_meaningful_interaction(card1, card2, line):
             # Define meaningful interactions
             interactions = [
@@ -307,11 +301,11 @@ def import_battlelog(deck_id, player_name):
             "message": "Battle log imported successfully",
             "id": battlelog.id,
             "stats": battlelog_data
-        }), 201  # Created
+        }), 201
 
     except Exception as e:
         db.session.rollback()
         return jsonify({
             "error": "Failed to import battle log",
             "details": str(e)
-        }), 500  # Internal Server Error
+        }), 500 
