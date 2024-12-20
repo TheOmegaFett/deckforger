@@ -8,19 +8,40 @@ battlelogs = Blueprint('battlelogs', __name__, url_prefix='/battlelogs')
 
 @battlelogs.route('/', methods=['GET'])
 def get_battlelogs():
-    battlelogs_list = Battlelog.query.all()
-    return jsonify(battlelogs_schema.dump(battlelogs_list))
+    try:
+        stmt = db.select(Battlelog)
+        battlelogs_list = db.session.execute(stmt).scalars().all()
+        return jsonify(battlelogs_schema.dump(battlelogs_list))
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to retrieve battle logs",
+            "details": str(e)
+        }), 500
 
 @battlelogs.route('/<int:id>', methods=['GET'])
 def get_battlelog(id):
-    battlelog = Battlelog.query.get_or_404(id)
-    return jsonify(battlelog_schema.dump(battlelog))
+    try:
+        stmt = db.select(Battlelog).where(Battlelog.id == id)
+        battlelog = db.session.execute(stmt).scalar_one_or_404()
+        return jsonify(battlelog_schema.dump(battlelog))
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to retrieve battle log",
+            "details": str(e)
+        }), 500
 
 @battlelogs.route('/deck/<int:deck_id>', methods=['GET'])
 def get_deck_battlelogs(deck_id):
-    deck_battlelogs = Battlelog.query.filter_by(deck_id=deck_id).all()
-    return jsonify(battlelogs_schema.dump(deck_battlelogs))
-
+    try:
+        stmt = db.select(Battlelog).where(Battlelog.deck_id == deck_id)
+        deck_battlelogs = db.session.execute(stmt).scalars().all()
+        return jsonify(battlelogs_schema.dump(deck_battlelogs))
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to retrieve deck battle logs",
+            "details": str(e)
+        }), 500
+        
 @battlelogs.route('/', methods=['POST'])
 def create_battlelog():
     battlelog_data = battlelog_schema.load(request.json)
