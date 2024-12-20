@@ -5,6 +5,7 @@ from marshmallow import ValidationError, validates
 from init import db
 from models.card import Card
 from models.cardtype import CardType
+from models.deckcard import DeckCard
 from schemas.card_schema import CardSchema
 
 # Blueprint and Schema initialization
@@ -159,32 +160,38 @@ def update_card(card_id):
             'error': 'Database operation failed',
             'details': str(e)
         }), 500
+        
 @card_controller.route('/<int:card_id>', methods=['DELETE'])
 def delete_card(card_id):
     """
-    Delete a specific Pokemon card.
+    Delete a specific Pokemon card and its associated deck relationships.
     
-    Parameters:
+    Args:
         card_id (int): ID of the card to delete
         
     Returns:
-        200: Card deleted successfully
+        200: Card successfully deleted
         404: Card not found
-        500: Database operation failed
+        500: Deletion operation failed
     """
-    
     try:
-        card = db.session.get(Card, card_id)
-        if not card:
-            return jsonify({'error': 'Card not found'}), 404
-
-        db.session.delete(card)
+        # First delete associated deck cards
+        stmt_deckcards = db.delete(DeckCard).where(DeckCard.card_id == card_id)
+        db.session.execute(stmt_deckcards)
+        
+        # Then delete the card
+        stmt_card = db.delete(Card).where(Card.id == card_id)
+        db.session.execute(stmt_card)
+        
         db.session.commit()
         return jsonify({'message': 'Card deleted successfully'}), 200
+        
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to delete card', 'details': str(e)}), 500
-
+        return jsonify({
+            'error': 'Failed to delete card',
+            'details': str(e)
+        }), 500
 @card_controller.route('/filter/by-multiple-types', methods=['GET'])
 def filter_by_multiple_types():
     """
