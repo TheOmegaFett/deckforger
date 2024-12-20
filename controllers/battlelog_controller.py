@@ -31,21 +31,31 @@ def create_battlelog():
 
 @battlelogs.route('/stats/<int:deck_id>', methods=['GET'])
 def get_deck_stats(deck_id):
-    battlelogs = Battlelog.query.filter_by(deck_id=deck_id).all()
-    
-    if not battlelogs:
-        return jsonify({"message": "No battle data found for this deck"}), 404
+    try:
+        stmt = db.select(Battlelog).where(Battlelog.deck_id == deck_id)
+        battlelogs = db.session.execute(stmt).scalars().all()
         
-    total_games = len(battlelogs)
-    wins = sum(1 for log in battlelogs if log.win_loss)
-    stats = {
-        "total_games": total_games,
-        "wins": wins,
-        "losses": total_games - wins,
-        "win_rate": round((wins / total_games) * 100, 2),
-        "avg_turns": round(sum(log.total_turns for log in battlelogs) / total_games)
-    }
-    return jsonify(stats)
+        if not battlelogs:
+            return jsonify({"message": "No battle data found for this deck"}), 404
+            
+        total_games = len(battlelogs)
+        wins = sum(1 for log in battlelogs if log.win_loss)
+        
+        stats = {
+            "total_games": total_games,
+            "wins": wins,
+            "losses": total_games - wins,
+            "win_rate": round((wins / total_games) * 100, 2),
+            "avg_turns": round(sum(log.total_turns for log in battlelogs) / total_games)
+        }
+        
+        return jsonify(stats)
+        
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to retrieve deck statistics",
+            "details": str(e)
+        }), 500
    
 @battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
 def import_battlelog(deck_id, player_name):
