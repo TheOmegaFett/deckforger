@@ -5,6 +5,7 @@ from marshmallow import ValidationError, validates
 from init import db
 from models.deckbox import DeckBox
 from models.deck import Deck
+from models.format import Format
 from schemas.deckbox_schema import DeckBoxSchema
 from schemas.deck_schema import DeckSchema
 
@@ -242,11 +243,18 @@ def filter_deckbox_decks(deckbox_id):
         stmt = db.select(Deck).filter(Deck.deckbox_id == deckbox_id)
         
         if format_name := request.args.get('format'):
-            stmt = stmt.filter(Deck.format.ilike(f'%{format_name}%'))
+            stmt = (stmt
+                   .join(Format)
+                   .filter(Format.name.ilike(f'%{format_name}%')))
+            
         if deck_name := request.args.get('name'):
             stmt = stmt.filter(Deck.name.ilike(f'%{deck_name}%'))
             
         decks = db.session.scalars(stmt).all()
         return decks_schema.jsonify(decks), 200
+        
     except Exception as e:
-        return jsonify({'error': 'Filter failed', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Filter failed',
+            'details': str(e)
+        }), 500
