@@ -259,13 +259,24 @@ def get_top_rated_decks():
     """
     try:
         limit = request.args.get('limit', 10, type=int)
-        stmt = db.select(Deck.id).order_by(Deck.rating.desc()).limit(limit)
         
-        deck_ids = [id[0] for id in db.session.execute(stmt).all()]
+        stmt = (
+            db.select(Deck.id, func.avg(Rating.score).label('avg_rating'))
+            .join(Rating)
+            .group_by(Deck.id)
+            .order_by(func.avg(Rating.score).desc())
+            .limit(limit)
+        )
+        
+        result = db.session.execute(stmt)
+        deck_ids = [row[0] for row in result]
         return jsonify(deck_ids), 200
+        
     except Exception as e:
-        return jsonify({'error': 'Failed to get top rated decks', 'details': str(e)}), 500
-
+        return jsonify({
+            'error': 'Failed to get top rated decks',
+            'details': str(e)
+        }), 500
 
 from models.rating import Rating
 from sqlalchemy import func
