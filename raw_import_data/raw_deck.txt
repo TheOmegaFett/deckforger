@@ -1,0 +1,27 @@
+Pokémon: 4
+1 Pecharunt ex SFA 39
+4 Fezandipiti ex SFA 38
+1 Radiant Greninja ASR 46
+4 Roaring Moon ex PAR 124
+
+Trainer: 13
+2 Ultra Ball SVI 196
+4 Switch Cart ASR 154
+4 Dark Patch ASR 139
+4 Janine's Secret Art SFA 59 PH
+2 Earthen Vessel PAR 163
+3 Explorer's Guidance TEF 147
+3 Professor Sada's Vitality PAR 170
+2 Colress's Tenacity SFA 57
+2 Cycling Road MEW 157
+3 Temple of Sinnoh ASR 155
+1 Secret Box TWM 163
+3 Ancient Booster Energy Capsule PAR 159
+2 Arven SVI 166
+
+Energy: 3
+2 Double Turbo Energy BRS 151 PH
+11 Basic {D} Energy SVE 15
+2 Jet Energy PAL 190
+
+Total Cards: 60
