@@ -253,15 +253,21 @@ def filter_by_rating():
         max_rating = request.args.get('max', type=float)
         
         stmt = db.select(Deck.id)
-        if min_rating:
-            stmt = stmt.filter(Deck.rating >= min_rating)
-        if max_rating:
-            stmt = stmt.filter(Deck.rating <= max_rating)
+        
+        # Use explicit comparison operators
+        if min_rating is not None:
+            stmt = stmt.where(Deck.rating >= min_rating)
+        if max_rating is not None:
+            stmt = stmt.where(Deck.rating <= max_rating)
             
         deck_ids = [id[0] for id in db.session.execute(stmt).all()]
         return jsonify(deck_ids), 200
+        
     except Exception as e:
-        return jsonify({'error': 'Filter failed', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Filter failed', 
+            'details': str(e.__class__.__name__ + ': ' + str(e))
+        }), 500
 
 def validate_deck(deck_id, format_id):
     """
