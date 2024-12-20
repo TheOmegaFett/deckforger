@@ -37,7 +37,7 @@ def get_all_sets():
         )
         
         return jsonify({
-            "sets": cardset_schema.dump(pagination.items, many=True),
+            "sets": cardsets_schema.dump(pagination.items),
             "pagination": {
                 "total": pagination.total,
                 "pages": pagination.pages,

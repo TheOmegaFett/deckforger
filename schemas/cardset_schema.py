@@ -1,7 +1,7 @@
 '''Schema for serializing and deserializing Pokemon TCG card sets'''
 
 from init import ma
-from models.cardset import CardSet
+from marshmallow import fields
 
 class CardSetSchema(ma.SQLAlchemySchema):
     """
@@ -16,16 +16,11 @@ class CardSetSchema(ma.SQLAlchemySchema):
     """
     
     class Meta:
-        model = CardSet
-        load_instance = True
+        fields = ('id', 'name', 'code', 'release_date', 'cards')
+        ordered = True
 
-    id = ma.auto_field()
-    name = ma.auto_field(required=True)
-    release_date = ma.auto_field(required=True)
-    description = ma.auto_field(required=True)
-    
-    # Relationships
-    cards = ma.Nested('CardSchema', many=True, exclude=('cardset_id',))
+    # Relationship
+    cards = fields.Nested('CardSchema', many=True, exclude=('cardset',))
 
 cardset_schema = CardSetSchema()
 cardsets_schema = CardSetSchema(many=True)
