@@ -285,9 +285,9 @@ def filter_by_rating():
         stmt = db.select(Deck.id)
         
         if min_rating is not None:
-            stmt = stmt.where(text(f"rating >= {min_rating}"))
+            stmt = stmt.where(text(f"decks.rating >= {min_rating}"))
         if max_rating is not None:
-            stmt = stmt.where(text(f"rating <= {max_rating}"))
+            stmt = stmt.where(text(f"decks.rating <= {max_rating}"))
             
         result = db.session.execute(stmt)
         deck_ids = [row[0] for row in result]
@@ -298,7 +298,6 @@ def filter_by_rating():
             'error': 'Filter failed', 
             'details': str(e.__class__.__name__ + ': ' + str(e))
         }), 500
-
 def validate_deck(deck_id, format_id):
     """
     Validate deck composition and format legality.
