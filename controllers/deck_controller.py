@@ -267,6 +267,9 @@ def get_top_rated_decks():
         return jsonify({'error': 'Failed to get top rated decks', 'details': str(e)}), 500
 
 
+from models.rating import Rating
+from sqlalchemy import func
+
 @deck_controller.route('/filter/by-rating-range', methods=['GET'])
 def filter_by_rating():
     """
@@ -284,17 +287,16 @@ def filter_by_rating():
         min_rating = request.args.get('min', type=float)
         max_rating = request.args.get('max', type=float)
         
-        # Use Rating.rating instead of Rating.value
         stmt = (
-            db.select(Deck.id, func.avg(Rating.rating).label('avg_rating'))
+            db.select(Deck.id, func.avg(Rating.score).label('avg_rating'))
             .join(Rating)
             .group_by(Deck.id)
         )
         
         if min_rating is not None:
-            stmt = stmt.having(func.avg(Rating.rating) >= min_rating)
+            stmt = stmt.having(func.avg(Rating.score) >= min_rating)
         if max_rating is not None:
-            stmt = stmt.having(func.avg(Rating.rating) <= max_rating)
+            stmt = stmt.having(func.avg(Rating.score) <= max_rating)
             
         result = db.session.execute(stmt)
         deck_ids = [row[0] for row in result]
