@@ -141,11 +141,11 @@ def delete_set(cardset_id):
 def get_all_sets():
     """
     Retrieve all card sets with pagination.
-
+    
     Query Parameters:
         page (int): Page number (default: 1)
         per_page (int): Items per page (default: 10)
-    
+        
     Returns:
         200: List of all sets with pagination metadata
         500: Database query failed
@@ -153,15 +153,15 @@ def get_all_sets():
     try:
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
-    
+        
         pagination = db.paginate(
-            db.select(CardSet).order_by(CardSet.release_date.desc()),
+            db.select(CardSet).order_by(CardSet.name),
             page=page,
             per_page=per_page
         )
-    
+        
         return jsonify({
-            "sets": cardsets_schema.dump(pagination.items),
+            "sets": cardset_schema.dump(pagination.items),  # Using cardset_schema instead of cardsets_schema
             "pagination": {
                 "total": pagination.total,
                 "pages": pagination.pages,
