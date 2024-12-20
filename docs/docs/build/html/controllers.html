@@ -407,15 +407,15 @@ deckbox_id (int): ID of the deckbox to contain this deck</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.deck_controller.filter_by_rating">
 <span class="sig-prename descclassname"><span class="pre">controllers.deck_controller.</span></span><span class="sig-name descname"><span class="pre">filter_by_rating</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deck_controller.html#filter_by_rating"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deck_controller.filter_by_rating" title="Link to this definition">¶</a></dt>
-<dd><p>Filter decks by rating range.</p>
+<dd><p>Get decks filtered by rating range.</p>
 <dl class="simple">
-<dt>Query Parameters:</dt><dd><p>min (float): Minimum rating
-max (float): Maximum rating</p>
+<dt>Query Parameters:</dt><dd><p>min (float): Minimum rating threshold
+max (float): Maximum rating threshold</p>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of decks within rating range
+<dd class="field-odd"><p>List of deck IDs within rating range
 500: Filter operation failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -476,15 +476,15 @@ max (float): Maximum rating</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.deck_controller.get_top_rated_decks">
 <span class="sig-prename descclassname"><span class="pre">controllers.deck_controller.</span></span><span class="sig-name descname"><span class="pre">get_top_rated_decks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deck_controller.html#get_top_rated_decks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deck_controller.get_top_rated_decks" title="Link to this definition">¶</a></dt>
-<dd><p>Get highest rated decks.</p>
+<dd><p>Get top rated decks ordered by rating.</p>
 <dl class="simple">
-<dt>Query Parameters:</dt><dd><p>limit (int): Number of decks to return (default 10)</p>
+<dt>Query Parameters:</dt><dd><p>limit (int): Number of decks to return (default: 10)</p>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of top rated decks
-500: Query failed</p>
+<dd class="field-odd"><p>List of deck IDs ordered by rating
+500: Query operation failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>200</p>

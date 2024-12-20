@@ -8,7 +8,7 @@ class Battlelog(db.Model):
     Represents a battle log entry in the database.
     
     This model stores statistics and outcomes from individual Pokemon TCG matches,
-    tracking metrics like card usage, synergies, and game duration.
+    tracking metrics like damage, card usage, and game duration.
     
     Attributes:
         id (int): Primary key identifier for the battle log
@@ -17,11 +17,11 @@ class Battlelog(db.Model):
         total_turns (int): Number of turns the battle lasted
         most_used_cards (JSON): Array of frequently played cards during the match
         key_synergy_cards (JSON): Array of cards that created effective combinations
-        raw_log (str): Raw text content of the battle log
+        raw_log (str): Complete text of the original battle log :no-index:
         deck (relationship): Relationship to associated Deck model
     """
+    
     __tablename__ = 'battlelogs'
-
     id = Column(Integer, primary_key=True)
     deck_id = Column(Integer, ForeignKey('decks.id'))
     win_loss = Column(Boolean)

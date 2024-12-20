@@ -203,6 +203,13 @@ def search_decks():
 
 @deck_controller.route('/filter/by-cardtype', methods=['GET'])
 def filter_decks_by_cardtype():
+    """
+    Get decks filtered by card type distribution.
+    
+    Returns:
+        200: Decks with their card type breakdowns
+        500: Filter operation failed
+    """
     try:
         stmt = (
             db.select(
@@ -237,6 +244,16 @@ def filter_decks_by_cardtype():
 
 @deck_controller.route('/top-rated', methods=['GET'])
 def get_top_rated_decks():
+    """
+    Get top rated decks ordered by rating.
+    
+    Query Parameters:
+        limit (int): Number of decks to return (default: 10)
+        
+    Returns:
+        200: List of deck IDs ordered by rating
+        500: Query operation failed
+    """
     try:
         limit = request.args.get('limit', 10, type=int)
         stmt = db.select(Deck.id).order_by(Deck.rating.desc()).limit(limit)
@@ -248,6 +265,17 @@ def get_top_rated_decks():
 
 @deck_controller.route('/filter/by-rating-range', methods=['GET'])
 def filter_by_rating():
+    """
+    Get decks filtered by rating range.
+    
+    Query Parameters:
+        min (float): Minimum rating threshold
+        max (float): Maximum rating threshold
+        
+    Returns:
+        200: List of deck IDs within rating range
+        500: Filter operation failed
+    """
     try:
         min_rating = request.args.get('min', type=float)
         max_rating = request.args.get('max', type=float)

@@ -43,7 +43,7 @@
 <span class="sd">    Represents a battle log entry in the database.</span>
 <span class="sd">    </span>
 <span class="sd">    This model stores statistics and outcomes from individual Pokemon TCG matches,</span>
-<span class="sd">    tracking metrics like card usage, synergies, and game duration.</span>
+<span class="sd">    tracking metrics like damage, card usage, and game duration.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes:</span>
 <span class="sd">        id (int): Primary key identifier for the battle log</span>
@@ -52,18 +52,19 @@
 <span class="sd">        total_turns (int): Number of turns the battle lasted</span>
 <span class="sd">        most_used_cards (JSON): Array of frequently played cards during the match</span>
 <span class="sd">        key_synergy_cards (JSON): Array of cards that created effective combinations</span>
+<span class="sd">        raw_log (str): Complete text of the original battle log :no-index:</span>
 <span class="sd">        deck (relationship): Relationship to associated Deck model</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;battlelogs&#39;</span>
-    
     <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">deck_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;decks.id&#39;</span><span class="p">))</span>
     <span class="n">win_loss</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Boolean</span><span class="p">)</span>
     <span class="n">total_turns</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">)</span>
     <span class="n">most_used_cards</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">JSON</span><span class="p">)</span>
     <span class="n">key_synergy_cards</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">JSON</span><span class="p">)</span>
-    
+    <span class="n">raw_log</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Text</span><span class="p">)</span> 
+
     <span class="n">deck</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Deck&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;battlelogs&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

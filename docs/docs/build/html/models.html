@@ -321,7 +321,7 @@ card: Reference to the associated Card</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
 <p>Represents a battle log entry in the database.</p>
 <p>This model stores statistics and outcomes from individual Pokemon TCG matches,
-tracking metrics like card usage, synergies, and game duration.</p>
+tracking metrics like damage, card usage, and game duration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="models.battlelog.Battlelog.id">
 <span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#models.battlelog.Battlelog.id" title="Link to this definition">¶</a></dt>
@@ -384,6 +384,17 @@ tracking metrics like card usage, synergies, and game duration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>JSON</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="models.battlelog.Battlelog.raw_log">
+<span class="sig-name descname"><span class="pre">raw_log</span></span><a class="headerlink" href="#models.battlelog.Battlelog.raw_log" title="Link to this definition">¶</a></dt>
+<dd><p>Complete text of the original battle log :no-index:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
