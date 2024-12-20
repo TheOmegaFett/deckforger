@@ -319,6 +319,7 @@ def filter_by_rating():
             'error': 'Filter failed', 
             'details': str(e.__class__.__name__ + ': ' + str(e))
         }), 500
+        
 def validate_deck(deck_id, format_id):
     """
     Validate deck composition and format legality.
