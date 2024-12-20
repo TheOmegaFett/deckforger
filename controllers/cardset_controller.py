@@ -136,6 +136,42 @@ def delete_set(cardset_id):
     db.session.commit()
     return jsonify({'message': 'Set deleted successfully!'})
 
+
+@cardset_controller.route('/', methods=['GET'])
+def get_all_sets():
+    """
+    Retrieve all card sets with pagination.
+
+    Query Parameters:
+        page (int): Page number (default: 1)
+        per_page (int): Items per page (default: 10)
+    
+    Returns:
+        200: List of all sets with pagination metadata
+        500: Database query failed
+    """
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+    
+        pagination = db.paginate(
+            db.select(CardSet).order_by(CardSet.release_date.desc()),
+            page=page,
+            per_page=per_page
+        )
+    
+        return jsonify({
+            "sets": cardsets_schema.dump(pagination.items),
+            "pagination": {
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": page,
+                "per_page": per_page
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve sets', 'details': str(e)}), 500
+
 @cardset_controller.route('/search/<string:name>', methods=['GET'])
 def search_by_name(name):
     """Search for sets by name"""
@@ -160,12 +196,9 @@ def get_cards_in_set(cardset_id):
 def get_card_distribution():
     """
     Get distribution of cards across sets with type breakdown.
-    
-    This endpoint calculates the distribution of different card types within each card set.
-    It provides a breakdown showing how many cards of each type exist in each set.
-    
+
     Returns:
-        200: JSON object with the following structure:
+        200: Dictionary mapping set names to their card type counts
         500: Database query failed
     """
     try:
@@ -176,25 +209,22 @@ def get_card_distribution():
                 func.count(Card.id).label('count')
             )
             .join(Card, CardSet.id == Card.cardset_id)
-            .join(CardType, CardType.id == Card.cardtype_id)
+            .join(CardType, Card.cardtype_id == CardType.id)
             .group_by(CardSet.name, CardType.name)
-            .order_by(CardSet.name)
+            .order_by(CardSet.name, CardType.name)
         )
-        
+    
         results = db.session.execute(stmt).all()
-        
+    
         distribution = {}
         for result in results:
-            set_name = result.set_name
-            if set_name not in distribution:
-                distribution[set_name] = {'types': {}}
-            distribution[set_name]['types'][result.type_name] = result.count
-            
-        return jsonify(distribution), 200
+            if result.set_name not in distribution:
+                distribution[result.set_name] = {'types': {}}
+            distribution[result.set_name]['types'][result.type_name] = result.count
         
+        return jsonify(distribution), 200
     except Exception as e:
         return jsonify({
             'error': 'Failed to calculate card distribution',
             'details': str(e)
-        }), 500
-    return jsonify(distribution), 200
+        }), 500  
