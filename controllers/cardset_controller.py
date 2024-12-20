@@ -103,39 +103,49 @@ def create_set():
         db.session.rollback()
         return jsonify({'error': 'Failed to create set', 'details': str(e)}), 500
 
-@cardset_controller.route('/<int:cardset_id>', methods=['PUT'])
-def update_set(cardset_id):
+@cardset_controller.route('/<int:cardset_id>', methods=['PATCH'])
+def update_cardset(cardset_id):
     """
-    Update a specific card set.
+    Update specific fields of a card set.
     
-    Parameters:
-        cardset_id (int): ID of the set to update
+    Args:
+        cardset_id (int): ID of the card set to update
         
     Request Body:
-        name (str, optional): New name for the set
-        release_date (date, optional): New release date
-        description (str, optional): New description
-        
+        JSON object containing any of:
+            name (str): New set name
+            code (str): New set code
+            release_date (str): New release date
+            
     Returns:
-        200: Set updated successfully
+        200: Updated card set data
         404: Set not found
-        500: Database operation failed
+        500: Update operation failed
     """
     try:
-        set_ = db.session.get(CardSet, cardset_id)
-        if not set_:
-            return jsonify({'error': 'Set not found'}), 404
+        cardset = db.session.get(CardSet, cardset_id)
+        if not cardset:
+            return jsonify({'error': 'Card set not found'}), 404
 
-        data = request.json
-        set_.name = data.get('name', set_.name)
-        set_.release_date = data.get('release_date', set_.release_date)
-        set_.description = data.get('description', set_.description)
+        update_data = request.json
         
+        # Only update fields that are provided
+        if 'name' in update_data:
+            cardset.name = update_data['name']
+        if 'code' in update_data:
+            cardset.code = update_data['code']
+        if 'release_date' in update_data:
+            cardset.release_date = update_data['release_date']
+            
         db.session.commit()
-        return cardset_schema.jsonify(set_), 200
+        return jsonify(cardset_schema.dump(cardset)), 200
+        
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to update set', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Failed to update card set',
+            'details': str(e)
+        }), 500
 
 @cardset_controller.route('/<int:cardset_id>', methods=['DELETE'])
 def delete_set(cardset_id):
