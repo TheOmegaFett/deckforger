@@ -38,6 +38,7 @@
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
 <span class="kn">from</span> <span class="nn">models.deckbox</span> <span class="kn">import</span> <span class="n">DeckBox</span>
 <span class="kn">from</span> <span class="nn">models.deck</span> <span class="kn">import</span> <span class="n">Deck</span>
+<span class="kn">from</span> <span class="nn">models.format</span> <span class="kn">import</span> <span class="n">Format</span>
 <span class="kn">from</span> <span class="nn">schemas.deckbox_schema</span> <span class="kn">import</span> <span class="n">DeckBoxSchema</span>
 <span class="kn">from</span> <span class="nn">schemas.deck_schema</span> <span class="kn">import</span> <span class="n">DeckSchema</span>
 
@@ -301,14 +302,21 @@
         <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Deck</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">deckbox_id</span> <span class="o">==</span> <span class="n">deckbox_id</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">format_name</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">):</span>
-            <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">format_name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="p">(</span><span class="n">stmt</span>
+                   <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Format</span><span class="p">)</span>
+                   <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Format</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">format_name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">)))</span>
+            
         <span class="k">if</span> <span class="n">deck_name</span> <span class="o">:=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
             <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Deck</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%</span><span class="si">{</span><span class="n">deck_name</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
             
         <span class="n">decks</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">decks_schema</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">decks</span><span class="p">),</span> <span class="mi">200</span>
+        
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Filter failed&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Filter failed&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 </pre></div>
 

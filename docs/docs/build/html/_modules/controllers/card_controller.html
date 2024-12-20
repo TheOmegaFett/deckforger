@@ -38,6 +38,7 @@
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
 <span class="kn">from</span> <span class="nn">models.card</span> <span class="kn">import</span> <span class="n">Card</span>
 <span class="kn">from</span> <span class="nn">models.cardtype</span> <span class="kn">import</span> <span class="n">CardType</span>
+<span class="kn">from</span> <span class="nn">models.deckcard</span> <span class="kn">import</span> <span class="n">DeckCard</span>
 <span class="kn">from</span> <span class="nn">schemas.card_schema</span> <span class="kn">import</span> <span class="n">CardSchema</span>
 
 <span class="c1"># Blueprint and Schema initialization</span>
@@ -213,34 +214,40 @@
             <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="p">}),</span> <span class="mi">500</span></div>
 
+        
 <div class="viewcode-block" id="delete_card">
 <a class="viewcode-back" href="../../controllers.html#controllers.card_controller.delete_card">[docs]</a>
 <span class="nd">@card_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:card_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;DELETE&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">delete_card</span><span class="p">(</span><span class="n">card_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Delete a specific Pokemon card.</span>
+<span class="sd">    Delete a specific Pokemon card and its associated deck relationships.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        card_id (int): ID of the card to delete</span>
 <span class="sd">        </span>
 <span class="sd">    Returns:</span>
-<span class="sd">        200: Card deleted successfully</span>
+<span class="sd">        200: Card successfully deleted</span>
 <span class="sd">        404: Card not found</span>
-<span class="sd">        500: Database operation failed</span>
+<span class="sd">        500: Deletion operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Card</span><span class="p">,</span> <span class="n">card_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Card not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
-
-        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="c1"># First delete associated deck cards</span>
+        <span class="n">stmt_deckcards</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">DeckCard</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">DeckCard</span><span class="o">.</span><span class="n">card_id</span> <span class="o">==</span> <span class="n">card_id</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt_deckcards</span><span class="p">)</span>
+        
+        <span class="c1"># Then delete the card</span>
+        <span class="n">stmt_card</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">Card</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Card</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">card_id</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt_card</span><span class="p">)</span>
+        
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Card deleted successfully&#39;</span><span class="p">}),</span> <span class="mi">200</span>
+        
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to delete card&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
-
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to delete card&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 <div class="viewcode-block" id="filter_by_multiple_types">
 <a class="viewcode-back" href="../../controllers.html#controllers.card_controller.filter_by_multiple_types">[docs]</a>

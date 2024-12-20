@@ -310,15 +310,15 @@ cardset_id (int): ID of the set this card belongs to</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.card_controller.delete_card">
 <span class="sig-prename descclassname"><span class="pre">controllers.card_controller.</span></span><span class="sig-name descname"><span class="pre">delete_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">card_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/card_controller.html#delete_card"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.card_controller.delete_card" title="Link to this definition">¶</a></dt>
-<dd><p>Delete a specific Pokemon card.</p>
+<dd><p>Delete a specific Pokemon card and its associated deck relationships.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>card_id</strong> (<em>int</em>) – ID of the card to delete</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Card deleted successfully
+<dd class="field-even"><p>Card successfully deleted
 404: Card not found
-500: Database operation failed</p>
+500: Deletion operation failed</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>200</p>
@@ -1054,10 +1054,15 @@ description (str): Description of the set</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.cardset_controller.get_all_sets">
 <span class="sig-prename descclassname"><span class="pre">controllers.cardset_controller.</span></span><span class="sig-name descname"><span class="pre">get_all_sets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardset_controller.html#get_all_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardset_controller.get_all_sets" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve all card sets.</p>
+<dd><p>Retrieve all card sets with pagination.</p>
+<dl class="simple">
+<dt>Query Parameters:</dt><dd><p>page (int): Page number (default: 1)
+per_page (int): Items per page (default: 10)</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of all sets
+<dd class="field-odd"><p>List of all sets with pagination metadata
 500: Database query failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1070,11 +1075,9 @@ description (str): Description of the set</p>
 <dt class="sig sig-object py" id="controllers.cardset_controller.get_card_distribution">
 <span class="sig-prename descclassname"><span class="pre">controllers.cardset_controller.</span></span><span class="sig-name descname"><span class="pre">get_card_distribution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardset_controller.html#get_card_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardset_controller.get_card_distribution" title="Link to this definition">¶</a></dt>
 <dd><p>Get distribution of cards across sets with type breakdown.</p>
-<p>This endpoint calculates the distribution of different card types within each card set.
-It provides a breakdown showing how many cards of each type exist in each set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>JSON object with the following structure:
+<dd class="field-odd"><p>Dictionary mapping set names to their card type counts
 500: Database query failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1115,25 +1118,28 @@ It provides a breakdown showing how many cards of each type exist in each set.</
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="controllers.cardset_controller.update_set">
-<span class="sig-prename descclassname"><span class="pre">controllers.cardset_controller.</span></span><span class="sig-name descname"><span class="pre">update_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cardset_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardset_controller.html#update_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardset_controller.update_set" title="Link to this definition">¶</a></dt>
-<dd><p>Update a specific card set.</p>
+<dt class="sig sig-object py" id="controllers.cardset_controller.update_cardset">
+<span class="sig-prename descclassname"><span class="pre">controllers.cardset_controller.</span></span><span class="sig-name descname"><span class="pre">update_cardset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cardset_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardset_controller.html#update_cardset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardset_controller.update_cardset" title="Link to this definition">¶</a></dt>
+<dd><p>Update specific fields of a card set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cardset_id</strong> (<em>int</em>) – ID of the set to update</p>
+<dd class="field-odd"><p><strong>cardset_id</strong> (<em>int</em>) – ID of the card set to update</p>
 </dd>
 </dl>
 <dl class="simple">
-<dt>Request Body:</dt><dd><p>name (str, optional): New name for the set
-release_date (date, optional): New release date
-description (str, optional): New description</p>
+<dt>Request Body:</dt><dd><dl class="simple">
+<dt>JSON object containing any of:</dt><dd><p>name (str): New set name
+code (str): New set code
+release_date (str): New release date</p>
+</dd>
+</dl>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Set updated successfully
+<dd class="field-odd"><p>Updated card set data
 404: Set not found
-500: Database operation failed</p>
+500: Update operation failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>200</p>
@@ -1242,49 +1248,6 @@ description (str, optional): New description</p>
 404: Format not found
 409: Format name already exists
 500: Database operation failed</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>200</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="controllers.format_controller.validate_deck_format">
-<span class="sig-prename descclassname"><span class="pre">controllers.format_controller.</span></span><span class="sig-name descname"><span class="pre">validate_deck_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/format_controller.html#validate_deck_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.format_controller.validate_deck_format" title="Link to this definition">¶</a></dt>
-<dd><p>Validates if a deck is legal in a given format based on card release dates</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>deck_id</strong> (<em>int</em>) – ID of the deck to validate</p></li>
-<li><p><strong>format_id</strong> (<em>int</em>) – ID of the format to validate against</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValidationError</strong> – If deck contains cards outside format’s date range</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="controllers.format_controller.validate_format_legality">
-<span class="sig-prename descclassname"><span class="pre">controllers.format_controller.</span></span><span class="sig-name descname"><span class="pre">validate_format_legality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/format_controller.html#validate_format_legality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.format_controller.validate_format_legality" title="Link to this definition">¶</a></dt>
-<dd><p>Validate deck legality for a specific format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>format_id</strong> (<em>int</em>) – Format to validate against</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Request Body:</dt><dd><p>deck_id (int): ID of deck to validate</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Deck is legal in format
-400: Deck violates format rules
-404: Format not found
-500: Validation failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>200</p>
