@@ -11,19 +11,40 @@ from schemas.cardset_schema import cardset_schema, cardsets_schema
 
 cardset_controller = Blueprint('cardsets', __name__, url_prefix='/cardsets')
 
+
+
 @cardset_controller.route('/', methods=['GET'])
 def get_all_sets():
     """
-    Retrieve all card sets.
+    Retrieve all card sets with pagination.
     
+    Query Parameters:
+        page (int): Page number (default: 1)
+        per_page (int): Items per page (default: 10)
+        
     Returns:
-        200: List of all sets
+        200: List of all sets with pagination metadata
         500: Database query failed
     """
     try:
-        stmt = db.select(CardSet)
-        sets = db.session.scalars(stmt).all()
-        return cardsets_schema.dump(sets), 200
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        pagination = db.paginate(
+            db.select(CardSet).order_by(CardSet.name),
+            page=page,
+            per_page=per_page
+        )
+        
+        return jsonify({
+            "sets": cardset_schema.dump(pagination.items),  # Using cardset_schema instead of cardsets_schema
+            "pagination": {
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": page,
+                "per_page": per_page
+            }
+        }), 200
     except Exception as e:
         return jsonify({'error': 'Failed to retrieve sets', 'details': str(e)}), 500
 
@@ -135,42 +156,6 @@ def delete_set(cardset_id):
     db.session.delete(set_)
     db.session.commit()
     return jsonify({'message': 'Set deleted successfully!'})
-
-
-@cardset_controller.route('/', methods=['GET'])
-def get_all_sets():
-    """
-    Retrieve all card sets with pagination.
-    
-    Query Parameters:
-        page (int): Page number (default: 1)
-        per_page (int): Items per page (default: 10)
-        
-    Returns:
-        200: List of all sets with pagination metadata
-        500: Database query failed
-    """
-    try:
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
-        
-        pagination = db.paginate(
-            db.select(CardSet).order_by(CardSet.name),
-            page=page,
-            per_page=per_page
-        )
-        
-        return jsonify({
-            "sets": cardset_schema.dump(pagination.items),  # Using cardset_schema instead of cardsets_schema
-            "pagination": {
-                "total": pagination.total,
-                "pages": pagination.pages,
-                "current_page": page,
-                "per_page": per_page
-            }
-        }), 200
-    except Exception as e:
-        return jsonify({'error': 'Failed to retrieve sets', 'details': str(e)}), 500
 
 @cardset_controller.route('/search/<string:name>', methods=['GET'])
 def search_by_name(name):
