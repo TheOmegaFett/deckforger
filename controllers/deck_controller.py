@@ -206,7 +206,7 @@ def filter_decks_by_cardtype():
     try:
         stmt = (
             db.select(
-                Deck,
+                Deck.id,
                 func.count(CardType.id).label('type_count'),
                 CardType.name.label('type_name')
             )
@@ -219,13 +219,13 @@ def filter_decks_by_cardtype():
         results = db.session.execute(stmt).all()
         
         deck_type_data = {}
-        for deck, type_count, type_name in results:
-            if deck.id not in deck_type_data:
-                deck_type_data[deck.id] = {
-                    'deck': decks_schema.dump([deck])[0],
+        for deck_id, type_count, type_name in results:
+            if deck_id not in deck_type_data:
+                deck_type_data[deck_id] = {
+                    'deck_id': deck_id,
                     'type_distribution': {}
                 }
-            deck_type_data[deck.id]['type_distribution'][type_name] = type_count
+            deck_type_data[deck_id]['type_distribution'][type_name] = type_count
             
         return jsonify(list(deck_type_data.values())), 200
         
@@ -237,52 +237,29 @@ def filter_decks_by_cardtype():
 
 @deck_controller.route('/top-rated', methods=['GET'])
 def get_top_rated_decks():
-    """
-    Get highest rated decks.
-    
-    Query Parameters:
-        limit (int): Number of decks to return (default 10)
-        
-    Returns:
-        200: List of top rated decks
-        500: Query failed
-    """
     try:
         limit = request.args.get('limit', 10, type=int)
-        stmt = db.select(Deck).\
-               order_by(Deck.rating.desc()).\
-               limit(limit)
+        stmt = db.select(Deck.id).order_by(Deck.rating.desc()).limit(limit)
         
-        decks = db.session.scalars(stmt).all()
-        return decks_schema.jsonify(decks), 200
+        deck_ids = [id[0] for id in db.session.execute(stmt).all()]
+        return jsonify(deck_ids), 200
     except Exception as e:
         return jsonify({'error': 'Failed to get top rated decks', 'details': str(e)}), 500
 
 @deck_controller.route('/filter/by-rating-range', methods=['GET'])
 def filter_by_rating():
-    """
-    Filter decks by rating range.
-    
-    Query Parameters:
-        min (float): Minimum rating
-        max (float): Maximum rating
-        
-    Returns:
-        200: List of decks within rating range
-        500: Filter operation failed
-    """
     try:
         min_rating = request.args.get('min', type=float)
         max_rating = request.args.get('max', type=float)
         
-        stmt = db.select(Deck)
+        stmt = db.select(Deck.id)
         if min_rating:
             stmt = stmt.filter(Deck.rating >= min_rating)
         if max_rating:
             stmt = stmt.filter(Deck.rating <= max_rating)
             
-        decks = db.session.scalars(stmt).all()
-        return decks_schema.jsonify(decks), 200
+        deck_ids = [id[0] for id in db.session.execute(stmt).all()]
+        return jsonify(deck_ids), 200
     except Exception as e:
         return jsonify({'error': 'Filter failed', 'details': str(e)}), 500
 
