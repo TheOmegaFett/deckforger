@@ -7,6 +7,7 @@ from init import db
 from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format
 from models.cardtype import CardType
+from models.rating import Rating
 
 cli_controller = Blueprint('cli', __name__)
 
@@ -204,7 +205,24 @@ def seed_tables():
         ]
 
         db.session.add_all(psychic_control_cards + dark_box_cards + test_dragons_cards)
-        db.session.commit()       
+        db.session.commit()
+
+        # After seeding decks and deck cards, add ratings
+        ratings = [
+            Rating(deck_id=1, score=4, comment="Strong deck with good synergy"),
+            Rating(deck_id=1, score=5, comment="Excellent performance in tournaments"),
+            Rating(deck_id=2, score=3, comment="Decent control deck, needs refinement"),
+            Rating(deck_id=2, score=4, comment="Good against aggressive decks"),
+            Rating(deck_id=3, score=5, comment="Top tier Mewtwo VMAX build"),
+            Rating(deck_id=3, score=5, comment="Perfect balance of power and control"),
+            Rating(deck_id=4, score=4, comment="Versatile dark type lineup"),
+            Rating(deck_id=4, score=3, comment="Strong but inconsistent at times"),
+            Rating(deck_id=5, score=2, comment="Needs more testing and tuning"),
+            Rating(deck_id=5, score=3, comment="Shows promise but requires optimization")
+        ]
+
+        db.session.add_all(ratings)
+        db.session.commit()
         
         return jsonify({'message': 'Database seeded successfully!'}), 200
     except Exception as e:
@@ -213,7 +231,6 @@ def seed_tables():
             'error': 'Seeding failed',
             'details': str(e)
         }), 500
-
 @cli_controller.route('/run/cleanup', methods=['POST'])
 def cleanup_database():
     """
