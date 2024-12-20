@@ -11,6 +11,7 @@ from models.deckcard import DeckCard
 from models.card import Card
 from models.cardset import CardSet
 from models.cardtype import CardType
+from models.rating import Rating
 from schemas.deck_schema import DeckSchema
 
 deck_controller = Blueprint('deck_controller', __name__)
@@ -282,12 +283,18 @@ def filter_by_rating():
         min_rating = request.args.get('min', type=float)
         max_rating = request.args.get('max', type=float)
         
-        stmt = db.select(Deck.id)
+        # First get the average rating for each deck from the ratings relationship
+        stmt = (
+            db.select(Deck.id, func.avg(Rating.value).label('avg_rating'))
+            .join(Rating)
+            .group_by(Deck.id)
+        )
         
+        # Then apply the rating filters
         if min_rating is not None:
-            stmt = stmt.where(text(f"decks.rating >= {min_rating}"))
+            stmt = stmt.having(func.avg(Rating.value) >= min_rating)
         if max_rating is not None:
-            stmt = stmt.where(text(f"decks.rating <= {max_rating}"))
+            stmt = stmt.having(func.avg(Rating.value) <= max_rating)
             
         result = db.session.execute(stmt)
         deck_ids = [row[0] for row in result]
