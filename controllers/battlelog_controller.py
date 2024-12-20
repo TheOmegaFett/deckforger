@@ -78,7 +78,7 @@ def get_battlelog(id):
         return jsonify({
             "error": "Failed to retrieve battle log",
             "details": str(e)
-        }), 500  # Internal Server Error
+        }), 500 
 
 @battlelogs.route('/deck/<int:deck_id>', methods=['GET'])
 def get_deck_battlelogs(deck_id):
@@ -104,7 +104,7 @@ def get_deck_battlelogs(deck_id):
         return jsonify({
             "error": "Failed to retrieve deck battle logs",
             "details": str(e)
-        }), 500  # Internal Server Error
+        }), 500
 
 @battlelogs.route('/', methods=['POST'])
 def create_battlelog():
@@ -258,69 +258,7 @@ def import_battlelog(deck_id, player_name):
                                 pair = tuple(sorted([card1, card2]))
                                 card_interactions[pair] = card_interactions.get(pair, 0) + 1
 
-            if "played" in line and "to" in line:
-                card_name = line.split("played")[1].split("to")[0].strip()
-                if current_player == player_name:
-                    player_cards.add(card_name)
-                    current_turn_player_cards.append(card_name)  # Only add player's cards
-                else:
-                    opponent_cards.add(card_name)
-            elif "damage" in line:
-                try:
-                    # Track poison application
-                    if "is now Poisoned" in line:
-                        pokemon_name = line.split("'s")[1].split("is")[0].strip()
-                        owner = line.split("'s")[0].strip()
-                        poisoned_pokemon[pokemon_name] = {
-                            'owner': owner,
-                            'damage': 0
-                        }
-        
-                    # Track poison removal/recovery
-                    elif "recovered from all Special Conditions" in line or "is no longer" in line:
-                        pokemon_name = line.split("'s")[1].split("has")[0].strip()
-                        if pokemon_name in poisoned_pokemon:
-                            owner = poisoned_pokemon[pokemon_name]['owner']
-                            accumulated_damage = poisoned_pokemon[pokemon_name]['damage']
-                            if owner == player_name:
-                                damage_taken += accumulated_damage
-                            else:
-                                damage_done += accumulated_damage
-                            del poisoned_pokemon[pokemon_name]
-        
-                    elif "damage" in line and "breakdown" not in line:
-                        if "Total damage:" in line:
-                            # Extract target Pokemon's owner
-                            target_owner = line.split("'s")[0].strip()
-                
-                            damage_text = line.split("Total damage:")[1].split("damage")[0]
-                            damage_digits = ''.join(filter(str.isdigit, damage_text))
-                            if damage_digits:
-                                total_damage = int(damage_digits)
-                                # Only count damage to opponent's Pokemon as damage_done
-                                if current_player == player_name and target_owner != player_name:
-                                    damage_done += total_damage
-                                elif current_player != player_name and target_owner == player_name:
-                                    damage_taken += total_damage
-                        elif "took" in line:
-                            # This captures self-inflicted damage like Frenzied Gouging
-                            damage_text = line.split("took")[1].split("damage")[0]
-                            damage_digits = ''.join(filter(str.isdigit, damage_text))
-                            if damage_digits and current_player == player_name:
-                                damage_taken += int(damage_digits)  # Will capture 200
-
-                        # Poison damage tracking
-                        if "damage counter" in line and "Poisoned" in line:
-                            pokemon_name = line.split("'s")[1].split("for")[0].strip()
-                            owner = line.split("'s")[0].strip()
-                            if owner == player_name:
-                                damage_taken += 10  # Each counter = 10 damage
-                            else:
-                                damage_done += 10  # Poison damage we deal
-
-                except ValueError:
-                    continue
-
+            
             if current_player == player_name:
                 # Extract card names from the line
                 for card_name in deck_cards:  # Use deck_cards to check valid cards
