@@ -256,9 +256,9 @@ def filter_by_rating():
         
         # Use SQLAlchemy operators for comparisons
         if min_rating is not None:
-            stmt = stmt.where(Deck.rating.__ge__(min_rating))
+            stmt = stmt.where(Deck.rating > min_rating)
         if max_rating is not None:
-            stmt = stmt.where(Deck.rating.__le__(max_rating))
+            stmt = stmt.where(Deck.rating < max_rating)
             
         deck_ids = [id[0] for id in db.session.execute(stmt).all()]
         return jsonify(deck_ids), 200
