@@ -130,46 +130,68 @@ def remove_card_from_deck(deck_id, card_id):
         db.session.rollback()
         return jsonify({'error': 'Failed to remove card', 'details': str(e)}), 500
 
-@deckcard_controller.route('/<int:deck_id>', methods=['PUT'])
+@deckcard_controller.route('/<int:deck_id>', methods=['PATCH'])
 def update_deck_cards(deck_id):
     """
-    Update all cards in a deck.
+    Update card quantities in a deck.
     
-    Parameters:
+    Args:
         deck_id (int): ID of the deck to update
         
     Request Body:
-        cards: List of objects containing card_id and quantity
-        
+        List of objects containing:
+            card_id (int): ID of the card
+            quantity (int): New quantity for the card
+            
     Returns:
-        200: Deck cards updated successfully
-        404: Deck not found
+        200: Cards updated successfully
         400: Invalid input data
-        500: Database operation failed
+        404: Deck not found
+        500: Update operation failed
     """
     try:
         deck = db.session.get(Deck, deck_id)
         if not deck:
             return jsonify({'error': 'Deck not found'}), 404
 
-        data = request.get_json()
-        if not data or 'cards' not in data:
-            return jsonify({'error': 'Invalid input data'}), 400
+        updates = request.json
+        if not isinstance(updates, list):
+            return jsonify({'error': 'Expected list of card updates'}), 400
 
-        # Clear existing cards
-        db.session.execute(db.delete(DeckCard).filter_by(deck_id=deck_id))
+        for update in updates:
+            card_id = update.get('card_id')
+            new_quantity = update.get('quantity')
 
-        # Add new cards
-        for card_data in data['cards']:
-            new_deckcard = DeckCard(
-                deck_id=deck_id,
-                card_id=card_data['card_id'],
-                quantity=card_data['quantity']
+            if not all([card_id, isinstance(new_quantity, int)]):
+                return jsonify({'error': 'Invalid update format'}), 400
+
+            # Get or create deckcard entry
+            deckcard = db.session.scalar(
+                db.select(DeckCard)
+                .filter_by(deck_id=deck_id, card_id=card_id)
             )
-            db.session.add(new_deckcard)
+
+            if deckcard:
+                if new_quantity <= 0:
+                    db.session.delete(deckcard)
+                else:
+                    deckcard.quantity = new_quantity
+            elif new_quantity > 0:
+                deckcard = DeckCard(
+                    deck_id=deck_id,
+                    card_id=card_id,
+                    quantity=new_quantity
+                )
+                db.session.add(deckcard)
 
         db.session.commit()
         return jsonify({'message': 'Deck cards updated successfully'}), 200
+
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to update deck cards', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Failed to update deck cards',
+            'details': str(e)
+        }), 500       
+        
+        
