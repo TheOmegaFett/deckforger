@@ -172,43 +172,37 @@ def get_deckbox_decks(deckbox_id):
             'details': str(e)
         }), 500
         
-@deckbox_controller.route('/<int:deckbox_id>/decks', methods=['POST'])
-def add_deck_to_deckbox(deckbox_id):
+@deckbox_controller.route('/<int:deckbox_id>/decks/<int:deck_id>', methods=['POST'])
+def add_deck_to_deckbox(deckbox_id, deck_id):
     """
-    Add a new deck to a deck box.
+    Assign an existing deck to a deckbox.
     
     Parameters:
-        deckbox_id (int): ID of the deck box to add deck to
-        
-    Request Body:
-        name (str): Name of the new deck
-        description (str, optional): Description of the deck
-        format (str): Format of the deck
+        deckbox_id (int): ID of the target deckbox
+        deck_id (int): ID of the deck to assign
         
     Returns:
-        201: Deck added successfully
-        404: Deck box not found
+        200: Deck assigned successfully
+        404: Deckbox or deck not found
         500: Database operation failed
     """
     try:
         deckbox = db.session.get(DeckBox, deckbox_id)
         if not deckbox:
             return jsonify({'error': 'DeckBox not found'}), 404
-
-        data = request.json
-        deck = Deck(
-            name=data['name'],
-            description=data.get('description', ''),
-            format=data.get('format', 'Standard'),
-            deckbox_id=deckbox_id
-        )
-        db.session.add(deck)
+            
+        deck = db.session.get(Deck, deck_id)
+        if not deck:
+            return jsonify({'error': 'Deck not found'}), 404
+            
+        deck.deckbox_id = deckbox_id
         db.session.commit()
-        return deck_schema.jsonify(deck), 201
+        
+        return deck_schema.jsonify(deck), 200
+        
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to add deck', 'details': str(e)}), 500
-
+        return jsonify({'error': 'Failed to assign deck', 'details': str(e)}), 500
 @deckbox_controller.route('/search', methods=['GET'])
 def search_deckboxes():
     """
