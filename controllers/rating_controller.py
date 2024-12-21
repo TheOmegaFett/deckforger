@@ -185,7 +185,7 @@ def filter_decks_by_rating():
     except Exception as e:
         return jsonify({'error': 'Filter operation failed', 'details': str(e)}), 500
 
-@rating_controller.route('/ratings/<int:rating_id>', methods=['DELETE'])
+@rating_controller.route('/<int:rating_id>', methods=['DELETE'])
 def delete_rating(rating_id):
     """
     Delete a specific rating.
@@ -212,7 +212,7 @@ def delete_rating(rating_id):
         db.session.rollback()
         return jsonify({'error': 'Failed to delete rating', 'details': str(e)}), 500
 
-@rating_controller.route('/ratings/<int:rating_id>', methods=['PATCH'])
+@rating_controller.route('/<int:rating_id>', methods=['PATCH'])
 def update_rating(rating_id):
     """
     Update specific fields of a rating.
