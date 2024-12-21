@@ -28,7 +28,7 @@ class DeckCard(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
     # Relationships
-    deck = db.relationship('Deck')
+    deck = db.relationship('Deck', back_populates='deck_cards', overlaps="deck")
     
     def __repr__(self):
         """String representation of the DeckCard."""

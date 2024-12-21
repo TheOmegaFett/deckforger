@@ -32,7 +32,7 @@ class Card(db.Model):
     
     # Relationships
     cardtype = db.relationship('CardType', back_populates='cards')
-    cardset = db.relationship('CardSet')
+    cardset = db.relationship('CardSet', back_populates='cards', overlaps="cards")
     deck_cards = db.relationship('DeckCard', backref='card')
     decks = db.relationship('Deck',
                           secondary='deckcards',

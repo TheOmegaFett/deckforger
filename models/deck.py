@@ -27,7 +27,7 @@ class Deck(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=db.func.current_timestamp())
 
     # Relationships
-    deck_cards = db.relationship('DeckCard')
+    deck_cards = db.relationship('DeckCard', back_populates='deck', overlaps="deck_cards")
     deckbox = db.relationship('DeckBox', back_populates='decks')
     rating = db.relationship('Rating', back_populates='deck', lazy='dynamic')
     battlelogs = db.relationship('Battlelog', back_populates='deck')

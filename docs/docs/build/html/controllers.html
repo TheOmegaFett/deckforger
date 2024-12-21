@@ -818,6 +818,25 @@ name (str): Filter by deck name</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="controllers.deckbox_controller.get_deckbox_decks">
+<span class="sig-prename descclassname"><span class="pre">controllers.deckbox_controller.</span></span><span class="sig-name descname"><span class="pre">get_deckbox_decks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deckbox_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deckbox_controller.html#get_deckbox_decks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deckbox_controller.get_deckbox_decks" title="Link to this definition">¶</a></dt>
+<dd><p>Get all decks in a deckbox, excluding battlelog data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>deckbox_id</strong> (<em>int</em>) – ID of the deckbox</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of decks with core data only
+404: Deckbox not found
+500: Query failed</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="controllers.deckbox_controller.read_all_deckboxes">
 <span class="sig-prename descclassname"><span class="pre">controllers.deckbox_controller.</span></span><span class="sig-name descname"><span class="pre">read_all_deckboxes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deckbox_controller.html#read_all_deckboxes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deckbox_controller.read_all_deckboxes" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve all deck boxes.</p>
@@ -871,25 +890,6 @@ name (str): Filter by deck name</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="controllers.deckbox_controller.show_decks_in_deckbox">
-<span class="sig-prename descclassname"><span class="pre">controllers.deckbox_controller.</span></span><span class="sig-name descname"><span class="pre">show_decks_in_deckbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deckbox_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deckbox_controller.html#show_decks_in_deckbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deckbox_controller.show_decks_in_deckbox" title="Link to this definition">¶</a></dt>
-<dd><p>List all decks in a specific deck box.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>deckbox_id</strong> (<em>int</em>) – ID of the deck box to list decks from</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of decks in the deck box
-404: Deck box not found
-500: Database query failed</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>200</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="controllers.deckbox_controller.update_deckbox">
 <span class="sig-prename descclassname"><span class="pre">controllers.deckbox_controller.</span></span><span class="sig-name descname"><span class="pre">update_deckbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deckbox_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deckbox_controller.html#update_deckbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deckbox_controller.update_deckbox" title="Link to this definition">¶</a></dt>
 <dd><p>Update specific properties of a deck box.</p>
@@ -921,6 +921,25 @@ description (str, optional): New description</p>
 <h2>CardType Controller<a class="headerlink" href="#cardtype-controller" title="Link to this heading">¶</a></h2>
 <blockquote>
 <div><p id="module-controllers.cardtype_controller">Controller for managing Pokemon TCG card type operations</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.cardtype_controller.delete_cardtype">
+<span class="sig-prename descclassname"><span class="pre">controllers.cardtype_controller.</span></span><span class="sig-name descname"><span class="pre">delete_cardtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cardtype_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardtype_controller.html#delete_cardtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardtype_controller.delete_cardtype" title="Link to this definition">¶</a></dt>
+<dd><p>Delete a specific card type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cardtype_id</strong> (<em>int</em>) – ID of the card type to delete</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Card type deleted successfully
+404: Card type not found
+500: Database operation failed</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.cardtype_controller.get_all_types">
 <span class="sig-prename descclassname"><span class="pre">controllers.cardtype_controller.</span></span><span class="sig-name descname"><span class="pre">get_all_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardtype_controller.html#get_all_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardtype_controller.get_all_types" title="Link to this definition">¶</a></dt>
@@ -1005,6 +1024,32 @@ occurrences in deck compositions.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.cardtype_controller.update_cardtype">
+<span class="sig-prename descclassname"><span class="pre">controllers.cardtype_controller.</span></span><span class="sig-name descname"><span class="pre">update_cardtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cardtype_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardtype_controller.html#update_cardtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardtype_controller.update_cardtype" title="Link to this definition">¶</a></dt>
+<dd><p>Update specific fields of a card type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cardtype_id</strong> (<em>int</em>) – ID of the card type to update</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Request Body:</dt><dd><p>name (str, optional): New type name
+description (str, optional): New type description</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Card type updated successfully
+404: Card type not found
+500: Database operation failed</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div></blockquote>
 </section>
 <section id="cardset-controller">
@@ -1036,20 +1081,7 @@ description (str): Description of the set</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.cardset_controller.delete_set">
 <span class="sig-prename descclassname"><span class="pre">controllers.cardset_controller.</span></span><span class="sig-name descname"><span class="pre">delete_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cardset_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardset_controller.html#delete_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardset_controller.delete_set" title="Link to this definition">¶</a></dt>
-<dd><p>Delete a specific Pokemon card set.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cardset_id</strong> (<em>int</em>) – ID of the set to delete</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Set deleted successfully
-404: Set not found</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>200</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.cardset_controller.get_all_sets">
