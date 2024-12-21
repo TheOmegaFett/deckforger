@@ -146,4 +146,6 @@ def get_type_distribution():
         return jsonify({
             'error': 'Failed to calculate type distribution',
             'details': str(e)
-        }), 500        return jsonify({'error': 'Failed to calculate type distribution', 'details': str(e)}), 500
+        }), 500    
+        
+        
