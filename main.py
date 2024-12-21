@@ -14,6 +14,7 @@ from controllers.cardset_controller import cardset_controller
 from controllers.format_controller import format_controller
 from controllers.cardtype_controller import cardtype_controller
 from controllers.battlelog_controller import battlelogs
+from controllers.rating_controller import rating_controller
 
 def create_app():
     """
@@ -45,5 +46,6 @@ def create_app():
     app.register_blueprint(format_controller, url_prefix='/api/formats')
     app.register_blueprint(cardtype_controller, url_prefix='/api/cardtypes')
     app.register_blueprint(battlelogs, url_prefix='/api/battlelogs')
+    app.register_blueprint(rating_controller, url_prefix='/api/ratings')
     
     return app
