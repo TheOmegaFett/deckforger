@@ -27,5 +27,6 @@ class CardSet(db.Model):
     cards = db.relationship('Card', back_populates='cardset', 
                             overlaps="cardset",
                             cascade='all, delete-orphan')
+    
     def __repr__(self):
         return f'<Set {self.name}>'

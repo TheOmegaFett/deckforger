@@ -36,7 +36,7 @@ class Card(db.Model):
     deck_cards = db.relationship('DeckCard', backref='card')
     decks = db.relationship('Deck',
                           secondary='deckcards',
-                          viewonly=True,  # Make it read-only since DeckCard manages the relationship
+                          viewonly=True,
                           backref=db.backref('card_collection', viewonly=True))
 
     def __repr__(self):
