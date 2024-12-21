@@ -23,9 +23,7 @@ class CardSet(db.Model):
     description = db.Column(db.Text, nullable=True)
 
     # Relationships
-    cards = db.relationship('Card', 
-                          backref='cardset',
-                          cascade='all, delete-orphan')
+    cards = db.relationship('Card')
 
     def __repr__(self):
         return f'<Set {self.name}>'
