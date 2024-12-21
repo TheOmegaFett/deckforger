@@ -132,7 +132,9 @@ def update_format(format_id):
         
         db.session.commit()
         
-        return jsonify(FormatSchema.dump(format)), 200
+   
+        result = FormatSchema().dump(obj=format)
+        return jsonify(result), 200
         
     except Exception as e:
         db.session.rollback()
