@@ -35,7 +35,7 @@ class Card(db.Model):
     cardset = db.relationship('CardSet', back_populates='cards')
     deck_cards = db.relationship('DeckCard', back_populates='card')
     decks = db.relationship('Deck',
-                        secondary='deck_cards',
+                        secondary='DeckCard',
                         backref='cards')
 
     def __repr__(self):
