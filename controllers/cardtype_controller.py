@@ -1,6 +1,6 @@
 '''Controller for managing Pokemon TCG card type operations'''
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from sqlalchemy import desc, func, text
 from init import db
 from models.cardtype import CardType
@@ -149,3 +149,66 @@ def get_type_distribution():
         }), 500    
         
         
+@cardtype_controller.route('/<int:cardtype_id>', methods=['PATCH'])
+def update_cardtype(cardtype_id):
+    """
+    Update specific fields of a card type.
+    
+    Parameters:
+        cardtype_id (int): ID of the card type to update
+        
+    Request Body:
+        name (str, optional): New type name
+        description (str, optional): New type description
+        
+    Returns:
+        200: Card type updated successfully
+        404: Card type not found
+        500: Database operation failed
+    """
+    try:
+        cardtype = db.session.get(CardType, cardtype_id)
+        if not cardtype:
+            return jsonify({'error': 'Card type not found'}), 404
+
+        data = request.json
+        
+        # Update fields that are provided
+        if 'name' in data:
+            cardtype.name = data['name']
+        if 'description' in data:
+            cardtype.description = data['description']
+            
+        db.session.commit()
+        return cardtype_schema.jsonify(cardtype), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update card type', 'details': str(e)}), 500
+
+@cardtype_controller.route('/<int:cardtype_id>', methods=['DELETE'])
+def delete_cardtype(cardtype_id):
+    """
+    Delete a specific card type.
+    
+    Parameters:
+        cardtype_id (int): ID of the card type to delete
+        
+    Returns:
+        200: Card type deleted successfully
+        404: Card type not found
+        500: Database operation failed
+    """
+    try:
+        cardtype = db.session.get(CardType, cardtype_id)
+        if not cardtype:
+            return jsonify({'error': 'Card type not found'}), 404
+            
+        db.session.delete(cardtype)
+        db.session.commit()
+        
+        return jsonify({'message': 'Card type deleted successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete card type', 'details': str(e)}), 500
