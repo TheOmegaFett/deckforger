@@ -34,7 +34,10 @@ class Card(db.Model):
     cardtype = db.relationship('CardType', back_populates='cards')
     cardset = db.relationship('CardSet', back_populates='cards')
     deck_cards = db.relationship('DeckCard', back_populates='card')
-    
+    decks = db.relationship('Deck',
+                        secondary='deck_cards',
+                        backref='cards')
+
     def __repr__(self):
         """String representation of the Card object"""
         return f'<Card {self.name}>'
