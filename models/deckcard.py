@@ -29,7 +29,6 @@ class DeckCard(db.Model):
 
     # Relationships
     deck = db.relationship('Deck', back_populates='deck_cards')
-    card = db.relationship('Card', back_populates='deck_cards')
     
     def __repr__(self):
         """String representation of the DeckCard."""

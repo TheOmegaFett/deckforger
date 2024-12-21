@@ -22,8 +22,7 @@ class Card(db.Model):
     """
     
     __tablename__ = 'cards'
-
-    # Primary and foreign key columns
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     cardtype_id = db.Column(db.Integer, db.ForeignKey('card_types.id'), nullable=False)
@@ -34,11 +33,6 @@ class Card(db.Model):
     cardtype = db.relationship('CardType', back_populates='cards')
     cardset = db.relationship('CardSet', back_populates='cards')
     deck_cards = db.relationship('DeckCard', back_populates='card')
-    decks = db.relationship('Deck',
-                          secondary='deckcards',  # Use table name as string
-                          viewonly=True,  # Make it read-only since DeckCard manages the relationship
-                          backref=db.backref('card_collection', viewonly=True))
-
     def __repr__(self):
         """String representation of the Card object"""
         return f'<Card {self.name}>'

@@ -7,6 +7,7 @@ from init import db
 from models.cardset import CardSet
 from models.card import Card
 from models.cardtype import CardType
+from models.deckcard import DeckCard
 from schemas.cardset_schema import cardset_schema, cardsets_schema
 
 cardset_controller = Blueprint('cardsets', __name__, url_prefix='/cardsets')
@@ -149,23 +150,24 @@ def update_cardset(cardset_id):
 
 @cardset_controller.route('/<int:cardset_id>', methods=['DELETE'])
 def delete_set(cardset_id):
-    """
-    Delete a specific Pokemon card set.
-    
-    Parameters:
-        cardset_id (int): ID of the set to delete
-        
-    Returns:
-        200: Set deleted successfully
-        404: Set not found
-    """
-    set_ = db.session.get(CardSet, cardset_id)
-    if not set_:
-        return jsonify({'error': 'Set not found'}), 404
+    try:
+        cardset = db.session.get(CardSet, cardset_id)
+        if not cardset:
+            return jsonify({'error': 'Set not found'}), 404
 
-    db.session.delete(set_)
-    db.session.commit()
-    return jsonify({'message': 'Set deleted successfully!'})
+        # Delete all DeckCard associations first
+        for card in cardset.cards:
+            DeckCard.query.filter_by(card_id=card.id).delete()
+        
+        # Now we can safely delete the cards and cardset
+        db.session.delete(cardset)
+        db.session.commit()
+        
+        return jsonify({'message': 'Set deleted successfully!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete set', 'details': str(e)}), 500
 
 @cardset_controller.route('/search/<string:name>', methods=['GET'])
 def search_by_name(name):
