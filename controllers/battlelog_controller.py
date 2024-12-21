@@ -69,16 +69,20 @@ def get_battlelog(id):
         404: If battlelog not found
         500: Error response if retrieval fails
     """
-
     try:
         stmt = db.select(Battlelog).where(Battlelog.id == id)
-        battlelog = db.session.execute(stmt).scalar_one_or_404()
-        return jsonify(battlelog_schema.dump(battlelog)), 200  # OK
+        battlelog = db.session.execute(stmt).scalar_one_or_none()
+        
+        if not battlelog:
+            return jsonify({"error": "Battle log not found"}), 404
+            
+        return jsonify(battlelog_schema.dump(battlelog)), 200
+        
     except Exception as e:
         return jsonify({
             "error": "Failed to retrieve battle log",
             "details": str(e)
-        }), 500 
+        }), 500
 
 @battlelogs.route('/deck/<int:deck_id>', methods=['GET'])
 def get_deck_battlelogs(deck_id):
