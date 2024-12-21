@@ -212,3 +212,31 @@ def delete_cardtype(cardtype_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to delete card type', 'details': str(e)}), 500
+
+@cardtype_controller.route('/<int:cardtype_id>', methods=['GET'])
+def get_cardtype(cardtype_id):
+    """
+    Retrieve a specific card type by ID.
+    
+    Parameters:
+        cardtype_id (int): ID of the card type to retrieve
+        
+    Returns:
+        200: Card type details
+        404: Card type not found
+        500: Database query failed
+    """
+    try:
+        stmt = db.select(CardType).filter_by(id=cardtype_id)
+        cardtype = db.session.scalar(stmt)
+        
+        if not cardtype:
+            return jsonify({'error': 'Card type not found'}), 404
+            
+        return cardtype_schema.dump(cardtype), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to retrieve card type',
+            'details': str(e)
+        }), 500
