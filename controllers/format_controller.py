@@ -2,15 +2,9 @@
 
 from datetime import datetime
 from flask import Blueprint, jsonify, request
-from marshmallow import ValidationError, validates
-from models import card
-from models.card import Card
-from models.cardset import CardSet
-from models.deck import Deck
-from models.deckcard import DeckCard
 from models.format import Format
 from init import db
-from schemas import format_schema
+from schemas.format_schema import FormatSchema
 
 format_controller = Blueprint('formats', __name__)
 
@@ -138,7 +132,7 @@ def update_format(format_id):
         
         db.session.commit()
         
-        return jsonify(format_schema.dump(format)), 200
+        return jsonify(FormatSchema.dump(format)), 200
         
     except Exception as e:
         db.session.rollback()
