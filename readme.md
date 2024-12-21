@@ -4,11 +4,64 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 
 ## Features
 
-- Deck Management (Create, store, and organize Pokemon TCG decks)
-- Format Validation (Standard, Expanded, Unlimited)
-- Card Database (Search and manage Pokemon cards)
-- Deck Box Organization
-- Deck Rating System
+### Deck Management
+
+- Create, update, and organize Pokemon TCG decks
+- Import decks from TCG Live format
+- Export decks to various formats (TCG Live, JSON)
+- Filter decks by multiple criteria
+- Rate and review decks
+- Track deck performance metrics
+
+### Format System
+
+- Standard, Expanded, Unlimited format validation
+- Extended format support
+- Format-specific card legality (Planned)
+- Format-specific set legality (Planned)
+- Custom format creation
+- Format-specific card legality checks
+
+### Card Database
+
+- Comprehensive card search
+- Filter by type, set, and attributes
+- Card relationship tracking
+- Card usage statistics
+- Set management
+
+### Deck Box Organization
+
+- Create themed deck collections
+- Organize decks by format
+- Group decks by strategy
+- Track deck modifications
+- Manage deck versions
+
+### Battle Analytics
+
+- Import battle logs
+- Track win/loss statistics
+- Analyze damage output
+- Identify card synergies
+- Monitor deck performance
+- Calculate usage patterns
+
+### Rating System
+
+- Deck rating and reviews
+- Community feedback
+- Performance-based metrics
+- Historical rating tracking
+- Top deck rankings
+
+### Statistical Analysis
+
+- Card distribution reports
+- Type popularity metrics
+- Set composition analysis
+- Format usage statistics
+- Performance trending
 
 ## Tech Stack
 
@@ -194,6 +247,29 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 - GET /api/ratings/{rating_id} - Get specific rating
 - PATCH /api/ratings/{rating_id} - Update rating
 - DELETE /api/ratings/{rating_id} - Delete rating
+
+### Battle Logs
+
+Track and analyze Pokemon TCG battle performance with detailed statistics and insights.
+
+- GET /api/battlelogs/ - List all battle logs (paginated)
+- GET /api/battlelogs/{id} - Get specific battle log
+- GET /api/battlelogs/deck/{deck_id} - Get all logs for a deck
+- GET /api/battlelogs/stats/{deck_id} - Get deck performance statistics
+- POST /api/battlelogs/import/{deck_id}/{player_name} - Import battle log
+
+#### Example Usage
+
+```bash
+# Import a battle log
+POST /api/battlelogs/import/1/PlayerName
+Content-Type: text/plain
+
+[Raw battle log text]
+
+# Get deck statistics
+GET /api/battlelogs/stats/1
+```
 
 ## Database Schema
 
