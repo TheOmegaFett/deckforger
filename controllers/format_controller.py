@@ -10,6 +10,7 @@ from models.deck import Deck
 from models.deckcard import DeckCard
 from models.format import Format
 from init import db
+from schemas import format_schema
 
 format_controller = Blueprint('formats', __name__)
 
@@ -89,23 +90,25 @@ def create_format():
         db.session.rollback()
         return jsonify({'error': 'Failed to create format', 'details': str(e)}), 500
 
-@format_controller.route('/<int:format_id>', methods=['PUT'])
+@format_controller.route('/<int:format_id>', methods=['PATCH'])
 def update_format(format_id):
     """
-    Update a specific format.
+    Update specific fields of a format.
     
-    Parameters:
+    Args:
         format_id (int): ID of the format to update
         
     Request Body:
-        name (str, optional): New name for the format
-        description (str, optional): New description
-        
+        JSON object containing any of:
+            name (str): New format name
+            description (str): New format description
+            start_date (str): Format start date (YYYY-MM-DD)
+            
     Returns:
-        200: Format updated successfully
+        200: Updated format data
         404: Format not found
         409: Format name already exists
-        500: Database operation failed
+        500: Update operation failed
     """
     try:
         format = db.session.get(Format, format_id)
@@ -114,22 +117,33 @@ def update_format(format_id):
         
         data = request.get_json()
         
+        # Update each field if provided
         if 'name' in data:
-            stmt = db.select(Format).filter_by(name=data['name'])
-            existing_format = db.session.scalar(stmt)
-            if existing_format and existing_format.id != format_id:
+            # Check name uniqueness excluding current format
+            existing = db.session.scalar(
+                db.select(Format)
+                .where(Format.name == data['name'])
+                .where(Format.id != format_id)
+            )
+            if existing:
                 return jsonify({'error': 'Format name already exists'}), 409
-        
-        for field in ['name', 'description']:
-            if field in data:
-                setattr(format, field, data[field])
+            format.name = data['name']
+            
+        if 'description' in data:
+            format.description = data['description']
+            
+        if 'start_date' in data:
+            format.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
         
         db.session.commit()
-        return jsonify(format.to_dict()), 200
+        return jsonify(format_schema.dump(format)), 200
+        
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to update format', 'details': str(e)}), 500
-
+        return jsonify({
+            'error': 'Failed to update format',
+            'details': str(e)
+        }), 500
 @format_controller.route('/<int:format_id>', methods=['DELETE'])
 def delete_format(format_id):
     """
