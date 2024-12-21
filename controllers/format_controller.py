@@ -90,6 +90,9 @@ def create_format():
         db.session.rollback()
         return jsonify({'error': 'Failed to create format', 'details': str(e)}), 500
 
+from datetime import datetime
+from flask import current_app
+
 @format_controller.route('/<int:format_id>', methods=['PATCH'])
 def update_format(format_id):
     """
@@ -116,6 +119,7 @@ def update_format(format_id):
             return jsonify({'error': 'Format not found'}), 404
         
         data = request.get_json()
+        current_app.logger.info(f"Updating format {format_id} with data: {data}")
         
         # Update each field if provided
         if 'name' in data:
@@ -127,19 +131,30 @@ def update_format(format_id):
             )
             if existing:
                 return jsonify({'error': 'Format name already exists'}), 409
+            current_app.logger.info(f"Updating name from {format.name} to {data['name']}")
             format.name = data['name']
             
         if 'description' in data:
+            current_app.logger.info(f"Updating description from {format.description} to {data['description']}")
             format.description = data['description']
             
         if 'start_date' in data:
-            format.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+            new_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+            current_app.logger.info(f"Updating start_date from {format.start_date} to {new_date}")
+            format.start_date = new_date
         
         db.session.commit()
-        return jsonify(format_schema.dump(format)), 200
+        
+        # Refresh the format object after commit
+        db.session.refresh(format)
+        result = format_schema.dump(format)
+        current_app.logger.info(f"Updated format result: {result}")
+        
+        return jsonify(result), 200
         
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Update failed: {str(e)}")
         return jsonify({
             'error': 'Failed to update format',
             'details': str(e)
