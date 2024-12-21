@@ -30,13 +30,14 @@ class Card(db.Model):
     cardset_id = db.Column(db.Integer, db.ForeignKey('cardsets.id'), nullable=False)
     card_number = db.Column(db.String(20), nullable=True)
     
-    # Relationships to other models
+    # Relationships
     cardtype = db.relationship('CardType', back_populates='cards')
     cardset = db.relationship('CardSet', back_populates='cards')
     deck_cards = db.relationship('DeckCard', back_populates='card')
     decks = db.relationship('Deck',
-                        secondary='DeckCard',
-                        backref='cards')
+                          secondary='deckcards',  # Use table name as string
+                          viewonly=True,  # Make it read-only since DeckCard manages the relationship
+                          backref=db.backref('card_collection', viewonly=True))
 
     def __repr__(self):
         """String representation of the Card object"""
