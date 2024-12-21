@@ -1231,23 +1231,27 @@ description (str): Description of format rules</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.format_controller.update_format">
 <span class="sig-prename descclassname"><span class="pre">controllers.format_controller.</span></span><span class="sig-name descname"><span class="pre">update_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/format_controller.html#update_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.format_controller.update_format" title="Link to this definition">¶</a></dt>
-<dd><p>Update a specific format.</p>
+<dd><p>Update specific fields of a format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>format_id</strong> (<em>int</em>) – ID of the format to update</p>
 </dd>
 </dl>
 <dl class="simple">
-<dt>Request Body:</dt><dd><p>name (str, optional): New name for the format
-description (str, optional): New description</p>
+<dt>Request Body:</dt><dd><dl class="simple">
+<dt>JSON object containing any of:</dt><dd><p>name (str): New format name
+description (str): New format description
+start_date (str): Format start date (YYYY-MM-DD)</p>
+</dd>
+</dl>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Format updated successfully
+<dd class="field-odd"><p>Updated format data
 404: Format not found
 409: Format name already exists
-500: Database operation failed</p>
+500: Update operation failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>200</p>

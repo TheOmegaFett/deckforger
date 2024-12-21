@@ -77,6 +77,8 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 
 ## API Endpoints
 
+[API Documentation](docs\docs\build\html\index.html)
+
 ### CLI Operations
 
 - POST /run/create - Create database tables

@@ -107,16 +107,20 @@
 <span class="sd">        404: If battlelog not found</span>
 <span class="sd">        500: Error response if retrieval fails</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">try</span><span class="p">:</span>
         <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Battlelog</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Battlelog</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="nb">id</span><span class="p">)</span>
-        <span class="n">battlelog</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">scalar_one_or_404</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">battlelog_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">battlelog</span><span class="p">)),</span> <span class="mi">200</span>  <span class="c1"># OK</span>
+        <span class="n">battlelog</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">battlelog</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Battle log not found&quot;</span><span class="p">}),</span> <span class="mi">404</span>
+            
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">battlelog_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">battlelog</span><span class="p">)),</span> <span class="mi">200</span>
+        
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
             <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to retrieve battle log&quot;</span><span class="p">,</span>
             <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="p">}),</span> <span class="mi">500</span> </div>
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 
 <div class="viewcode-block" id="get_deck_battlelogs">

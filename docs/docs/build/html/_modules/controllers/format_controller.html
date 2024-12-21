@@ -43,6 +43,7 @@
 <span class="kn">from</span> <span class="nn">models.deckcard</span> <span class="kn">import</span> <span class="n">DeckCard</span>
 <span class="kn">from</span> <span class="nn">models.format</span> <span class="kn">import</span> <span class="n">Format</span>
 <span class="kn">from</span> <span class="nn">init</span> <span class="kn">import</span> <span class="n">db</span>
+<span class="kn">from</span> <span class="nn">schemas</span> <span class="kn">import</span> <span class="n">format_schema</span>
 
 <span class="n">format_controller</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;formats&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
 
@@ -131,25 +132,30 @@
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to create format&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">current_app</span>
+
 <div class="viewcode-block" id="update_format">
 <a class="viewcode-back" href="../../controllers.html#controllers.format_controller.update_format">[docs]</a>
-<span class="nd">@format_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:format_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUT&#39;</span><span class="p">])</span>
+<span class="nd">@format_controller</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;int:format_id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PATCH&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">update_format</span><span class="p">(</span><span class="n">format_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update a specific format.</span>
+<span class="sd">    Update specific fields of a format.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        format_id (int): ID of the format to update</span>
 <span class="sd">        </span>
 <span class="sd">    Request Body:</span>
-<span class="sd">        name (str, optional): New name for the format</span>
-<span class="sd">        description (str, optional): New description</span>
-<span class="sd">        </span>
+<span class="sd">        JSON object containing any of:</span>
+<span class="sd">            name (str): New format name</span>
+<span class="sd">            description (str): New format description</span>
+<span class="sd">            start_date (str): Format start date (YYYY-MM-DD)</span>
+<span class="sd">            </span>
 <span class="sd">    Returns:</span>
-<span class="sd">        200: Format updated successfully</span>
+<span class="sd">        200: Updated format data</span>
 <span class="sd">        404: Format not found</span>
 <span class="sd">        409: Format name already exists</span>
-<span class="sd">        500: Database operation failed</span>
+<span class="sd">        500: Update operation failed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="nb">format</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Format</span><span class="p">,</span> <span class="n">format_id</span><span class="p">)</span>
@@ -157,23 +163,46 @@
             <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Format not found&#39;</span><span class="p">}),</span> <span class="mi">404</span>
         
         <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+        <span class="n">current_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating format </span><span class="si">{</span><span class="n">format_id</span><span class="si">}</span><span class="s2"> with data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
+        <span class="c1"># Update each field if provided</span>
         <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">stmt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Format</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
-            <span class="n">existing_format</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">existing_format</span> <span class="ow">and</span> <span class="n">existing_format</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">format_id</span><span class="p">:</span>
+            <span class="c1"># Check name uniqueness excluding current format</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Format</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Format</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Format</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">format_id</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Format name already exists&#39;</span><span class="p">}),</span> <span class="mi">409</span>
-        
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                <span class="nb">setattr</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+            <span class="n">current_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating name from </span><span class="si">{</span><span class="nb">format</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">format</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;description&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">current_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating description from </span><span class="si">{</span><span class="nb">format</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">format</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;start_date&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">new_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">],</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">current_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating start_date from </span><span class="si">{</span><span class="nb">format</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">new_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">format</span><span class="o">.</span><span class="n">start_date</span> <span class="o">=</span> <span class="n">new_date</span>
         
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="nb">format</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()),</span> <span class="mi">200</span>
+        
+        <span class="c1"># Refresh the format object after commit</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">format_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span>
+        <span class="n">current_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated format result: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="mi">200</span>
+        
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to update format&#39;</span><span class="p">,</span> <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
-
+        <span class="n">current_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Update failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Failed to update format&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;details&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">500</span></div>
 
 <div class="viewcode-block" id="delete_format">
 <a class="viewcode-back" href="../../controllers.html#controllers.format_controller.delete_format">[docs]</a>
