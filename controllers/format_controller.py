@@ -142,6 +142,7 @@ def update_format(format_id):
             'error': 'Failed to update format',
             'details': str(e)
         }), 500
+        
 @format_controller.route('/<int:format_id>', methods=['DELETE'])
 def delete_format(format_id):
     """

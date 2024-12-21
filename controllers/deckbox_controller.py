@@ -1,13 +1,13 @@
 '''Controller for managing Pokemon TCG deck box operations'''
 
 from flask import Blueprint, request, jsonify
-from marshmallow import ValidationError, validates
 from init import db
 from models.deckbox import DeckBox
 from models.deck import Deck
 from models.format import Format
 from schemas.deckbox_schema import DeckBoxSchema
 from schemas.deck_schema import DeckSchema
+from sqlalchemy.orm import noload
 
 # Blueprint and Schema Setup
 deckbox_controller = Blueprint('deckbox_controller', __name__)
@@ -140,26 +140,38 @@ def delete_deckbox(deckbox_id):
         return jsonify({'error': 'Failed to delete deckbox', 'details': str(e)}), 500
 
 @deckbox_controller.route('/<int:deckbox_id>/decks', methods=['GET'])
-def show_decks_in_deckbox(deckbox_id):
+def get_deckbox_decks(deckbox_id):
     """
-    List all decks in a specific deck box.
+    Get all decks in a deckbox, excluding battlelog data.
     
-    Parameters:
-        deckbox_id (int): ID of the deck box to list decks from
+    Args:
+        deckbox_id (int): ID of the deckbox
         
     Returns:
-        200: List of decks in the deck box
-        404: Deck box not found
-        500: Database query failed
+        200: List of decks with core data only
+        404: Deckbox not found
+        500: Query failed
     """
     try:
         deckbox = db.session.get(DeckBox, deckbox_id)
         if not deckbox:
-            return jsonify({'error': 'DeckBox not found'}), 404
-        return decks_schema.jsonify(deckbox.decks), 200
+            return jsonify({'error': 'Deckbox not found'}), 404
+            
+        # Use schema with specific fields
+        decks = db.session.scalars(
+            db.select(Deck)
+            .filter_by(deckbox_id=deckbox_id)
+            .options(noload(Deck.battlelogs))
+        ).all()
+        
+        return jsonify(decks_schema.dump(decks)), 200
+        
     except Exception as e:
-        return jsonify({'error': 'Failed to retrieve decks', 'details': str(e)}), 500
-
+        return jsonify({
+            'error': 'Failed to retrieve deckbox decks',
+            'details': str(e)
+        }), 500
+        
 @deckbox_controller.route('/<int:deckbox_id>/decks', methods=['POST'])
 def add_deck_to_deckbox(deckbox_id):
     """
