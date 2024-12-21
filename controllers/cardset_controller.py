@@ -130,7 +130,6 @@ def update_cardset(cardset_id):
 
         update_data = request.json
         
-        # Only update fields that are provided
         if 'name' in update_data:
             cardset.name = update_data['name']
         if 'code' in update_data:
@@ -155,11 +154,10 @@ def delete_set(cardset_id):
         if not cardset:
             return jsonify({'error': 'Set not found'}), 404
 
-        # Delete all DeckCard associations first
+        
         for card in cardset.cards:
             DeckCard.query.filter_by(card_id=card.id).delete()
         
-        # Now we can safely delete the cards and cardset
         db.session.delete(cardset)
         db.session.commit()
         

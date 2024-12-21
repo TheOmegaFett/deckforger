@@ -35,6 +35,7 @@ class DeckSchema(ma.SQLAlchemySchema):
     deckbox = ma.Nested('DeckBoxSchema', only=['id', 'name'])
     ratings = ma.Nested('RatingSchema', many=True)
     battlelogs = ma.Nested('BattlelogSchema', many=True)
+    deck_cards = ma.Nested('DeckCardSchema', many=True)
 
 deck_schema = DeckSchema()
 decks_schema = DeckSchema(many=True)
