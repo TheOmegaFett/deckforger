@@ -256,3 +256,43 @@ def update_rating(rating_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to update rating', 'details': str(e)}), 500
+
+@rating_controller.route('/', methods=['GET'])
+def get_all_ratings():
+    """
+    Get all ratings with pagination.
+    
+    Query Parameters:
+        page (int): Page number (default: 1)
+        per_page (int): Items per page (default: 10)
+        
+    Returns:
+        200: List of ratings with pagination metadata
+        500: Query failed
+    """
+    try:
+        # Get pagination parameters from query string
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        # Create paginated query
+        pagination = db.paginate(
+            db.select(Rating).order_by(Rating.id),
+            page=page,
+            per_page=per_page
+        )
+        
+        return jsonify({
+            "ratings": ratings_schema.dump(pagination.items),
+            "pagination": {
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": page,
+                "per_page": per_page,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to retrieve ratings', 'details': str(e)}), 500
