@@ -181,11 +181,13 @@ def validate_deck_rules(deck_id):
 @deck_controller.route('/search', methods=['GET'])
 def search_decks():
     """
-    Search and filter decks by format and rating.
+    Search and filter decks by various criteria.
     
     Query Parameters:
-        format (str): Format name (standard, expanded)
-        rating (int): Minimum rating threshold
+        name (str): Search by deck name pattern
+        format_id (int): Filter by format
+        min_rating (float): Minimum average rating
+        cards (list): Filter by card IDs present
         
     Returns:
         200: List of matching decks
@@ -194,13 +196,22 @@ def search_decks():
     try:
         stmt = db.select(Deck)
         
-        if format_name := request.args.get('format'):
-            stmt = stmt.filter(Deck.format_id == format_name)
-        if rating := request.args.get('rating'):
-            stmt = stmt.filter(Deck.rating >= rating)
+        # Apply name filter if provided
+        if name := request.args.get('name'):
+            stmt = stmt.filter(Deck.name.ilike(f'%{name}%'))
+            
+        # Filter by format
+        if format_id := request.args.get('format_id', type=int):
+            stmt = stmt.filter(Deck.format_id == format_id)
+            
+        # Filter by minimum rating
+        if min_rating := request.args.get('min_rating', type=float):
+            stmt = stmt.join(Rating).group_by(Deck.id)\
+                      .having(func.avg(Rating.score) >= min_rating)
             
         decks = db.session.scalars(stmt).all()
-        return decks_schema.jsonify(decks), 200
+        return decks_schema.dump(decks), 200
+        
     except Exception as e:
         return jsonify({'error': 'Search failed', 'details': str(e)}), 500
 
