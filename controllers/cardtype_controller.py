@@ -122,13 +122,18 @@ def get_type_distribution():
         500: Distribution calculation failed
     """
     try:
-        stmt = db.select(
-            CardType.name,
-            CardSet.name.label('set_name'),
-            func.count(Card.id).label('card_count')
-        ).\
-        join(Card).join(CardSet).\
-        group_by(CardType.name, CardSet.name)
+        stmt = (
+            db.select(
+                CardType.name,
+                CardSet.name.label('set_name'),
+                func.count(Card.id).label('card_count')
+            )
+            .select_from(CardType)
+            .join(Card, Card.cardtype_id == CardType.id)
+            .join(CardSet, Card.cardset_id == CardSet.id)
+            .group_by(CardType.name, CardSet.name)
+            .order_by(CardSet.name, CardType.name)
+        )
         
         distribution = db.session.execute(stmt).all()
         return jsonify([{
@@ -136,5 +141,9 @@ def get_type_distribution():
             'set': d.set_name,
             'count': d.card_count
         } for d in distribution]), 200
+        
     except Exception as e:
-        return jsonify({'error': 'Failed to calculate type distribution', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Failed to calculate type distribution',
+            'details': str(e)
+        }), 500        return jsonify({'error': 'Failed to calculate type distribution', 'details': str(e)}), 500
