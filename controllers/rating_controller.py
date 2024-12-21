@@ -184,3 +184,75 @@ def filter_decks_by_rating():
         } for result in results]), 200
     except Exception as e:
         return jsonify({'error': 'Filter operation failed', 'details': str(e)}), 500
+
+@rating_controller.route('/ratings/<int:rating_id>', methods=['DELETE'])
+def delete_rating(rating_id):
+    """
+    Delete a specific rating.
+    
+    Parameters:
+        rating_id (int): ID of the rating to delete
+        
+    Returns:
+        200: Rating deleted successfully
+        404: Rating not found
+        500: Database operation failed
+    """
+    try:
+        rating = db.session.get(Rating, rating_id)
+        if not rating:
+            return jsonify({'error': 'Rating not found'}), 404
+            
+        db.session.delete(rating)
+        db.session.commit()
+        
+        return jsonify({'message': 'Rating deleted successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete rating', 'details': str(e)}), 500
+
+@rating_controller.route('/ratings/<int:rating_id>', methods=['PATCH'])
+def update_rating(rating_id):
+    """
+    Update specific fields of a rating.
+    
+    Parameters:
+        rating_id (int): ID of the rating to update
+        
+    Request Body:
+        score (int, optional): New rating score (1-5)
+        comment (str, optional): New rating comment
+        
+    Returns:
+        200: Rating updated successfully
+        400: Invalid score value
+        404: Rating not found
+        500: Database operation failed
+    """
+    try:
+        rating = db.session.get(Rating, rating_id)
+        if not rating:
+            return jsonify({'error': 'Rating not found'}), 404
+
+        data = request.json
+        
+        # Update score if provided
+        if 'score' in data:
+            score = int(data['score'])
+            if not (1 <= score <= 5):
+                return jsonify({'error': 'Score must be between 1 and 5'}), 400
+            rating.score = score
+            
+        # Update comment if provided    
+        if 'comment' in data:
+            rating.comment = data['comment']
+            
+        db.session.commit()
+        return rating_schema.jsonify(rating), 200
+        
+    except ValueError:
+        return jsonify({'error': 'Invalid score value'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update rating', 'details': str(e)}), 500
