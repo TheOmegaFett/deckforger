@@ -203,11 +203,12 @@ def add_deck_to_deckbox(deckbox_id, deck_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to assign deck', 'details': str(e)}), 500
+
 @deckbox_controller.route('/search', methods=['GET'])
 def search_deckboxes():
     """
     Search deckboxes by name.
-    
+    cards 
     Query Parameters:
         name (str): Name to search for
         
