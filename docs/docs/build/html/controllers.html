@@ -292,13 +292,15 @@ per_page (int): Items per page (default: 10)</p>
 <dl class="simple">
 <dt>Request Body:</dt><dd><p>name (str): Name of the card
 cardtype_id (int): ID of the card type
-cardset_id (int): ID of the set this card belongs to</p>
+cardset_id (int): ID of the set this card belongs to
+card_number (str, optional): Card number within the set</p>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Card created successfully
 400: Missing required fields
+404: Referenced cardset or cardtype not found
 500: Database operation failed</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -636,10 +638,12 @@ deckbox_id (int): Deck box to store the deck in</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.deck_controller.search_decks">
 <span class="sig-prename descclassname"><span class="pre">controllers.deck_controller.</span></span><span class="sig-name descname"><span class="pre">search_decks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deck_controller.html#search_decks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deck_controller.search_decks" title="Link to this definition">¶</a></dt>
-<dd><p>Search and filter decks by format and rating.</p>
+<dd><p>Search and filter decks by various criteria.</p>
 <dl class="simple">
-<dt>Query Parameters:</dt><dd><p>format (str): Format name (standard, expanded)
-rating (int): Minimum rating threshold</p>
+<dt>Query Parameters:</dt><dd><p>name (str): Search by deck name pattern
+format_id (int): Filter by format
+min_rating (float): Minimum average rating
+cards (list): Filter by card IDs present</p>
 </dd>
 </dl>
 <dl class="field-list simple">
@@ -726,27 +730,22 @@ format_id (int, optional): New format ID</p>
 <div><p id="module-controllers.deckbox_controller">Controller for managing Pokemon TCG deck box operations</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="controllers.deckbox_controller.add_deck_to_deckbox">
-<span class="sig-prename descclassname"><span class="pre">controllers.deckbox_controller.</span></span><span class="sig-name descname"><span class="pre">add_deck_to_deckbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deckbox_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deckbox_controller.html#add_deck_to_deckbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deckbox_controller.add_deck_to_deckbox" title="Link to this definition">¶</a></dt>
-<dd><p>Add a new deck to a deck box.</p>
+<span class="sig-prename descclassname"><span class="pre">controllers.deckbox_controller.</span></span><span class="sig-name descname"><span class="pre">add_deck_to_deckbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deckbox_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deck_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/deckbox_controller.html#add_deck_to_deckbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.deckbox_controller.add_deck_to_deckbox" title="Link to this definition">¶</a></dt>
+<dd><p>Assign an existing deck to a deckbox.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>deckbox_id</strong> (<em>int</em>) – ID of the deck box to add deck to</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>deckbox_id</strong> (<em>int</em>) – ID of the target deckbox</p></li>
+<li><p><strong>deck_id</strong> (<em>int</em>) – ID of the deck to assign</p></li>
+</ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Request Body:</dt><dd><p>name (str): Name of the new deck
-description (str, optional): Description of the deck
-format (str): Format of the deck</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Deck added successfully
-404: Deck box not found
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Deck assigned successfully
+404: Deckbox or deck not found
 500: Database operation failed</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>201</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
 </dd>
 </dl>
 </dd></dl>
@@ -967,6 +966,25 @@ description (str, optional): New description</p>
 <dd class="field-even"><p>List of cards of specified type
 404: Card type not found
 500: Query operation failed</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>200</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="controllers.cardtype_controller.get_cardtype">
+<span class="sig-prename descclassname"><span class="pre">controllers.cardtype_controller.</span></span><span class="sig-name descname"><span class="pre">get_cardtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cardtype_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/controllers/cardtype_controller.html#get_cardtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#controllers.cardtype_controller.get_cardtype" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a specific card type by ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cardtype_id</strong> (<em>int</em>) – ID of the card type to retrieve</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Card type details
+404: Card type not found
+500: Database query failed</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>200</p>

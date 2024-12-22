@@ -208,7 +208,7 @@ def add_deck_to_deckbox(deckbox_id, deck_id):
 def search_deckboxes():
     """
     Search deckboxes by name.
-    cards 
+    
     Query Parameters:
         name (str): Name to search for
         
