@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError, validates
 from init import db
 from models.card import Card
+from models.cardset import CardSet
 from models.cardtype import CardType
 from models.deckcard import DeckCard
 from schemas.card_schema import CardSchema
@@ -54,26 +55,40 @@ def create_card():
         name (str): Name of the card
         cardtype_id (int): ID of the card type
         cardset_id (int): ID of the set this card belongs to
+        card_number (str, optional): Card number within the set
         
     Returns:
         201: Card created successfully
         400: Missing required fields
+        404: Referenced cardset or cardtype not found
         500: Database operation failed
     """
-    
     try:
         data = request.json
         if not all(key in data for key in ['name', 'cardtype_id', 'cardset_id']):
             return jsonify({'error': 'Missing required fields'}), 400
 
+        # Verify cardset exists
+        cardset = db.session.get(CardSet, data['cardset_id'])
+        if not cardset:
+            return jsonify({'error': f'Card set with ID {data["cardset_id"]} not found'}), 404
+
+        # Verify cardtype exists
+        cardtype = db.session.get(CardType, data['cardtype_id'])
+        if not cardtype:
+            return jsonify({'error': f'Card type with ID {data["cardtype_id"]} not found'}), 404
+
         card = Card(
             name=data['name'],
             cardtype_id=data['cardtype_id'],
-            cardset_id=data['cardset_id']
+            cardset_id=data['cardset_id'],
+            card_number=data.get('card_number')
         )
+        
         db.session.add(card)
         db.session.commit()
         return card_schema.jsonify(card), 201
+        
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to create card', 'details': str(e)}), 500
