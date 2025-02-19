@@ -147,7 +147,7 @@ class DeckAnalysisEngine:
         """Identify opponent's deck strategy based on card patterns"""
         # Default strategies based on card combinations
         strategies = {
-            'aggro': {'quick_attackers', 'direct_damage'},
+            'aggro': {'ai', 'direct_damage'},
             'control': {'energy_denial', 'status_effects'},
             'combo': {'search_cards', 'energy_acceleration'},
             'stall': {'healing', 'damage_reduction'}

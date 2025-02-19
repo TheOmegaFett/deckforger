@@ -1,5 +1,6 @@
 '''Battlelog model for managing Pokemon TCG battle logs'''
 
+import datetime
 from sqlalchemy import Column, Integer, Boolean, JSON, ForeignKey
 from init import db
 
@@ -20,7 +21,6 @@ class Battlelog(db.Model):
         raw_log (str): Complete text of the original battle log :no-index:
         deck (relationship): Relationship to associated Deck model
     """
-    
     __tablename__ = 'battlelogs'
     id = Column(Integer, primary_key=True)
     deck_id = Column(Integer, ForeignKey('decks.id'))
@@ -28,7 +28,9 @@ class Battlelog(db.Model):
     total_turns = Column(Integer)
     most_used_cards = Column(JSON)
     key_synergy_cards = Column(JSON)
-    raw_log = Column(db.Text) 
+    raw_log = Column(db.Text)
+    # Add timestamp column
+    timestamp = Column(db.DateTime, default=(datetime.timezone.utc))
 
     deck = db.relationship("Deck", back_populates="battlelogs")
 
