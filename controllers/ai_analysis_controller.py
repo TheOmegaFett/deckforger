@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from flask import Blueprint, jsonify
+from flask import Blueprint, json, jsonify
 from init import db
 from models.battlelog import Battlelog
 from models.deck import Deck
@@ -65,18 +65,21 @@ class DeckAnalysisEngine:
         deck = Deck.query.get(deck_id)
         deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
-        # Let's modify this to use direct values rather than dictionary access
+        # Convert numpy types to Python native types
         avg_turns_data = self._calculate_avg_turns(deck_logs)
+        avg_turns_data['average'] = float(avg_turns_data['average'])
+        avg_turns_data['median'] = float(avg_turns_data['median'])
 
         analysis = {
             'deck_id': deck_id,
             'timestamp': datetime.now(timezone.utc),
-            'win_rate': self._calculate_win_rate(deck_logs),
+            'win_rate': float(self._calculate_win_rate(deck_logs)),
             'total_battles': len(deck_logs),
-            'average_turns': avg_turns_data,  # Use the value directly
-            'performance_metrics': self._identify_key_cards(deck_logs),
-            'trend_analysis': self._analyze_performance_trend(deck_logs)
-        }        
+            'average_turns': avg_turns_data,
+            'performance_metrics': json.dumps(self._identify_key_cards(deck_logs)),
+            'trend_analysis': json.dumps(self._analyze_performance_trend(deck_logs))
+        }
+
         ai_analysis = AIAnalysis(**analysis)
         db.session.add(ai_analysis)
         db.session.commit()
