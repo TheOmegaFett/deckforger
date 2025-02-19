@@ -260,9 +260,12 @@ class DeckAnalysisEngine:
             if valid_logs:
                 wr = sum(1 for log in valid_logs if log.win_loss) / len(valid_logs)
                 rolling_wr.append(wr)
-            
+        
+        # Simple trend calculation without polyfit
+        trend = 'improving' if rolling_wr and len(rolling_wr) > 1 and rolling_wr[-1] > rolling_wr[0] else 'declining'
+                
         return {
-            'recent_trend': 'improving' if rolling_wr and len(rolling_wr) > 1 and rolling_wr[-1] > rolling_wr[0] else 'declining',
+            'recent_trend': trend,
             'consistency_score': float(np.std(rolling_wr)) if rolling_wr else 0.0,
             'last_10_games_wr': rolling_wr[-1] if rolling_wr else 0.0
         }
