@@ -135,6 +135,19 @@ class DeckAnalysisEngine:
             for strategy, stats in matchup_stats.items()
         }
 
+    def _identify_weak_performers(self, card_performance):
+        """Identify cards with poor performance metrics"""
+        weak_performers = []
+        
+        for card_stats in card_performance['most_used']:
+            card_name, stats = card_stats
+            # Consider a card weak if used frequently but has < 40% win rate
+            if stats['uses'] >= 5 and (stats['wins'] / stats['uses']) < 0.4:
+                weak_performers.append(card_name)
+                
+        return weak_performers
+
+    
     def _generate_suggestions(self, logs, deck):
         """Generate deck improvement suggestions based on performance data"""
         suggestions = {
@@ -213,3 +226,4 @@ def get_analysis_history(deck_id):
         return analyses_schema.jsonify(analyses), 200
     except Exception as e:
         return jsonify({'error': 'Failed to retrieve analysis history', 'details': str(e)}), 500
+
