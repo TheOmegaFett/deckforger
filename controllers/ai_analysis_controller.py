@@ -43,7 +43,6 @@ class DeckAnalysisEngine:
         ]
 
     def _calculate_avg_turns(self, logs):
-        """Calculate average turns with trend analysis"""
         if not logs:
             return {
                 'average': 0,
@@ -51,10 +50,14 @@ class DeckAnalysisEngine:
                 'trend': 'insufficient_data'
             }
         turns = [log.total_turns for log in logs]
+        trend = 'stable'
+        if len(turns) > 1:
+            trend = 'increasing' if turns[-1] > turns[0] else 'decreasing' if turns[-1] < turns[0] else 'stable'
+        
         return {
-            'average': np.mean(turns),
-            'median': np.median(turns),
-            'trend': 'increasing' if np.polyfit(range(len(turns)), turns, 1)[0] > 0 else 'decreasing'
+            'average': float(np.mean(turns)),
+            'median': float(np.median(turns)),
+            'trend': trend
         }
 
     def analyze_deck(self, deck_id):
@@ -94,7 +97,11 @@ class DeckAnalysisEngine:
     def _calculate_avg_turns(self, logs):
         """Calculate average turns with trend analysis"""
         if not logs:
-            return 0
+            return {
+                'average': 0,
+                'median': 0,
+                'trend': 'insufficient_data'
+            }
         turns = [log.total_turns for log in logs]
         return {
             'average': np.mean(turns),
