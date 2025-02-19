@@ -247,14 +247,19 @@ class DeckAnalysisEngine:
 
     def _analyze_performance_trend(self, logs):
         """Analyze performance trends over time"""
+        # Base case - no logs
         if not logs:
-            return {'trend': 'insufficient_data'}
+            return {
+                'trend': 'insufficient_data',
+                'consistency_score': 0.0,
+                'last_10_games_wr': 0.0
+            }
             
         # Sort logs and prepare for analysis
-        sorted_logs = sorted(logs, key=lambda x: getattr(x, 'timestamp', x.id))
+        sorted_logs = sorted(logs, key=lambda x: getattr(x, 'id', 0))  # Simplify sorting to just ID
         window_size = min(10, len(logs))
         rolling_wr = []
-        
+    
         # Calculate win rates for valid windows
         for i in range(len(sorted_logs) - window_size + 1):
             window = sorted_logs[i:i + window_size]
@@ -267,14 +272,14 @@ class DeckAnalysisEngine:
         if rolling_wr:  # We have valid win rates to analyze
             trend = 'improving' if len(rolling_wr) > 1 and rolling_wr[-1] > rolling_wr[0] else 'stable'
             consistency = float(np.std(rolling_wr))
-            recent_wr = rolling_wr[-1]
+            recent_wr = float(rolling_wr[-1])
         else:  # No valid win rates available
             trend = 'insufficient_data'
             consistency = 0.0
             recent_wr = 0.0
             
         return {
-            'recent_trend': trend,
+            'trend': trend,
             'consistency_score': consistency,
             'last_10_games_wr': recent_wr
         }
