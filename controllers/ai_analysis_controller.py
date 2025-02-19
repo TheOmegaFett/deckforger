@@ -250,20 +250,18 @@ class DeckAnalysisEngine:
         if not logs:
             return {'trend': 'insufficient_data'}
             
-        sorted_logs = sorted(logs, key=lambda x: x.created_at)  # Use created_at instead of timestamp
+        sorted_logs = sorted(logs, key=lambda x: x.timestamp)  # Use timestamp field
         window_size = min(10, len(logs))
         rolling_wr = []
         
         for i in range(len(sorted_logs) - window_size + 1):
             window = sorted_logs[i:i + window_size]
-            valid_logs = [log for log in window if log.win_loss is not None]
-            if valid_logs:
-                wr = sum(1 for log in valid_logs if log.win_loss) / len(valid_logs)
-                rolling_wr.append(wr)
+            wr = sum(1 for log in window if log.win_loss) / window_size
+            rolling_wr.append(wr)
             
         return {
             'recent_trend': 'improving' if len(rolling_wr) > 1 and rolling_wr[-1] > rolling_wr[0] else 'declining',
-            'consistency_score': float(np.std(rolling_wr)) if rolling_wr else 0.0,
+            'consistency_score': np.std(rolling_wr),
             'last_10_games_wr': rolling_wr[-1] if rolling_wr else 0.0
         }
 
