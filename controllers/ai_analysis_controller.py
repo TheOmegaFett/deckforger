@@ -58,27 +58,26 @@ class DeckAnalysisEngine:
         }
 
     def analyze_deck(self, deck_id):
-        """Perform comprehensive deck analysis"""
-        if not self.is_trained:
-            self.train_on_all_logs()
-
         deck = Deck.query.get(deck_id)
         deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
-        # First prepare all the analysis data
-        avg_turns_data = self._calculate_avg_turns(deck_logs)
-        performance_data = self._identify_key_cards(deck_logs)
-        trend_data = self._analyze_performance_trend(deck_logs)
+        # Convert numpy values to Python native types
+        avg_turns = self._calculate_avg_turns(deck_logs)
+        avg_turns_clean = {
+            'average': float(avg_turns['average']),
+            'median': float(avg_turns['median']),
+            'trend': avg_turns['trend']
+        }
 
-        # Create analysis with proper JSON handling
+        # Create analysis with serializable data
         analysis = {
             'deck_id': deck_id,
             'timestamp': datetime.now(timezone.utc),
             'win_rate': float(self._calculate_win_rate(deck_logs)),
             'total_battles': len(deck_logs),
-            'average_turns': avg_turns_data,  # PostgreSQL can handle this dict directly
-            'performance_metrics': performance_data,  # Let SQLAlchemy handle JSON conversion
-            'trend_analysis': trend_data  # Let SQLAlchemy handle JSON conversion
+            'average_turns': float(avg_turns_clean['average']),  # Store just the average value
+            'performance_metrics': self._identify_key_cards(deck_logs),
+            'trend_analysis': self._analyze_performance_trend(deck_logs)
         }
 
         ai_analysis = AIAnalysis(**analysis)
