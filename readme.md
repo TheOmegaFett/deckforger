@@ -130,7 +130,7 @@ A Flask-based REST API for managing Pokemon Trading Card Game decks, collections
 
 ## API Endpoints
 
-[API Documentation](docs\docs\build\html\index.html)
+[API Documentation](.\docs\docs\build\html\index.html)
 
 ### CLI Operations
 
@@ -368,11 +368,11 @@ Main Developer: Shane W Miller
 
 ## Feedback
 
-[Go To Feedback](docs\Feedback.md)
+[Go To Feedback](.\docs\Feedback.md)
 
 ## Deployment
 
-[Go To Deployment](docs\Deployment_log.md)
+[Go To Deployment](.\docs\Deployment_log.md)
 
 ## License
 

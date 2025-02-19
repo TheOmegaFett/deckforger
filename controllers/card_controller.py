@@ -142,7 +142,7 @@ def update_card(card_id):
         
     Request Body:
         name (str, optional): New name for the card
-        cardtype (str, optional): New type for the card
+        cardtype_id (str, optional): New type for the card
         cardset_id (int, optional): New set ID for the card
         card_number (str, optional): New card number for the card
         
@@ -151,7 +151,6 @@ def update_card(card_id):
         404: Card not found
         500: Database operation failed
     """
-    
     try:
         card = db.session.get(Card, card_id)
         if not card:
@@ -160,8 +159,8 @@ def update_card(card_id):
         data = request.json
         if 'name' in data:
             card.name = data['name']
-        if 'cardtype' in data:
-            card.cardtype = data['cardtype']
+        if 'cardtype_id' in data:
+            card.cardtype_id = data['cardtype_id']
         if 'cardset_id' in data:
             card.cardset_id = data['cardset_id']
         if 'card_number' in data:
