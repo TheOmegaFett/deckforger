@@ -41,6 +41,22 @@ class DeckAnalysisEngine:
             len(log.most_used_cards),
             len(log.key_synergy_cards),
         ]
+
+    def _calculate_avg_turns(self, logs):
+        """Calculate average turns with trend analysis"""
+        if not logs:
+            return {
+                'average': 0,
+                'median': 0,
+                'trend': 'insufficient_data'
+            }
+        turns = [log.total_turns for log in logs]
+        return {
+            'average': np.mean(turns),
+            'median': np.median(turns),
+            'trend': 'increasing' if np.polyfit(range(len(turns)), turns, 1)[0] > 0 else 'decreasing'
+        }
+
     def analyze_deck(self, deck_id):
         """Perform comprehensive deck analysis"""
         if not self.is_trained:
@@ -54,11 +70,10 @@ class DeckAnalysisEngine:
             'timestamp': datetime.now(timezone.utc),
             'win_rate': self._calculate_win_rate(deck_logs),
             'total_battles': len(deck_logs),
-            'average_turns': self._calculate_avg_turns(deck_logs)['average'],
+            'average_turns': self._calculate_avg_turns(deck_logs)['average'],  # Access the dictionary value
             'performance_metrics': self._identify_key_cards(deck_logs),
             'trend_analysis': self._analyze_performance_trend(deck_logs)
-        }
-
+        }        
         ai_analysis = AIAnalysis(**analysis)
         db.session.add(ai_analysis)
         db.session.commit()
