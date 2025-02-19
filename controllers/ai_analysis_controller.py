@@ -65,10 +65,7 @@ class DeckAnalysisEngine:
             'timestamp': datetime.utcnow()
         }
         
-        ai_analysis = AIAnalysis(
-            deck_id=deck_id,
-            **analysis
-        )
+        ai_analysis = AIAnalysis(**analysis)
         db.session.add(ai_analysis)
         db.session.commit()
         
