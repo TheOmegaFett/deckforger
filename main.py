@@ -17,6 +17,9 @@ from controllers.battlelog_controller import battlelogs
 from controllers.rating_controller import rating_controller
 from controllers.ai_analysis_controller import ai_analysis_controller
 
+# Load environment variables first, before any app creation
+load_dotenv()
+
 def create_app():
     """
     Creates and configures the Flask application.
@@ -25,13 +28,16 @@ def create_app():
         Flask: Configured Flask application instance
     """
     app = Flask(__name__)
-    
+    # Get database URI from environment
     load_dotenv()
+    database_uri = os.environ.get('DATABASE_URI')
+    print(f"Main.py DATABASE_URI: {os.environ.get('DATABASE_URI')}")
     
-    # Configure database
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
-    app.config['SQLALCHEMY_ECHO'] = True
-    app.json.sort_keys = False
+    app.config.update(
+        SQLALCHEMY_DATABASE_URI=database_uri,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        
+    )
     
     # Initialize extensions
     db.init_app(app)
@@ -51,15 +57,9 @@ def create_app():
     app.register_blueprint(ai_analysis_controller, url_prefix='/api/analysis')    
     return app
 
-# Create the application instance
+# Create application instance
 app = create_app()
-
-# Initialize migrations
 migrate = Migrate(app, db)
-
-# Use this pattern for database operations:
-with app.app_context():
-    db.create_all()
 
 if __name__ == '__main__':
     app.run()

@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify
 from init import db
 from models.battlelog import Battlelog
 from models.deck import Deck
+from schemas import analyses_schema
 from schemas.ai_analysis_schema import ai_analysis_schema
 
 from models.ai_analysis import AIAnalysis
