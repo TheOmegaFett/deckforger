@@ -290,13 +290,16 @@ def import_battlelog(deck_id, player_name):
         most_used_cards = [card[0] for card in most_used]
 
         # Create new battlelog
+        from datetime import datetime, timezone
+
         battlelog_data = {
             'deck_id': deck_id,
             'win_loss': win_loss,
             'total_turns': total_turns,
             'most_used_cards': most_used_cards,
             'key_synergy_cards': key_synergy_cards,
-            'raw_log': log_text
+            'raw_log': log_text,
+            'timestamp': datetime.now(timezone.utc)  # Create proper UTC datetime object
         }
         battlelog = Battlelog(**battlelog_data)
         db.session.add(battlelog)
