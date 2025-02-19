@@ -41,36 +41,29 @@ class DeckAnalysisEngine:
             len(log.most_used_cards),
             len(log.key_synergy_cards),
         ]
-    
     def analyze_deck(self, deck_id):
         """Perform comprehensive deck analysis"""
         if not self.is_trained:
             self.train_on_all_logs()
-            
+
         deck = Deck.query.get(deck_id)
         deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
-        
+
         analysis = {
             'deck_id': deck_id,
-            'name': deck.name,
-            'total_battles': len(deck_logs),
+            'timestamp': datetime.now(timezone.utc),
             'win_rate': self._calculate_win_rate(deck_logs),
-            'performance_metrics': {
-                'average_turns': self._calculate_avg_turns(deck_logs),
-                'common_winning_cards': self._identify_key_cards(deck_logs),
-                'matchup_analysis': self._analyze_matchups(deck_logs),
-                'suggested_improvements': self._generate_suggestions(deck_logs, deck)
-            },
-            'trend_analysis': self._analyze_performance_trend(deck_logs),
-            'timestamp': datetime.utcnow()
+            'total_battles': len(deck_logs),
+            'average_turns': self._calculate_avg_turns(deck_logs)['average'],
+            'performance_metrics': self._identify_key_cards(deck_logs),
+            'trend_analysis': self._analyze_performance_trend(deck_logs)
         }
-        
+
         ai_analysis = AIAnalysis(**analysis)
         db.session.add(ai_analysis)
         db.session.commit()
-        
-        return analysis
 
+        return analysis
     def _calculate_win_rate(self, logs):
         """Calculate win rate with statistical confidence"""
         if not logs:
