@@ -250,7 +250,8 @@ class DeckAnalysisEngine:
         if not logs:
             return {'trend': 'insufficient_data'}
             
-        sorted_logs = sorted(logs, key=lambda x: x.timestamp)  # Use timestamp field
+        # Sort by timestamp if available, otherwise use log ID as proxy for time
+        sorted_logs = sorted(logs, key=lambda x: getattr(x, 'timestamp', x.id))
         window_size = min(10, len(logs))
         rolling_wr = []
         
