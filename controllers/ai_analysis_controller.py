@@ -267,13 +267,24 @@ class DeckAnalysisEngine:
         }
 
     def _analyze_performance_trend(self, logs):
-        if len(logs) < 2:
+        """Analyze performance trends over time"""
+        # No logs case
+        if not logs:
             return {
-                'trend': f'Need more games to establish trends (currently {len(logs)} games)',
+                'trend': 'No games played yet',
                 'consistency_score': 0.0,
-                'last_10_games_wr': float(sum(1 for log in logs if log.win_loss) / len(logs)) if logs else 0.0
+                'last_10_games_wr': 0.0
             }
-        
+    
+        # Single log case
+        if len(logs) == 1:
+            return {
+                'trend': 'First game completed',
+                'consistency_score': 0.0,
+                'last_10_games_wr': float(1.0 if logs[0].win_loss else 0.0)
+            }
+    
+        # Multiple logs case
         win_rates = []
         for i in range(len(logs)):
             window = logs[max(0, i-9):i+1]
@@ -281,7 +292,7 @@ class DeckAnalysisEngine:
             if valid_games:
                 win_rate = sum(1 for game in valid_games if game.win_loss) / len(valid_games)
                 win_rates.append(win_rate)
-        
+    
         return {
             'trend': 'improving' if win_rates[-1] > win_rates[0] else 'declining' if win_rates[-1] < win_rates[0] else 'stable',
             'consistency_score': float(np.std(win_rates)) if win_rates else 0.0,
