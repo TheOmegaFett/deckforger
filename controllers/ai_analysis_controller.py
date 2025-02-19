@@ -249,34 +249,29 @@ class DeckAnalysisEngine:
 
     def _analyze_performance_trend(self, logs):
         """Analyze performance trends over time"""
-        if len(logs) < 3:  # Not enough data for meaningful trend analysis
+        if len(logs) < 3:  # Not enough games for trend analysis
             return {
-                'trend': 'Need more games to determine trend',
+                'trend': f'Need more games to establish trends (currently {len(logs)} games)',
                 'consistency_score': 0.0,
-                'last_10_games_wr': self._calculate_win_rate(logs) if logs else 0.0
+                'last_10_games_wr': float(sum(1 for log in logs if log.win_loss) / len(logs)) if logs else 0.0
             }
             
-        # Calculate win rates for each window
+        # For 3+ games, calculate rolling win rates
         win_rates = []
         for i in range(len(logs)):
-            window = logs[max(0, i-9):i+1]
+            window = logs[max(0, i-9):i+1]  # Get up to 10 most recent games
             valid_games = [log for log in window if log.win_loss is not None]
             if valid_games:
                 win_rate = sum(1 for game in valid_games if game.win_loss) / len(valid_games)
                 win_rates.append(win_rate)
 
-        # Simple trend analysis without SVD
-        trend_description = 'stable'
-        if len(win_rates) >= 3:
-            if win_rates[-1] > win_rates[0]:
-                trend_description = 'improving over recent games'
-            elif win_rates[-1] < win_rates[0]:
-                trend_description = 'declining over recent games'
-
+         # Simple trend comparison instead of linear regression
+        trend = 'improving' if win_rates[-1] > win_rates[0] else 'declining' if win_rates[-1] < win_rates[0] else 'stable'
+        
         return {
-            'trend': trend_description,
-            'consistency_score': float(np.std(win_rates)) if win_rates else 0.0,
-            'last_10_games_wr': win_rates[-1] if win_rates else 0.0
+            'trend': trend,
+            'consistency_score': float(np.std(win_rates)),
+            'last_10_games_wr': win_rates[-1]
         }
 
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
