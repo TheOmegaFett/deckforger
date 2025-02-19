@@ -61,21 +61,20 @@ class DeckAnalysisEngine:
         deck = Deck.query.get(deck_id)
         deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
-        # Convert numpy values to Python native types
-        avg_turns = self._calculate_avg_turns(deck_logs)
-        avg_turns_clean = {
-            'average': float(avg_turns['average']),
-            'median': float(avg_turns['median']),
-            'trend': avg_turns['trend']
-        }
+        # Calculate average turns first and ensure it's a float
+        avg_turns_data = self._calculate_avg_turns(deck_logs)
+        if isinstance(avg_turns_data, (int, float)):
+            average_turns = float(avg_turns_data)
+        else:
+            average_turns = float(avg_turns_data['average'])
 
-        # Create analysis with serializable data
+        # Prepare analysis with type-safe values
         analysis = {
             'deck_id': deck_id,
             'timestamp': datetime.now(timezone.utc),
             'win_rate': float(self._calculate_win_rate(deck_logs)),
             'total_battles': len(deck_logs),
-            'average_turns': float(avg_turns_clean['average']),  # Store just the average value
+            'average_turns': average_turns,  # Now guaranteed to be a float
             'performance_metrics': self._identify_key_cards(deck_logs),
             'trend_analysis': self._analyze_performance_trend(deck_logs)
         }
