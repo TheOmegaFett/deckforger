@@ -1,7 +1,7 @@
 '''Main application configuration and initialization'''
 
-
 from flask import Flask
+from flask_migrate import Migrate
 from dotenv import load_dotenv
 import os
 from init import db, ma
@@ -32,15 +32,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
     app.config['SQLALCHEMY_ECHO'] = True
     app.json.sort_keys = False
+    
     # Initialize extensions
-    from models.ai_analysis import AIAnalysis
-    from schemas.ai_analysis_schema import analysis_schema, analyses_schema
-
-    # Register with SQLAlchemy for migrations
     db.init_app(app)
-    db.create_all()
-
-    # Make schemas available to the app
     ma.init_app(app)
     
     # Register blueprints
@@ -56,3 +50,16 @@ def create_app():
     app.register_blueprint(rating_controller, url_prefix='/api/ratings')
     app.register_blueprint(ai_analysis_controller, url_prefix='/api/analysis')    
     return app
+
+# Create the application instance
+app = create_app()
+
+# Initialize migrations
+migrate = Migrate(app, db)
+
+# Use this pattern for database operations:
+with app.app_context():
+    db.create_all()
+
+if __name__ == '__main__':
+    app.run()
