@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from flask import Blueprint, jsonify
