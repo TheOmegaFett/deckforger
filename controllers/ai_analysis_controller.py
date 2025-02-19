@@ -252,35 +252,41 @@ class DeckAnalysisEngine:
         else:
             return 'support'
 
-     
+    def _calculate_avg_turns(self, logs):
+        if not logs:
+            return {
+                'average': 0,
+                'median': 0,
+                'trend': 'insufficient_data'
+            }
+        turns = [log.total_turns for log in logs]
+        return {
+            'average': float(np.mean(turns)),
+            'median': float(np.median(turns)),
+            'trend': 'stable' if len(turns) < 2 else ('increasing' if turns[-1] > turns[0] else 'decreasing')
+        }
 
     def _analyze_performance_trend(self, logs):
-        """Analyze performance trends over time"""
-        if len(logs) < 3:  # Not enough games for trend analysis
+        if len(logs) < 2:
             return {
                 'trend': f'Need more games to establish trends (currently {len(logs)} games)',
                 'consistency_score': 0.0,
                 'last_10_games_wr': float(sum(1 for log in logs if log.win_loss) / len(logs)) if logs else 0.0
             }
-            
-        # For 3+ games, calculate rolling win rates
+        
         win_rates = []
         for i in range(len(logs)):
-            window = logs[max(0, i-9):i+1]  # Get up to 10 most recent games
+            window = logs[max(0, i-9):i+1]
             valid_games = [log for log in window if log.win_loss is not None]
             if valid_games:
                 win_rate = sum(1 for game in valid_games if game.win_loss) / len(valid_games)
                 win_rates.append(win_rate)
-
-         # Simple trend comparison instead of linear regression
-        trend = 'improving' if win_rates[-1] > win_rates[0] else 'declining' if win_rates[-1] < win_rates[0] else 'stable'
         
         return {
-            'trend': trend,
-            'consistency_score': float(np.std(win_rates)),
-            'last_10_games_wr': win_rates[-1]
+            'trend': 'improving' if win_rates[-1] > win_rates[0] else 'declining' if win_rates[-1] < win_rates[0] else 'stable',
+            'consistency_score': float(np.std(win_rates)) if win_rates else 0.0,
+            'last_10_games_wr': win_rates[-1] if win_rates else 0.0
         }
-
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 def analyze_deck_performance(deck_id):
     """
