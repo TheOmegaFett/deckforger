@@ -135,6 +135,27 @@ class DeckAnalysisEngine:
             for strategy, stats in matchup_stats.items()
         }
 
+    def _identify_opponent_strategy(self, log):
+        """Identify opponent's deck strategy based on card patterns"""
+        # Default strategies based on card combinations
+        strategies = {
+            'aggro': {'quick_attackers', 'direct_damage'},
+            'control': {'energy_denial', 'status_effects'},
+            'combo': {'search_cards', 'energy_acceleration'},
+            'stall': {'healing', 'damage_reduction'}
+        }
+        
+        opponent_cards = set(log.opponent_cards)
+        
+        # Determine strategy based on most matching card patterns
+        strategy_scores = {
+            name: len(pattern & opponent_cards)
+            for name, pattern in strategies.items()
+        }
+        
+        # Return the strategy with highest score, default to 'unknown'
+        return max(strategy_scores.items(), 
+                  key=lambda x: x[1])[0] if strategy_scores else 'unknown'
     def _identify_weak_performers(self, card_performance):
         """Identify cards with poor performance metrics"""
         weak_performers = []
@@ -146,7 +167,6 @@ class DeckAnalysisEngine:
                 weak_performers.append(card_name)
                 
         return weak_performers
-
     
     def _generate_suggestions(self, logs, deck):
         """Generate deck improvement suggestions based on performance data"""
@@ -155,19 +175,67 @@ class DeckAnalysisEngine:
             'strategy_tips': [],
             'sideboard_suggestions': []
         }
-        
+
         card_performance = self._identify_key_cards(logs)
         weak_cards = self._identify_weak_performers(card_performance)
-        
+
         suggestions['card_recommendations'] = [
             f"Consider replacing {card} with {alternative}"
             for card, alternative in self._get_card_alternatives(weak_cards)
         ]
-        
+
         matchups = self._analyze_matchups(logs)
         suggestions['strategy_tips'] = self._generate_strategy_tips(matchups)
+
+        return suggestions
+
+    def _get_card_alternatives(self, weak_cards):
+        """Generate alternative card suggestions based on deck performance data"""
+        # Simulated card alternatives for demonstration
+        card_alternatives = {
+            'basic_attacker': ['Mewtwo V', 'Zacian V', 'Charizard VMAX'],
+            'energy_acceleration': ['Frosmoth', 'Rose', 'Welder'],
+            'support': ["Professor's Research", "Marnie", "Boss's Orders"]
+        }
+
+        suggestions = []
+        for card in weak_cards:
+            # Match card to a category and suggest top performers
+            category = self._determine_card_category(card)
+            if category in card_alternatives:
+                suggestions.append((card, card_alternatives[category][0]))
         
         return suggestions
+
+    def _generate_strategy_tips(self, matchups):
+        """Generate strategic advice based on matchup analysis"""
+        tips = []
+
+        for strategy, stats in matchups.items():
+            win_rate = stats['win_rate']
+            if win_rate < 45:
+                if strategy == 'aggro':
+                    tips.append("Add more defensive cards to counter aggressive strategies")
+                elif strategy == 'control':
+                    tips.append("Include more energy acceleration to overcome energy denial")
+                elif strategy == 'combo':
+                    tips.append("Add more disruption cards to break their combo pieces")
+                elif strategy == 'stall':
+                    tips.append("Include more consistent damage output cards")
+            
+        return tips
+
+    def _determine_card_category(self, card_name):
+        """Helper method to categorize cards by their primary function"""
+        # Simple categorization logic - could be expanded with more sophisticated rules
+        if 'V' in card_name or 'VMAX' in card_name:
+            return 'basic_attacker'
+        elif 'energy' in card_name.lower():
+            return 'energy_acceleration'
+        else:
+            return 'support'
+
+     
 
     def _analyze_performance_trend(self, logs):
         """Analyze performance trends over time"""
