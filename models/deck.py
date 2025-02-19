@@ -31,6 +31,7 @@ class Deck(db.Model):
     deckbox = db.relationship('DeckBox', back_populates='decks')
     rating = db.relationship('Rating', back_populates='deck', lazy='dynamic')
     battlelogs = db.relationship('Battlelog', back_populates='deck')
-   
+    
+    # The backref from AIAnalysis will automatically create the 'analyses' property   
     def __repr__(self):
         return f'<Deck {self.name}>'

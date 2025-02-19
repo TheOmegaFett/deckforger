@@ -14,7 +14,7 @@ class AIAnalysis(db.Model):
     trend_analysis = db.Column(db.JSON)
     
     # Relationships
-    deck = db.relationship('Deck', back_populates='analyses')
+    deck = db.relationship('Deck', backref='analyses')
     
     def __repr__(self):
         return f'<AIAnalysis deck_id={self.deck_id} timestamp={self.timestamp}>'
