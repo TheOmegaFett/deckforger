@@ -65,12 +65,15 @@ class DeckAnalysisEngine:
         deck = Deck.query.get(deck_id)
         deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
+        # Let's modify this to use direct values rather than dictionary access
+        avg_turns_data = self._calculate_avg_turns(deck_logs)
+
         analysis = {
             'deck_id': deck_id,
             'timestamp': datetime.now(timezone.utc),
             'win_rate': self._calculate_win_rate(deck_logs),
             'total_battles': len(deck_logs),
-            'average_turns': self._calculate_avg_turns(deck_logs)['average'],  # Access the dictionary value
+            'average_turns': avg_turns_data,  # Use the value directly
             'performance_metrics': self._identify_key_cards(deck_logs),
             'trend_analysis': self._analyze_performance_trend(deck_logs)
         }        
