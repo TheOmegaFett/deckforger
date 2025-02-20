@@ -108,9 +108,10 @@ class DeckAnalysisEngine:
             'median': np.median(turns),
             'trend': 'increasing' if np.polyfit(range(len(turns)), turns, 1)[0] > 0 else 'decreasing'
         }
-
     def _identify_key_cards(self, logs):
-        """Analyze card effectiveness using frequency and win correlation"""
+        """Analyze card effectiveness with minimum game threshold"""
+        MIN_GAMES_THRESHOLD = 3  # Minimum games needed for effectiveness ranking
+
         card_stats = {}
         for log in logs:
             for card in log.most_used_cards:
@@ -119,11 +120,17 @@ class DeckAnalysisEngine:
                 card_stats[card]['uses'] += 1
                 if log.win_loss:
                     card_stats[card]['wins'] += 1
-        
+
+        # Filter cards that meet minimum threshold
+        qualified_cards = {
+            card: stats for card, stats in card_stats.items() 
+            if stats['uses'] >= MIN_GAMES_THRESHOLD
+        }
+
         return {
             'most_effective': sorted(
-                card_stats.items(),
-                key=lambda x: x[1]['wins'] / x[1]['uses'] if x[1]['uses'] > 0 else 0,
+                qualified_cards.items(),
+                key=lambda x: x[1]['wins'] / x[1]['uses'],
                 reverse=True
             )[:3],
             'most_used': sorted(
@@ -132,7 +139,6 @@ class DeckAnalysisEngine:
                 reverse=True
             )[:3]
         }
-
     def _analyze_matchups(self, logs):
         """Analyze performance against different strategies"""
         matchup_stats = {}
@@ -267,36 +273,48 @@ class DeckAnalysisEngine:
         }
 
     def _analyze_performance_trend(self, logs):
-        """Analyze performance trends over time"""
-        # No logs case
+        """Analyze performance trends using 3-game window"""
         if not logs:
             return {
                 'trend': 'No games played yet',
                 'consistency_score': 0.0,
-                'last_10_games_wr': 0.0
+                'recent_win_rate': 0.0,
+                'first_turn_win_rate': 0.0,
+                'second_turn_win_rate': 0.0
             }
+
+        # Calculate first/second turn stats
+        first_turn_games = [log for log in logs if log.went_first]
+        second_turn_games = [log for log in logs if not log.went_first]
     
-        # Single log case
-        if len(logs) == 1:
-            return {
-                'trend': 'First game completed',
-                'consistency_score': 0.0,
-                'last_10_games_wr': float(1.0 if logs[0].win_loss else 0.0)
-            }
+        first_turn_wr = (
+            sum(1 for g in first_turn_games if g.win_loss) / len(first_turn_games)
+            if first_turn_games else 0.0
+        )
     
-        # Multiple logs case
-        win_rates = []
-        for i in range(len(logs)):
-            window = logs[max(0, i-9):i+1]
-            valid_games = [log for log in window if log.win_loss is not None]
-            if valid_games:
-                win_rate = sum(1 for game in valid_games if game.win_loss) / len(valid_games)
-                win_rates.append(win_rate)
-    
+        second_turn_wr = (
+            sum(1 for g in second_turn_games if g.win_loss) / len(second_turn_games)
+            if second_turn_games else 0.0
+        )
+
+        # Use 3-game window for trend
+        recent_games = logs[-3:] if len(logs) >= 3 else logs
+        recent_wr = sum(1 for g in recent_games if g.win_loss) / len(recent_games)
+
+        # Compare recent performance to overall
+        overall_wr = sum(1 for g in logs if g.win_loss) / len(logs)
+        trend = (
+            'improving' if recent_wr > overall_wr
+            else 'declining' if recent_wr < overall_wr
+            else 'stable'
+        )
+
         return {
-            'trend': 'improving' if win_rates[-1] > win_rates[0] else 'declining' if win_rates[-1] < win_rates[0] else 'stable',
-            'consistency_score': float(np.std(win_rates)) if win_rates else 0.0,
-            'last_10_games_wr': win_rates[-1] if win_rates else 0.0
+            'trend': trend,
+            'consistency_score': float(np.std([g.win_loss for g in logs])),
+            'recent_win_rate': recent_wr,
+            'first_turn_win_rate': first_turn_wr,
+            'second_turn_win_rate': second_turn_wr
         }
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 def analyze_deck_performance(deck_id):

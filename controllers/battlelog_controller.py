@@ -199,8 +199,13 @@ def import_battlelog(deck_id, player_name):
     """
     
     try:
-        # Deck validation
-        deck = Deck.query.get_or_404(deck_id)  # 404 if deck not found
+        deck = Deck.query.get_or_404(deck_id)
+        log_text = request.get_data(as_text=True)
+        lines = [line.strip() for line in log_text.split('\n') if line.strip()]
+
+        # Determine who went first by checking first turn
+        first_turn_line = next(line for line in lines if "Turn #1" in line)
+        went_first = player_name in first_turn_line
 
         # Duplicate check
         existing_log = db.session.execute(
@@ -219,10 +224,6 @@ def import_battlelog(deck_id, player_name):
             }), 409  # Conflict
     
         # Process log and create battlelog
-        log_text = request.get_data(as_text=True)
-        lines = log_text.split('\n')
-
-        # Get deck to validate against
         deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
 
         # Track cards and interactions
@@ -271,9 +272,6 @@ def import_battlelog(deck_id, player_name):
         if not valid_log:
             return jsonify({"error": "Battle log doesn't match specified deck"}), 400
 
-        # Clean the lines when we first get them
-        lines = [line.strip() for line in log_text.split('\n') if line.strip()]
-
         total_turns = len([line for line in lines if line.startswith('Turn #')])
 
         # Then at the end, check the last actual line
@@ -299,11 +297,14 @@ def import_battlelog(deck_id, player_name):
             'most_used_cards': most_used_cards,
             'key_synergy_cards': key_synergy_cards,
             'raw_log': log_text,
-            'timestamp': datetime.now(timezone.utc)  # Create proper UTC datetime object
+            'timestamp': datetime.now(timezone.utc),
+            'went_first': went_first  # Add the new field
         }
+        
         battlelog = Battlelog(**battlelog_data)
         db.session.add(battlelog)
         db.session.commit()
+        
         return jsonify({
             "message": "Battle log imported successfully",
             "id": battlelog.id,
@@ -315,4 +316,4 @@ def import_battlelog(deck_id, player_name):
         return jsonify({
             "error": "Failed to import battle log",
             "details": str(e)
-        }), 500 
+        }), 500
