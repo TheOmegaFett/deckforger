@@ -98,7 +98,7 @@ class DeckAnalysisEngine:
 
         return analysis
 
-    def _identify_weak_performers(self, card_performance, deck):
+    def _identify_weak_performers(self, card_performance, deck):  # Added deck parameter
         """Identify cards with poor performance metrics"""
         weak_performers = []
         
@@ -124,7 +124,7 @@ class DeckAnalysisEngine:
             'unused_cards': self._find_unused_cards(card_performance, deck)  # Pass deck here
         }
 
-    def _find_unused_cards(self, card_performance, deck):
+    def _find_unused_cards(self, card_performance, deck):  # Updated signature
         """Find cards that were rarely or never used"""
         deck_cards = set(card.name for card in deck.deck_cards)
         used_cards = set(card for card, stats in card_performance['most_used'])
