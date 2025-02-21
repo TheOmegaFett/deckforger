@@ -253,7 +253,7 @@ class DeckAnalysisEngine:
         return {
             'underperforming_cards': weak_performers,
             'coin_flip_stats': coin_flip_cards,
-            'unused_cards': self._find_unused_cards(card_performance, deck)  # Pass deck here
+            'unused_cards': self._find_unused_cards(card_performance)  # Remove deck parameter
         }
 
     def _find_unused_cards(self, card_performance):
