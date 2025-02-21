@@ -63,18 +63,19 @@ class DeckAnalysisEngine:
     def analyze_deck(self, deck_id):
         deck = Deck.query.get(deck_id)
         self.deck = deck
-        deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
+        # Store deck_logs as class attribute
+        self.deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
         # Calculate average turns first and ensure it's a float
-        avg_turns_data = self._calculate_avg_turns(deck_logs)
+        avg_turns_data = self._calculate_avg_turns(self.deck_logs)
         if isinstance(avg_turns_data, (int, float)):
             average_turns = float(avg_turns_data)
         else:
             average_turns = float(avg_turns_data['average'])
 
         # Get card performance data
-        card_performance = self._identify_key_cards(deck_logs)
-        weak_performers = self._identify_weak_performers(card_performance, deck, deck_logs)  # Pass deck_logs
+        card_performance = self._identify_key_cards(self.deck_logs)
+        weak_performers = self._identify_weak_performers(card_performance, deck, self.deck_logs)
 
         # Store card effectiveness data in performance_metrics
         performance_metrics = {
@@ -88,11 +89,11 @@ class DeckAnalysisEngine:
         analysis = {
             'deck_id': deck_id,
             'timestamp': datetime.now(timezone.utc),
-            'win_rate': float(self._calculate_win_rate(deck_logs)),
-            'total_battles': len(deck_logs),
+            'win_rate': float(self._calculate_win_rate(self.deck_logs)),
+            'total_battles': len(self.deck_logs),
             'average_turns': average_turns,
             'performance_metrics': performance_metrics,  # Combined metrics here
-            'trend_analysis': self._analyze_performance_trend(deck_logs)
+            'trend_analysis': self._analyze_performance_trend(self.deck_logs)
         }
 
         ai_analysis = AIAnalysis(**analysis)
