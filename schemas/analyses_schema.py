@@ -1,19 +1,12 @@
 from init import ma
 from models.ai_analysis import AIAnalysis
 
-class AnalysesSchema(ma.SQLAlchemySchema):
+class AIAnalysisSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = AIAnalysis
-    
-    id = ma.auto_field()
-    deck_id = ma.auto_field()
-    timestamp = ma.auto_field()
-    win_rate = ma.auto_field()
-    total_battles = ma.auto_field()
-    average_turns = ma.auto_field()
-    performance_metrics = ma.auto_field()
-    trend_analysis = ma.auto_field()
+        include_fk = True
+        load_instance = True
 
-# Create schema instances
-analysis_schema = AnalysesSchema()
-analyses_schema = AnalysesSchema(many=True)
+# Create schema instances for single and multiple records
+ai_analysis_schema = AIAnalysisSchema()
+ai_analyses_schema = AIAnalysisSchema(many=True)

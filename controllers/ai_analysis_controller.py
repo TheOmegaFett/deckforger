@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from flask import Blueprint, json, jsonify
+from flask import Blueprint, request, jsonify
 from init import db
 from models.battlelog import Battlelog
 from models.deck import Deck
@@ -439,7 +439,7 @@ def get_analysis_history(deck_id):
     """Retrieve historical analysis data for a deck"""
     try:
         analyses = AIAnalysis.query.filter_by(deck_id=deck_id).order_by(AIAnalysis.timestamp.desc()).all()
-        return analyses_schema.jsonify(analyses), 200
+        result = ai_analysis_schema.dump(analyses)
+        return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': 'Failed to retrieve analysis history', 'details': str(e)}), 500
-
