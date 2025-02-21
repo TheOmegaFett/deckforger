@@ -121,12 +121,12 @@ class DeckAnalysisEngine:
         return {
             'underperforming_cards': weak_performers,
             'coin_flip_stats': coin_flip_cards,
-            'unused_cards': self._find_unused_cards(card_performance, deck)  # Pass deck here
+            'unused_cards': self._find_unused_cards(card_performance)  # Remove deck parameter here
         }
 
-    def _find_unused_cards(self, card_performance, deck):  # Updated signature
+    def _find_unused_cards(self, card_performance):  # Remove deck parameter here
         """Find cards that were rarely or never used"""
-        deck_cards = set(card.name for card in deck.deck_cards)
+        deck_cards = set(card.name for card in self.deck.cards)
         used_cards = set(card for card, stats in card_performance['most_used'])
         
         rarely_used = []
