@@ -101,32 +101,42 @@ class DeckAnalysisEngine:
 
         return analysis
 
-    def _identify_weak_performers(self, card_performance, deck):  # Added deck parameter
+    def _find_unused_cards(self, card_performance):
+        """Find cards that were rarely used"""
+        deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
+        used_cards = set(card for card, stats in card_performance['most_used'])
+        
+        # Calculate usage threshold based on total games
+        total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
+        usage_threshold = max(1, total_games * 0.1)  # At least 10% of games
+        
+        rarely_used = []
+        for card in deck_cards - used_cards:
+            # Only include if usage is below threshold
+            if card_performance.get(card, {}).get('uses', 0) < usage_threshold:
+                rarely_used.append({'card': card})
+        
+        return rarely_used
+
+    def _identify_weak_performers(self, card_performance, deck):
         """Identify cards with poor performance metrics"""
         weak_performers = []
+        total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
         
         for card_stats in card_performance['most_used']:
             card_name, stats = card_stats
-            # Consider a card weak if used frequently but has < 40% win rate
-            if stats['uses'] >= 5 and (stats['wins'] / stats['uses']) < 0.4:
+            # Consider a card weak if:
+            # 1. Used in at least 5 games
+            # 2. Win rate below 40%
+            # 3. Not a key combo piece
+            if (stats['uses'] >= 5 and 
+                (stats['wins'] / stats['uses']) < 0.4 and
+                card_name not in [card[0] for card in card_performance.get('key_synergy_cards', [])]):
                 weak_performers.append({
                     'card': card_name,
                     'win_rate': (stats['wins'] / stats['uses']) * 100,
                     'uses': stats['uses']
                 })
-                
-        # Track coin flip dependent cards
-        coin_flip_cards = {
-            'Crushing Hammer': {'success_rate': 0, 'attempts': 0},
-            'Super Scoop Up': {'success_rate': 0, 'attempts': 0}
-        }
-        
-        return {
-            'underperforming_cards': weak_performers,
-            'coin_flip_stats': coin_flip_cards,
-            'unused_cards': self._find_unused_cards(card_performance)  # Remove deck parameter here
-        }
-
     def _find_unused_cards(self, card_performance):  # Remove deck parameter here
         """Find cards that were rarely or never used"""
         deck_cards = set(card.name for card in self.deck.cards)
