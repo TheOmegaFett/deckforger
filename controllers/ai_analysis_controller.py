@@ -230,7 +230,7 @@ class DeckAnalysisEngine:
         # Return the strategy with highest score, default to 'unknown'
         return max(strategy_scores.items(), 
                   key=lambda x: x[1])[0] if strategy_scores else 'unknown'
-    def _identify_weak_performers(self, card_performance):
+    def _identify_weak_performers(self, card_performance, deck):  # Added deck parameter
         """Identify cards with poor performance metrics"""
         weak_performers = []
         
@@ -243,18 +243,17 @@ class DeckAnalysisEngine:
                     'win_rate': (stats['wins'] / stats['uses']) * 100,
                     'uses': stats['uses']
                 })
-            
+                
         # Track coin flip dependent cards
         coin_flip_cards = {
             'Crushing Hammer': {'success_rate': 0, 'attempts': 0},
             'Super Scoop Up': {'success_rate': 0, 'attempts': 0}
-            # Add other coin flip cards here
         }
         
         return {
             'underperforming_cards': weak_performers,
             'coin_flip_stats': coin_flip_cards,
-            'unused_cards': self._find_unused_cards(card_performance)
+            'unused_cards': self._find_unused_cards(card_performance, deck)  # Pass deck here
         }
 
     def _find_unused_cards(self, card_performance):
