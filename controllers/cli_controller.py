@@ -8,6 +8,8 @@ from models import Card, Deck, DeckBox, DeckCard, CardSet
 from models.format import Format
 from models.cardtype import CardType
 from models.rating import Rating
+from models.battlelog import Battlelog
+
 
 cli_controller = Blueprint('cli', __name__)
 
@@ -341,3 +343,4 @@ def list_routes():
             'error': 'Failed to list routes',
             'details': str(e)
         }), 500
+
