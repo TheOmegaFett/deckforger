@@ -364,19 +364,7 @@ class DeckAnalysisEngine:
         else:
             return 'support'
 
-    def _calculate_avg_turns(self, logs):
-        if not logs:
-            return {
-                'average': 0,
-                'median': 0,
-                'trend': 'insufficient_data'
-            }
-        turns = [log.total_turns for log in logs]
-        return {
-            'average': float(np.mean(turns)),
-            'median': float(np.median(turns)),
-            'trend': 'stable' if len(turns) < 2 else ('increasing' if turns[-1] > turns[0] else 'decreasing')
-        }
+
 
     def _analyze_performance_trend(self, logs):
         """Analyze performance trends using 3-game window"""
