@@ -102,20 +102,21 @@ class DeckAnalysisEngine:
 
    
     def _find_unused_cards(self, card_performance):
-        """Find cards that were rarely or never used"""
         deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
-        used_cards = set(card for card, stats in card_performance['most_used'])
-
-        # Calculate usage threshold based on total games
-        total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
-        usage_threshold = max(2, total_games * 0.15)  # Used in less than 15% of games
-
+        used_cards = set()
+    
+        # Parse full log text for card usage
+        for log in self.deck_logs:
+            raw_log = log.raw_log.lower()
+            for card in deck_cards:
+                if card.lower() in raw_log:
+                    used_cards.add(card)
+    
         rarely_used = []
-        for card in deck_cards - used_cards:
-            # Only include if usage is below threshold and not a tech card
-            if card_performance.get(card, {}).get('uses', 0) < usage_threshold:
+        for card in deck_cards:
+            if card not in used_cards:
                 rarely_used.append({'card': card})
-
+            
         return rarely_used
 
 
@@ -333,21 +334,30 @@ class DeckAnalysisEngine:
                 'second_turn_win_rate': 0.0
             }
 
-        # Explicitly track first turn games and wins
+        # Debug print to verify log data
+        for log in logs:
+            print(f"Game: went_first={log.went_first}, win={log.win_loss}")
+        
         first_turn_games = []
         first_turn_wins = 0
         second_turn_games = []
         second_turn_wins = 0
 
         for log in logs:
-            if log.went_first:
-                first_turn_games.append(log)
-                if log.win_loss:
-                    first_turn_wins += 1
-            else:
-                second_turn_games.append(log)
-                if log.win_loss:
-                    second_turn_wins += 1
+            # Check if went_first is being set correctly in the log
+            if hasattr(log, 'went_first'):
+                if log.went_first:
+                    first_turn_games.append(log)
+                    if log.win_loss:
+                        first_turn_wins += 1
+                else:
+                    second_turn_games.append(log)
+                    if log.win_loss:
+                        second_turn_wins += 1
+
+        # Print debug info
+        print(f"First turn games: {len(first_turn_games)}, wins: {first_turn_wins}")
+        print(f"Second turn games: {len(second_turn_games)}, wins: {second_turn_wins}")
 
         # Calculate win rates with explicit win counting
         first_turn_wr = (
