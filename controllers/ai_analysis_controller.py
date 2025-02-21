@@ -17,7 +17,7 @@ class DeckAnalysisEngine:
     def __init__(self):
         self.model = RandomForestClassifier()
         self.is_trained = False
-    
+        print("Analysis engine initialized")  # Verify initialization    
     def train_on_all_logs(self):
         """Train the model using all available battle logs"""
         logs = Battlelog.query.all()
@@ -92,14 +92,12 @@ class DeckAnalysisEngine:
             'win_rate': float(self._calculate_win_rate(self.deck_logs)),
             'total_battles': len(self.deck_logs),
             'average_turns': average_turns,
-            'performance_metrics': performance_metrics,  # Combined metrics here
+            'performance_metrics': performance_metrics,
             'trend_analysis': self._analyze_performance_trend(self.deck_logs)
         }
-
-        ai_analysis = AIAnalysis(**analysis)
-        db.session.add(ai_analysis)
-        db.session.commit()
-
+        
+        print(f"Generated analysis: {analysis}")  # Verify analysis object
+        
         return analysis
 
    
@@ -276,23 +274,7 @@ class DeckAnalysisEngine:
 
    
 
-   
-        """Generate contextual replacement suggestions"""
-        # Add card category mapping
-        card_categories = {
-            'Crushing Hammer': 'disruption',
-            'Super Scoop Up': 'recovery',
-            # Add more categories
-        }
-        
-        category = card_categories.get(card, 'general')
-        alternatives = {
-            'disruption': ['Team Skull Grunt', 'Enhanced Hammer'],
-            'recovery': ['Scoop Up Net', 'Switch'],
-            'general': ['Professor\'s Research', 'Marnie']
-        }
-        
-        return alternatives.get(category, [])[0]    
+     
     def _generate_suggestions(self, logs, deck):
         """Generate deck improvement suggestions based on performance data"""
         suggestions = {
@@ -315,24 +297,7 @@ class DeckAnalysisEngine:
 
         return suggestions
 
-    def _get_card_alternatives(self, weak_cards):
-        """Generate alternative card suggestions based on deck performance data"""
-        # Simulated card alternatives for demonstration
-        card_alternatives = {
-            'basic_attacker': ['Mewtwo V', 'Zacian V', 'Charizard VMAX'],
-            'energy_acceleration': ['Frosmoth', 'Rose', 'Welder'],
-            'support': ["Professor's Research", "Marnie", "Boss's Orders"]
-        }
-
-        suggestions = []
-        for card in weak_cards:
-            # Match card to a category and suggest top performers
-            category = self._determine_card_category(card)
-            if category in card_alternatives:
-                suggestions.append((card, card_alternatives[category][0]))
-        
-        return suggestions
-
+   
     def _generate_strategy_tips(self, matchups):
         """Generate strategic advice based on matchup analysis"""
         tips = []
@@ -402,32 +367,34 @@ class DeckAnalysisEngine:
             'first_turn_win_rate': first_turn_wr,
             'second_turn_win_rate': second_turn_wr
         }
-        
-    def analyze_deck_performance(deck_id):
-        try:
-            deck = db.session.get(Deck, deck_id)
-            if not deck:
-                return jsonify({'error': 'Deck not found'}), 404
-
-            analysis_engine = DeckAnalysisEngine()
-            analysis_results = analysis_engine.analyze_deck(deck_id)
-
-            if not analysis_results:
-                return jsonify({'error': 'Analysis produced no results'}), 500
-
-            return jsonify(analysis_results), 200
-
-        except Exception as e:
-            print(f"Analysis error: {str(e)}")  # Debug logging
-            return jsonify({
-                'error': 'Failed to analyze deck performance', 
-                'details': str(e)
-            }), 500
-
-
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
+def analyze_deck_performance(deck_id):
+    # Add logging
+    print(f"Analyzing deck {deck_id}")
 
-@ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
+    try:
+        deck = db.session.get(Deck, deck_id)
+        if not deck:
+            return jsonify({'error': 'Deck not found'}), 404
+
+        analysis_engine = DeckAnalysisEngine()
+        analysis_results = analysis_engine.analyze_deck(deck_id)
+
+        if not analysis_results:
+            return jsonify({'error': 'Analysis produced no results'}), 500
+
+        # Add result logging
+        print(f"Analysis results: {analysis_results}")
+
+        return jsonify(analysis_results), 200
+
+    except Exception as e:
+        print(f"Analysis error: {str(e)}")  # Debug logging
+        return jsonify({
+            'error': 'Failed to analyze deck performance', 
+            'details': str(e)
+        }), 500
+
 
 @ai_analysis_controller.route('/deck/<int:deck_id>/history', methods=['GET'])
 def get_analysis_history(deck_id):
