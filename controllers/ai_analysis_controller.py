@@ -187,10 +187,56 @@ class DeckAnalysisEngine:
             card_name, stats = card_stats
             # Consider a card weak if used frequently but has < 40% win rate
             if stats['uses'] >= 5 and (stats['wins'] / stats['uses']) < 0.4:
-                weak_performers.append(card_name)
-                
-        return weak_performers
-    
+                weak_performers.append({
+                    'card': card_name,
+                    'win_rate': (stats['wins'] / stats['uses']) * 100,
+                    'uses': stats['uses']
+                })
+            
+        # Track coin flip dependent cards
+        coin_flip_cards = {
+            'Crushing Hammer': {'success_rate': 0, 'attempts': 0},
+            'Super Scoop Up': {'success_rate': 0, 'attempts': 0}
+            # Add other coin flip cards here
+        }
+        
+        return {
+            'underperforming_cards': weak_performers,
+            'coin_flip_stats': coin_flip_cards,
+            'unused_cards': self._find_unused_cards(card_performance)
+        }
+
+    def _find_unused_cards(self, card_performance):
+        """Find cards that were rarely or never used"""
+        deck_cards = set(card.name for card in self.deck.cards)
+        used_cards = set(card for card, stats in card_performance['most_used'])
+        
+        rarely_used = []
+        for card in deck_cards - used_cards:
+            rarely_used.append({
+                'card': card,
+                'recommendation': self._get_replacement_suggestion(card)
+            })
+        
+        return rarely_used
+
+    def _get_replacement_suggestion(self, card):
+        """Generate contextual replacement suggestions"""
+        # Add card category mapping
+        card_categories = {
+            'Crushing Hammer': 'disruption',
+            'Super Scoop Up': 'recovery',
+            # Add more categories
+        }
+        
+        category = card_categories.get(card, 'general')
+        alternatives = {
+            'disruption': ['Team Skull Grunt', 'Enhanced Hammer'],
+            'recovery': ['Scoop Up Net', 'Switch'],
+            'general': ['Professor\'s Research', 'Marnie']
+        }
+        
+        return alternatives.get(category, [])[0]    
     def _generate_suggestions(self, logs, deck):
         """Generate deck improvement suggestions based on performance data"""
         suggestions = {
