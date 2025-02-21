@@ -299,7 +299,8 @@ class DeckAnalysisEngine:
         }
 
         card_performance = self._identify_key_cards(logs)
-        weak_cards = self._identify_weak_performers(card_performance)
+        # Add the deck parameter here
+        weak_cards = self._identify_weak_performers(card_performance, deck)
 
         suggestions['card_recommendations'] = [
             f"Consider replacing {card} with {alternative}"
