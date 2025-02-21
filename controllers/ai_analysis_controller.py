@@ -361,60 +361,49 @@ class DeckAnalysisEngine:
         else:
             return 'support'
 
-        def _analyze_performance_trend(self, logs):
-            if not logs:
-                return {
-                    'trend': 'No games played yet',
-                    'consistency_score': 0.0,
-                    'recent_win_rate': 0.0,
-                    'first_turn_win_rate': 0.0,
-                    'second_turn_win_rate': 0.0
-                }
-
-            # Explicitly check went_first flag
-            first_turn_games = [log for log in logs if log.went_first is True]
-            second_turn_games = [log for log in logs if log.went_first is False]
-
-            first_turn_wr = (
-                sum(1 for g in first_turn_games if g.win_loss) / len(first_turn_games)
-                if first_turn_games else 0.0
-            ) * 100  # Convert to percentage
-
-            second_turn_wr = (
-                sum(1 for g in second_turn_games if g.win_loss) / len(second_turn_games)
-                if second_turn_games else 0.0
-            ) * 100  # Convert to percentage
-
-            recent_games = logs[-3:] if len(logs) >= 3 else logs
-            recent_wr = (sum(1 for g in recent_games if g.win_loss) / len(recent_games)) * 100
-
-            overall_wr = (sum(1 for g in logs if g.win_loss) / len(logs)) * 100
-            trend = (
-                'improving' if recent_wr > overall_wr
-                else 'declining' if recent_wr < overall_wr
-                else 'stable'
-            )
-
+    def _analyze_performance_trend(self, logs):
+        if not logs:
             return {
-                'trend': trend,
-                'consistency_score': float(np.std([g.win_loss for g in logs])),
-                'recent_win_rate': recent_wr,
-                'first_turn_win_rate': first_turn_wr,
-                'second_turn_win_rate': second_turn_wr
+                'trend': 'No games played yet',
+                'consistency_score': 0.0,
+                'recent_win_rate': 0.0,
+                'first_turn_win_rate': 0.0,
+                'second_turn_win_rate': 0.0
             }
 
-    def analyze_deck_performance(deck_id):
-        """
-        Analyze deck performance using battle logs and AI.
+        # Explicitly check went_first flag
+        first_turn_games = [log for log in logs if log.went_first is True]
+        second_turn_games = [log for log in logs if log.went_first is False]
+
+        first_turn_wr = (
+            sum(1 for g in first_turn_games if g.win_loss) / len(first_turn_games)
+            if first_turn_games else 0.0
+        ) * 100  # Convert to percentage
+
+        second_turn_wr = (
+            sum(1 for g in second_turn_games if g.win_loss) / len(second_turn_games)
+            if second_turn_games else 0.0
+        ) * 100  # Convert to percentage
+
+        recent_games = logs[-3:] if len(logs) >= 3 else logs
+        recent_wr = (sum(1 for g in recent_games if g.win_loss) / len(recent_games)) * 100
+
+        overall_wr = (sum(1 for g in logs if g.win_loss) / len(logs)) * 100
+        trend = (
+            'improving' if recent_wr > overall_wr
+            else 'declining' if recent_wr < overall_wr
+            else 'stable'
+        )
+
+        return {
+            'trend': trend,
+            'consistency_score': float(np.std([g.win_loss for g in logs])),
+            'recent_win_rate': recent_wr,
+            'first_turn_win_rate': first_turn_wr,
+            'second_turn_win_rate': second_turn_wr
+        }
         
-        Parameters:
-            deck_id (int): ID of the deck to analyze
-            
-        Returns:
-            200: Analysis results in JSON format
-            404: Deck not found
-            500: Analysis operation failed
-        """
+    def analyze_deck_performance(deck_id):
         try:
             deck = db.session.get(Deck, deck_id)
             if not deck:
@@ -423,14 +412,20 @@ class DeckAnalysisEngine:
             analysis_engine = DeckAnalysisEngine()
             analysis_results = analysis_engine.analyze_deck(deck_id)
 
+            if not analysis_results:
+                return jsonify({'error': 'Analysis produced no results'}), 500
+
             return jsonify(analysis_results), 200
 
         except Exception as e:
+            print(f"Analysis error: {str(e)}")  # Debug logging
             return jsonify({
                 'error': 'Failed to analyze deck performance', 
                 'details': str(e)
             }), 500
 
+
+@ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 
