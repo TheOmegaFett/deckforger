@@ -62,7 +62,7 @@ class DeckAnalysisEngine:
 
     def analyze_deck(self, deck_id):
         deck = Deck.query.get(deck_id)
-        self.deck = deck  # Store deck reference for analysis methods
+        self.deck = deck
         deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
         # Calculate average turns first and ensure it's a float
@@ -74,24 +74,25 @@ class DeckAnalysisEngine:
 
         # Get card performance data
         card_performance = self._identify_key_cards(deck_logs)
-        # Updated call with deck parameter
         weak_performers = self._identify_weak_performers(card_performance, deck)
 
-        # Prepare analysis with type-safe values
+        # Store card effectiveness data in performance_metrics
+        performance_metrics = {
+            'key_cards': card_performance,
+            'underperforming_cards': weak_performers['underperforming_cards'],
+            'coin_flip_cards': weak_performers['coin_flip_stats'],
+            'unused_cards': weak_performers['unused_cards']
+        }
+
+        # Prepare analysis with valid model fields
         analysis = {
             'deck_id': deck_id,
             'timestamp': datetime.now(timezone.utc),
             'win_rate': float(self._calculate_win_rate(deck_logs)),
             'total_battles': len(deck_logs),
             'average_turns': average_turns,
-            'performance_metrics': card_performance,
-            'trend_analysis': self._analyze_performance_trend(deck_logs),
-            'card_effectiveness': {
-                'underperforming_cards': weak_performers['underperforming_cards'],
-                'coin_flip_cards': weak_performers['coin_flip_stats'],
-                'unused_cards': weak_performers['unused_cards']
-            },
-            'suggestions': self._generate_suggestions(deck_logs, deck)
+            'performance_metrics': performance_metrics,  # Combined metrics here
+            'trend_analysis': self._analyze_performance_trend(deck_logs)
         }
 
         ai_analysis = AIAnalysis(**analysis)
