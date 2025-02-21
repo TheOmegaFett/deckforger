@@ -71,15 +71,25 @@ class DeckAnalysisEngine:
         else:
             average_turns = float(avg_turns_data['average'])
 
+        # Get card performance data
+        card_performance = self._identify_key_cards(deck_logs)
+        weak_performers = self._identify_weak_performers(card_performance)
+
         # Prepare analysis with type-safe values
         analysis = {
             'deck_id': deck_id,
             'timestamp': datetime.now(timezone.utc),
             'win_rate': float(self._calculate_win_rate(deck_logs)),
             'total_battles': len(deck_logs),
-            'average_turns': average_turns,  # Now guaranteed to be a float
-            'performance_metrics': self._identify_key_cards(deck_logs),
-            'trend_analysis': self._analyze_performance_trend(deck_logs)
+            'average_turns': average_turns,
+            'performance_metrics': card_performance,
+            'trend_analysis': self._analyze_performance_trend(deck_logs),
+            'card_effectiveness': {
+                'underperforming_cards': weak_performers['underperforming_cards'],
+                'coin_flip_cards': weak_performers['coin_flip_stats'],
+                'unused_cards': weak_performers['unused_cards']
+            },
+            'suggestions': self._generate_suggestions(deck_logs, deck)
         }
 
         ai_analysis = AIAnalysis(**analysis)
