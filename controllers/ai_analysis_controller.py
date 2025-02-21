@@ -63,10 +63,10 @@ class DeckAnalysisEngine:
     def analyze_deck(self, deck_id):
         deck = Deck.query.get(deck_id)
         self.deck = deck
-        deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
+        self.deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all() 
 
         # Calculate average turns first and ensure it's a float
-        avg_turns_data = self._calculate_avg_turns(deck_logs)
+        avg_turns_data = self._calculate_avg_turns(self.deck_logs)
         if isinstance(avg_turns_data, (int, float)):
             average_turns = float(avg_turns_data)
         else:
@@ -251,31 +251,6 @@ class DeckAnalysisEngine:
             return 'unknown'
     
         return max(strategy_scores.items(), key=lambda x: x[1])[0]
-    def _identify_weak_performers(self, card_performance, deck):  # Added deck parameter
-        """Identify cards with poor performance metrics"""
-        weak_performers = []
-        
-        for card_stats in card_performance['most_used']:
-            card_name, stats = card_stats
-            # Consider a card weak if used frequently but has < 40% win rate
-            if stats['uses'] >= 5 and (stats['wins'] / stats['uses']) < 0.4:
-                weak_performers.append({
-                    'card': card_name,
-                    'win_rate': (stats['wins'] / stats['uses']) * 100,
-                    'uses': stats['uses']
-                })
-                
-        # Track coin flip dependent cards
-        coin_flip_cards = {
-            'Crushing Hammer': {'success_rate': 0, 'attempts': 0},
-            'Super Scoop Up': {'success_rate': 0, 'attempts': 0}
-        }
-        
-        return {
-            'underperforming_cards': weak_performers,
-            'coin_flip_stats': coin_flip_cards,
-            'unused_cards': self._find_unused_cards(card_performance)  # Remove deck parameter
-        }
 
    
 
