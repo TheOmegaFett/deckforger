@@ -171,154 +171,164 @@ def get_deck_stats(deck_id):
             "details": str(e)
         }), 500
 
+import logging
+
+logger = logging.getLogger(__name__)
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+
 @battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
 def import_battlelog(deck_id, player_name):
     try:
-        # Add validation for the log format
-        log_text = request.get_data(as_text=True)
-        if not log_text.strip():
-            return jsonify({
-                "error": "Empty battle log",
-                "details": "The battle log content cannot be empty"
-            }), 400
-            
-        # Validate log structure
-        if "Setup" not in log_text or "Turn #" not in log_text:
-            return jsonify({
-                "error": "Invalid battle log format",
-                "details": "Log must contain Setup and Turn sections"
-            }), 400
-
-        # Add logging for debugging
-        print(f"Processing log for deck {deck_id} and player {player_name}")
-        print(f"Log length: {len(log_text)} characters")
+        with db.session.begin_nested():
+            # Validate deck exists
+            deck = Deck.query.get_or_404(deck_id)
         
-        deck = Deck.query.get_or_404(deck_id)
-        lines = [line.strip() for line in log_text.split('\n') if line.strip()]
+            # Validate request data
+            log_text = request.get_data(as_text=True)
+            if not log_text:
+                return jsonify({
+                    "error": "Missing log data",
+                    "details": "Request body cannot be empty"
+                }), 400
+            
+            # Process the log...
+            if not log_text.strip():
+                return jsonify({
+                    "error": "Empty battle log",
+                    "details": "The battle log content cannot be empty"
+                }), 400
+            
+            # Validate log structure
+            if "Setup" not in log_text or "Turn #" not in log_text:
+                return jsonify({
+                    "error": "Invalid battle log format",
+                    "details": "Log must contain Setup and Turn sections"
+                }), 400
 
-        # Determine who went first by checking first turn
-        first_turn_line = next(line for line in lines if "Turn #1" in line)
-        went_first = player_name in first_turn_line
+            lines = [line.strip() for line in log_text.split('\n') if line.strip()]
 
-        # Duplicate check
-        existing_log = db.session.execute(
-            db.select(Battlelog).where(
-                db.and_(
-                    Battlelog.deck_id == deck_id,
-                    Battlelog.raw_log == request.get_data(as_text=True)
+            # Determine who went first by checking first turn
+            first_turn_line = next(line for line in lines if "Turn #1" in line)
+            went_first = player_name in first_turn_line
+
+            # Duplicate check
+            existing_log = db.session.execute(
+                db.select(Battlelog).where(
+                    db.and_(
+                        Battlelog.deck_id == deck_id,
+                        Battlelog.raw_log == request.get_data(as_text=True)
+                    )
                 )
-            )
-        ).scalar_one_or_none()
+            ).scalar_one_or_none()
 
-        if existing_log:
-            return jsonify({
-                "error": "This battle log has already been imported",
-                "existing_log_id": existing_log.id
-            }), 409  # Conflict
+            if existing_log:
+                return jsonify({
+                    "error": "This battle log has already been imported",
+                    "existing_log_id": existing_log.id
+                }), 409  # Conflict
     
-        # Process log and create battlelog
-        deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
+            # Process log and create battlelog
+            deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
 
-        # Track cards and interactions
-        player_cards = set()
-        card_interactions = {}
-        current_player = None
-        card_usage_count = {}  # Track {card_name: usage_count}
-     
-        def is_meaningful_interaction(card1, card2, line):
-            # Define meaningful interactions
-            interactions = [
-                # Stadium sacrificed for attack
-                (lambda c1, c2: "Stadium" in c1 and "discarded" in line and c2 in line and "used" in line),
-                # Energy attachment and Pokemon
-                (lambda c1, c2: "Energy" in c1 and "attached" in line and c2 in line),
-                # Tool/Item card used on Pokemon
-                (lambda c1, c2: ("Tool" in c1 or "Capsule" in c1) and "attached" in line and c2 in line)
-            ]
-            return any(check(card1, card2) or check(card2, card1) for check in interactions)
+            # Track cards and interactions
+            player_cards = set()
+            card_interactions = {}
+            current_player = None
+            card_usage_count = {}  # Track {card_name: usage_count}
+        
+            def is_meaningful_interaction(card1, card2, line):
+                # Define meaningful interactions
+                interactions = [
+                    # Stadium sacrificed for attack
+                    (lambda c1, c2: "Stadium" in c1 and "discarded" in line and c2 in line and "used" in line),
+                    # Energy attachment and Pokemon
+                    (lambda c1, c2: "Energy" in c1 and "attached" in line and c2 in line),
+                    # Tool/Item card used on Pokemon
+                    (lambda c1, c2: ("Tool" in c1 or "Capsule" in c1) and "attached" in line and c2 in line)
+                ]
+                return any(check(card1, card2) or check(card2, card1) for check in interactions)
 
-        for line in lines:
-            if "Turn #" in line:
-                current_player = line.split("-")[1].strip().split("'")[0]
+            for line in lines:
+                if "Turn #" in line:
+                    current_player = line.split("-")[1].strip().split("'")[0]
 
-            if current_player == player_name:
-                # Check for meaningful interactions in each line
-                for card1 in deck_cards:
-                    for card2 in deck_cards:
-                        if card1 != card2 and card1 in line and card2 in line:
-                            if is_meaningful_interaction(card1, card2, line):
-                                pair = tuple(sorted([card1, card2]))
-                                card_interactions[pair] = card_interactions.get(pair, 0) + 1
+                if current_player == player_name:
+                    # Check for meaningful interactions in each line
+                    for card1 in deck_cards:
+                        for card2 in deck_cards:
+                            if card1 != card2 and card1 in line and card2 in line:
+                                if is_meaningful_interaction(card1, card2, line):
+                                    pair = tuple(sorted([card1, card2]))
+                                    card_interactions[pair] = card_interactions.get(pair, 0) + 1
 
             
-            if current_player == player_name:
-                # Extract card names from the line
-                for card_name in deck_cards:  # Use deck_cards to check valid cards
-                    if card_name in line:  # Check any mention of the card
-                        card_usage_count[card_name] = card_usage_count.get(card_name, 0) + 1
+                if current_player == player_name:
+                    # Extract card names from the line
+                    for card_name in deck_cards:  # Use deck_cards to check valid cards
+                        if card_name in line:  # Check any mention of the card
+                            card_usage_count[card_name] = card_usage_count.get(card_name, 0) + 1
 
-        key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
-        key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
+            key_synergy_cards = sorted(card_interactions.items(), key=lambda x: x[1], reverse=True)[:3]
+            key_synergy_cards = [list(pair[0]) for pair in key_synergy_cards]
 
-        # Validate card pools against player name
-        valid_log = all(card in deck_cards for card in player_cards)  # Using new variable name
-        if not valid_log:
-            return jsonify({"error": "Battle log doesn't match specified deck"}), 400
+            # Validate card pools against player name
+            valid_log = all(card in deck_cards for card in player_cards)  # Using new variable name
+            if not valid_log:
+                return jsonify({"error": "Battle log doesn't match specified deck"}), 400
 
-        total_turns = len([line for line in lines if line.startswith('Turn #')])
+            total_turns = len([line for line in lines if line.startswith('Turn #')])
 
-        # Then at the end, check the last actual line
-        win_loss = any(
-            condition in lines[-1] 
-            for condition in [
-                f"{player_name} wins",
-                f"Opponent conceded. {player_name} wins"
-            ]
-        )
+            # Then at the end, check the last actual line
+            win_loss = any(
+                condition in lines[-1] 
+                for condition in [
+                    f"{player_name} wins",
+                    f"Opponent conceded. {player_name} wins"
+                ]
+            )
 
-        # Get top 3 most used cards by usage count
-        most_used = sorted(card_usage_count.items(), key=lambda x: x[1], reverse=True)[:3]
-        most_used_cards = [card[0] for card in most_used]
+            # Get top 3 most used cards by usage count
+            most_used = sorted(card_usage_count.items(), key=lambda x: x[1], reverse=True)[:3]
+            most_used_cards = [card[0] for card in most_used]
 
-        # Create new battlelog
-        from datetime import datetime, timezone
+            # Create new battlelog
+            from datetime import datetime, timezone
 
-        battlelog_data = {
-            'deck_id': deck_id,
-            'win_loss': win_loss,
-            'total_turns': total_turns,
-            'most_used_cards': most_used_cards,
-            'key_synergy_cards': key_synergy_cards,
-            'raw_log': log_text,
-            'timestamp': datetime.now(timezone.utc),
-            'went_first': went_first  # Add the new field
-        }
+            battlelog_data = {
+                'deck_id': deck_id,
+                'win_loss': win_loss,
+                'total_turns': total_turns,
+                'most_used_cards': most_used_cards,
+                'key_synergy_cards': key_synergy_cards,
+                'raw_log': log_text,
+                'timestamp': datetime.now(timezone.utc),
+                'went_first': went_first  # Add the new field
+            }
         
-        battlelog = Battlelog(**battlelog_data)
-        db.session.add(battlelog)
+            battlelog = Battlelog(**battlelog_data)
+            db.session.add(battlelog)
+    
         db.session.commit()
-        
         return jsonify({
             "message": "Battle log imported successfully",
             "id": battlelog.id,
             "stats": battlelog_data
         }), 201
-
+    
     except ValueError as ve:
         return jsonify({
-            "error": "Battle log processing error",
+            "error": "Invalid input",
             "details": str(ve)
         }), 400
+    except IntegrityError as ie:
+        db.session.rollback()
+        return jsonify({
+            "error": "Database constraint violation",
+            "details": str(ie)
+        }), 409
     except SQLAlchemyError as se:
         db.session.rollback()
         return jsonify({
             "error": "Database error",
             "details": str(se)
-        }), 500
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            "error": "Failed to import battle log",
-            "details": str(e),
-            "type": type(e).__name__
         }), 500
