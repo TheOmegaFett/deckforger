@@ -324,69 +324,46 @@ class DeckAnalysisEngine:
         else:
             return 'support'
     def _analyze_performance_trend(self, logs):
-          if not logs:
-              return {
-                  'trend': 'No games played yet',
-                  'consistency_score': 0.0,
-                  'recent_win_rate': 0.0,
-                  'first_turn_win_rate': 0.0,
-                  'second_turn_win_rate': 0.0
-              }
+        # Initialize counters
+        first_turn_games = []
+        second_turn_games = []
+    
+        # Categorize games, treating None as second turn for existing data
+        for log in logs:
+            if log.went_first is True:  # Explicitly check for True
+                first_turn_games.append(log)
+            else:  # This catches both False and None
+                second_turn_games.append(log)
+    
+        # Calculate win rates
+        first_turn_wins = sum(1 for g in first_turn_games if g.win_loss)
+        second_turn_wins = sum(1 for g in second_turn_games if g.win_loss)
+    
+        first_turn_wr = (first_turn_wins / len(first_turn_games) * 100) if first_turn_games else 0.0
+        second_turn_wr = (second_turn_wins / len(second_turn_games) * 100) if second_turn_games else 0.0
+    
+        # Add debug logging
+        print(f"First turn games: {len(first_turn_games)}, wins: {first_turn_wins}")
+        print(f"Second turn games: {len(second_turn_games)}, wins: {second_turn_wins}")
+    
+        # Rest of the method remains the same...
+        recent_games = logs[-3:] if len(logs) >= 3 else logs
+        recent_wr = (sum(1 for g in recent_games if g.win_loss) / len(recent_games)) * 100
 
-          # Debug print to verify log data
-          for log in logs:
-              print(f"Game: went_first={log.went_first}, win={log.win_loss}")
-        
-          first_turn_games = []
-          first_turn_wins = 0
-          second_turn_games = []
-          second_turn_wins = 0
+        overall_wr = (sum(1 for g in logs if g.win_loss) / len(logs)) * 100
+        trend = (
+            'improving' if recent_wr > overall_wr
+            else 'declining' if recent_wr < overall_wr
+            else 'stable'
+        )
 
-          for log in logs:
-              # Check if went_first is being set correctly in the log
-              if hasattr(log, 'went_first'):
-                  if log.went_first:
-                      first_turn_games.append(log)
-                      if log.win_loss:
-                          first_turn_wins += 1
-                  else:
-                      second_turn_games.append(log)
-                      if log.win_loss:
-                          second_turn_wins += 1
-
-          # Print debug info
-          print(f"First turn games: {len(first_turn_games)}, wins: {first_turn_wins}")
-          print(f"Second turn games: {len(second_turn_games)}, wins: {second_turn_wins}")
-
-          # Calculate win rates with explicit win counting
-          first_turn_wr = (
-              (first_turn_wins / len(first_turn_games)) * 100
-              if first_turn_games else 0.0
-          )
-
-          second_turn_wr = (
-              (second_turn_wins / len(second_turn_games)) * 100
-              if second_turn_games else 0.0
-          )
-
-          # Calculate other metrics
-          recent_games = logs[-3:] if len(logs) >= 3 else logs
-          recent_wr = (sum(1 for g in recent_games if g.win_loss) / len(recent_games)) * 100
-
-          overall_wr = (sum(1 for g in logs if g.win_loss) / len(logs)) * 100
-          trend = (
-              'improving' if recent_wr > overall_wr
-              else 'declining' if recent_wr < overall_wr
-              else 'stable'
-          )
-
-          return {
-              'trend': trend,
-              'consistency_score': float(np.std([g.win_loss for g in logs])),
-              'recent_win_rate': recent_wr,
-              'first_turn_win_rate': first_turn_wr,
-              'second_turn_win_rate': second_turn_wr
-          }
+        return {
+            'trend': trend,
+            'consistency_score': float(np.std([g.win_loss for g in logs])),
+            'recent_win_rate': recent_wr,
+            'first_turn_win_rate': first_turn_wr,
+            'second_turn_win_rate': second_turn_wr
+        }
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 def analyze_deck_performance(deck_id):
     # Add logging

@@ -236,14 +236,20 @@ cli_controller = Blueprint('cli', __name__)
 @cli_controller.route('/run/cleanup', methods=['POST'])
 def cleanup_database():
     """
-    Clean up duplicate entries in database.
+    Clean up duplicate entries and update missing battle log attributes.
     
     Returns:
-        200: Cleanup completed successfully with count of removed items
+        200: Cleanup completed successfully with count of updated items
         500: Cleanup operation failed
     """
     try:
-        # Clean up duplicate cards
+        updates = {
+            'cards_deleted': 0,
+            'sets_deleted': 0,
+            'battlelogs_updated': 0
+        }
+
+        # Existing cleanup code for cards and sets
         stmt = (
             db.select(Card.name, Card.cardset_id, db.func.count('*'))
             .group_by(Card.name, Card.cardset_id)
@@ -251,37 +257,44 @@ def cleanup_database():
         )
         duplicate_cards = db.session.execute(stmt).all()
         
-        cards_deleted = 0
         for name, cardset_id, count in duplicate_cards:
             stmt = db.select(Card).filter_by(name=name, set_id=cardset_id).offset(1)
             duplicates = db.session.scalars(stmt).all()
             for card in duplicates:
                 db.session.delete(card)
-                cards_deleted += 1
+                updates['cards_deleted'] += 1
 
-        # Clean up duplicate sets
-        stmt = (
-            db.select(CardSet.name, db.func.count('*'))
-            .group_by(CardSet.name)
-            .having(db.func.count('*') > 1)
-        )
-        duplicate_sets = db.session.execute(stmt).all()
+        # Add battlelog went_first attribute update
+        battlelogs = Battlelog.query.filter(Battlelog.went_first.is_(None)).all()
         
-        sets_deleted = 0
-        for name, count in duplicate_sets:
-            stmt = db.select(CardSet).filter_by(name=name).offset(1)
-            duplicates = db.session.scalars(stmt).all()
-            for set_ in duplicates:
-                db.session.delete(set_)
-                sets_deleted += 1
+        for log in battlelogs:
+            # Parse raw log to determine went_first
+            lines = [line.strip() for line in log.raw_log.split('\n') if line.strip()]
+            
+            # Get player name from deck relationship
+            deck = Deck.query.get(log.deck_id)
+            player_name = deck.player_name if deck else None
+            
+            if player_name:
+                for line in lines:
+                    if "decided to go first" in line:
+                        log.went_first = player_name in line
+                        break
+                    elif "Turn #1" in line:
+                        log.went_first = player_name in line
+                        break
+                
+                updates['battlelogs_updated'] += 1
 
         db.session.commit()
 
         return jsonify({
             'message': 'Cleanup completed successfully!',
-            'cards_removed': cards_deleted,
-            'sets_removed': sets_deleted
+            'cards_removed': updates['cards_deleted'],
+            'sets_removed': updates['sets_deleted'],
+            'battlelogs_updated': updates['battlelogs_updated']
         }), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({

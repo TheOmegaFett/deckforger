@@ -112,17 +112,24 @@ def get_deck_battlelogs(deck_id):
 
 @battlelogs.route('/', methods=['POST'])
 def create_battlelog():
-    """
-    Direct battlelog creation endpoint (disabled).
+    data = request.get_json()
+    # Ensure went_first is explicitly set when creating log
+    went_first = data.get('went_first')  # Get from request data
     
-    Returns:
-        405: Method not allowed response directing to import endpoint
-    """
+    battlelog = Battlelog(
+        deck_id=data['deck_id'],
+        win_loss=data['win_loss'],
+        total_turns=data['total_turns'],
+        most_used_cards=data['most_used_cards'],
+        key_synergy_cards=data['key_synergy_cards'],
+        raw_log=data['raw_log'],
+        went_first=went_first  # Set the flag
+    )
 
-    return jsonify({
-        "error": "Direct battlelog creation not allowed",
-        "message": "Please use /battlelogs/import/{deck_id}/{player_name} endpoint"
-    }), 405  # Method Not Allowed
+    db.session.add(battlelog)
+    db.session.commit()
+
+    return jsonify(battlelog_schema.dump(battlelog)), 201  # Created
 
 @battlelogs.route('/stats/<int:deck_id>', methods=['GET'])
 def get_deck_stats(deck_id):

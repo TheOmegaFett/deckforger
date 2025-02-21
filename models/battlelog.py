@@ -32,7 +32,7 @@ class Battlelog(db.Model):
     # Add timestamp column
     timestamp = Column(db.DateTime, default=(datetime.timezone.utc))
     # Add new field
-    went_first = Column(db.Boolean)
+    went_first = Column(db.Boolean, nullable=False)  # Make it non-nullable with a default
     deck = db.relationship("Deck", back_populates="battlelogs")
 
     def __repr__(self):
