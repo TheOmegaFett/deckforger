@@ -190,14 +190,13 @@ def import_battlelog(deck_id, player_name):
                     "error": "Missing log data",
                     "details": "Request body cannot be empty"
                 }), 400
-            
-            # Process the log...
+            # First, validate the log structure
             if not log_text.strip():
                 return jsonify({
                     "error": "Empty battle log",
                     "details": "The battle log content cannot be empty"
                 }), 400
-            
+
             # Validate log structure
             if "Setup" not in log_text or "Turn #" not in log_text:
                 return jsonify({
@@ -207,10 +206,17 @@ def import_battlelog(deck_id, player_name):
 
             lines = [line.strip() for line in log_text.split('\n') if line.strip()]
 
-            # Determine who went first by checking first turn
-            first_turn_line = next(line for line in lines if "Turn #1" in line)
-            went_first = player_name in first_turn_line
+            # Determine who went first by checking setup section
+            went_first = False
+            for line in lines:
+                if "decided to go first" in line:
+                    went_first = player_name in line
+                    break
+                elif "Turn #1" in line:
+                    went_first = player_name in line
+                    break
 
+            # Rest of the processing logic...
             # Duplicate check
             existing_log = db.session.execute(
                 db.select(Battlelog).where(
@@ -332,3 +338,4 @@ def import_battlelog(deck_id, player_name):
             "error": "Database error",
             "details": str(se)
         }), 500
+
