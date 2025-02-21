@@ -129,58 +129,57 @@ class DeckAnalysisEngine:
         total_games = len(deck_logs)
 
         for card_name, stats in card_performance['most_used']:
-            # Adjust thresholds
-            if (stats['uses'] >= total_games * 0.15 and  # Lower usage threshold
-                (stats['wins'] / stats['uses']) < 0.45 and  # Higher win rate threshold
-                card_name not in [card[0] for card in card_performance.get('key_synergy_cards', [])]):
+            if (stats['uses'] >= total_games * 0.15 and
+                (stats['wins'] / stats['uses']) < 0.45):
                 weak_performers.append({
                     'card': card_name,
                     'win_rate': (stats['wins'] / stats['uses']) * 100,
                     'uses': stats['uses']
                 })
 
+        # Add default message if no weak performers found
+        if not weak_performers:
+            weak_performers = [{"message": "All frequently used cards are performing effectively"}]
 
         return {
             'underperforming_cards': weak_performers,
-            'coin_flip_stats': self._analyze_coin_flip_cards(deck_logs),  # Pass deck_logs here
+            'coin_flip_stats': self._analyze_coin_flip_cards(deck_logs),
             'unused_cards': self._find_unused_cards(card_performance)
         }
 
     def _analyze_coin_flip_cards(self, logs):
         """Analyze success rates of coin flip dependent cards"""
-        def _analyze_coin_flip_cards(self, logs):
-            coin_flip_stats = {
-                "Crushing Hammer": {"attempts": 0, "successes": 0},
-                "Super Scoop Up": {"attempts": 0, "successes": 0}
-            }
+        coin_flip_stats = {
+            "Crushing Hammer": {"attempts": 0, "successes": 0},
+            "Super Scoop Up": {"attempts": 0, "successes": 0}
+        }
 
-            for log in logs:
-                raw_log = log.raw_log.lower()
-                
-                # Improve Crushing Hammer detection
-                if "crushing hammer" in raw_log:
-                    hammer_attempts = raw_log.count("played crushing hammer")
-                    coin_flip_stats["Crushing Hammer"]["attempts"] += hammer_attempts
-                    # Look for successful flips
-                    successes = raw_log.count("flipped a coin and it landed on heads")
-                    coin_flip_stats["Crushing Hammer"]["successes"] += successes
+        for log in logs:
+            raw_log = log.raw_log.lower()
+        
+            # Track Crushing Hammer
+            if "crushing hammer" in raw_log:
+                hammer_attempts = raw_log.count("played crushing hammer")
+                coin_flip_stats["Crushing Hammer"]["attempts"] += hammer_attempts
+                successes = raw_log.count("landed on heads")
+                coin_flip_stats["Crushing Hammer"]["successes"] += successes
+            
+            # Track Super Scoop Up
+            if "super scoop up" in raw_log:
+                scoop_attempts = raw_log.count("played super scoop up")
+                coin_flip_stats["Super Scoop Up"]["attempts"] += scoop_attempts
+                successes = raw_log.count("returned to hand")
+                coin_flip_stats["Super Scoop Up"]["successes"] += successes
 
-                # Improve Super Scoop Up detection  
-                if "super scoop up" in raw_log:
-                    scoop_attempts = raw_log.count("played super scoop up")
-                    coin_flip_stats["Super Scoop Up"]["attempts"] += scoop_attempts
-                    successes = raw_log.count("returned to hand")
-                    coin_flip_stats["Super Scoop Up"]["successes"] += successes
+        # Calculate success rates
+        for card in coin_flip_stats:
+            stats = coin_flip_stats[card]
+            if stats["attempts"] > 0:
+                stats["success_rate"] = (stats["successes"] / stats["attempts"]) * 100
+            else:
+                stats["success_rate"] = 0
 
-            # Calculate success rates
-            for card in coin_flip_stats:
-                stats = coin_flip_stats[card]
-                if stats["attempts"] > 0:
-                    stats["success_rate"] = (stats["successes"] / stats["attempts"]) * 100
-                else:
-                    stats["success_rate"] = 0
-
-            return coin_flip_stats    
+        return coin_flip_stats
     
     def _calculate_win_rate(self, logs):
         """Calculate win rate with statistical confidence"""
@@ -362,52 +361,47 @@ class DeckAnalysisEngine:
         else:
             return 'support'
 
+        def _analyze_performance_trend(self, logs):
+            if not logs:
+                return {
+                    'trend': 'No games played yet',
+                    'consistency_score': 0.0,
+                    'recent_win_rate': 0.0,
+                    'first_turn_win_rate': 0.0,
+                    'second_turn_win_rate': 0.0
+                }
 
+            # Explicitly check went_first flag
+            first_turn_games = [log for log in logs if log.went_first is True]
+            second_turn_games = [log for log in logs if log.went_first is False]
 
-    def _analyze_performance_trend(self, logs):
-        """Analyze performance trends using 3-game window"""
-        if not logs:
+            first_turn_wr = (
+                sum(1 for g in first_turn_games if g.win_loss) / len(first_turn_games)
+                if first_turn_games else 0.0
+            ) * 100  # Convert to percentage
+
+            second_turn_wr = (
+                sum(1 for g in second_turn_games if g.win_loss) / len(second_turn_games)
+                if second_turn_games else 0.0
+            ) * 100  # Convert to percentage
+
+            recent_games = logs[-3:] if len(logs) >= 3 else logs
+            recent_wr = (sum(1 for g in recent_games if g.win_loss) / len(recent_games)) * 100
+
+            overall_wr = (sum(1 for g in logs if g.win_loss) / len(logs)) * 100
+            trend = (
+                'improving' if recent_wr > overall_wr
+                else 'declining' if recent_wr < overall_wr
+                else 'stable'
+            )
+
             return {
-                'trend': 'No games played yet',
-                'consistency_score': 0.0,
-                'recent_win_rate': 0.0,
-                'first_turn_win_rate': 0.0,
-                'second_turn_win_rate': 0.0
+                'trend': trend,
+                'consistency_score': float(np.std([g.win_loss for g in logs])),
+                'recent_win_rate': recent_wr,
+                'first_turn_win_rate': first_turn_wr,
+                'second_turn_win_rate': second_turn_wr
             }
-
-        # Calculate first/second turn stats
-        first_turn_games = [log for log in logs if log.went_first]
-        second_turn_games = [log for log in logs if not log.went_first]
-    
-        first_turn_wr = (
-            sum(1 for g in first_turn_games if g.win_loss) / len(first_turn_games)
-            if first_turn_games else 0.0
-        )
-    
-        second_turn_wr = (
-            sum(1 for g in second_turn_games if g.win_loss) / len(second_turn_games)
-            if second_turn_games else 0.0
-        )
-
-        # Use 3-game window for trend
-        recent_games = logs[-3:] if len(logs) >= 3 else logs
-        recent_wr = sum(1 for g in recent_games if g.win_loss) / len(recent_games)
-
-        # Compare recent performance to overall
-        overall_wr = sum(1 for g in logs if g.win_loss) / len(logs)
-        trend = (
-            'improving' if recent_wr > overall_wr
-            else 'declining' if recent_wr < overall_wr
-            else 'stable'
-        )
-
-        return {
-            'trend': trend,
-            'consistency_score': float(np.std([g.win_loss for g in logs])),
-            'recent_win_rate': recent_wr,
-            'first_turn_win_rate': first_turn_wr,
-            'second_turn_win_rate': second_turn_wr
-        }
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 def analyze_deck_performance(deck_id):
     """
