@@ -173,34 +173,27 @@ def get_deck_stats(deck_id):
 
 @battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
 def import_battlelog(deck_id, player_name):
-    """
-    Import and process a battle log.
-    
-    Args:
-        deck_id (int): Unique identifier of the deck used
-        player_name (str): Name of the player in the battle
-        
-    Request Body:
-        Raw text content of the battle log
-        
-    Returns:
-        201: JSON object containing:
-            - message: Success confirmation
-            - id: New battlelog ID
-            - stats: Processed battle statistics
-        
-        400: If log validation fails
-        
-        404: If deck not found
-        
-        409: If duplicate log detected
-        
-        500: Error response if import fails
-    """
-    
     try:
-        deck = Deck.query.get_or_404(deck_id)
+        # Add validation for the log format
         log_text = request.get_data(as_text=True)
+        if not log_text.strip():
+            return jsonify({
+                "error": "Empty battle log",
+                "details": "The battle log content cannot be empty"
+            }), 400
+            
+        # Validate log structure
+        if "Setup" not in log_text or "Turn #" not in log_text:
+            return jsonify({
+                "error": "Invalid battle log format",
+                "details": "Log must contain Setup and Turn sections"
+            }), 400
+
+        # Add logging for debugging
+        print(f"Processing log for deck {deck_id} and player {player_name}")
+        print(f"Log length: {len(log_text)} characters")
+        
+        deck = Deck.query.get_or_404(deck_id)
         lines = [line.strip() for line in log_text.split('\n') if line.strip()]
 
         # Determine who went first by checking first turn
@@ -311,9 +304,21 @@ def import_battlelog(deck_id, player_name):
             "stats": battlelog_data
         }), 201
 
+    except ValueError as ve:
+        return jsonify({
+            "error": "Battle log processing error",
+            "details": str(ve)
+        }), 400
+    except SQLAlchemyError as se:
+        db.session.rollback()
+        return jsonify({
+            "error": "Database error",
+            "details": str(se)
+        }), 500
     except Exception as e:
         db.session.rollback()
         return jsonify({
             "error": "Failed to import battle log",
-            "details": str(e)
+            "details": str(e),
+            "type": type(e).__name__
         }), 500
