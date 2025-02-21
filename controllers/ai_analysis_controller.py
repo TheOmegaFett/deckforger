@@ -63,10 +63,10 @@ class DeckAnalysisEngine:
     def analyze_deck(self, deck_id):
         deck = Deck.query.get(deck_id)
         self.deck = deck
-        self.deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all() 
+        deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
         # Calculate average turns first and ensure it's a float
-        avg_turns_data = self._calculate_avg_turns(self.deck_logs)
+        avg_turns_data = self._calculate_avg_turns(deck_logs)
         if isinstance(avg_turns_data, (int, float)):
             average_turns = float(avg_turns_data)
         else:
@@ -74,7 +74,7 @@ class DeckAnalysisEngine:
 
         # Get card performance data
         card_performance = self._identify_key_cards(deck_logs)
-        weak_performers = self._identify_weak_performers(card_performance, deck)
+        weak_performers = self._identify_weak_performers(card_performance, deck, deck_logs)  # Pass deck_logs
 
         # Store card effectiveness data in performance_metrics
         performance_metrics = {
@@ -119,7 +119,7 @@ class DeckAnalysisEngine:
 
         return rarely_used
 
-    def _identify_weak_performers(self, card_performance, deck):
+    def _identify_weak_performers(self, card_performance, deck, deck_logs):  # Add deck_logs parameter
         """Identify cards with poor performance metrics"""
         weak_performers = []
         total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
@@ -141,24 +141,44 @@ class DeckAnalysisEngine:
 
         return {
             'underperforming_cards': weak_performers,
-            'coin_flip_stats': self._analyze_coin_flip_cards(deck_logs),
+            'coin_flip_stats': self._analyze_coin_flip_cards(deck_logs),  # Pass deck_logs here
             'unused_cards': self._find_unused_cards(card_performance)
         }
 
     def _analyze_coin_flip_cards(self, logs):
-                      """Analyze success rates of coin flip dependent cards"""
-                      coin_flip_stats = {}
+        """Analyze success rates of coin flip dependent cards"""
+        coin_flip_stats = {
+            "Crushing Hammer": {"attempts": 0, "successes": 0},
+            "Super Scoop Up": {"attempts": 0, "successes": 0}
+        }
+
+        for log in logs:
+            raw_log = log.raw_log.lower()
+            
+            # Track Crushing Hammer
+            if "crushing hammer" in raw_log:
+                hammer_attempts = raw_log.count("crushing hammer")
+                coin_flip_stats["Crushing Hammer"]["attempts"] += hammer_attempts
+                successes = raw_log.count("discarded an energy")
+                coin_flip_stats["Crushing Hammer"]["successes"] += successes
+                
+            # Track Super Scoop Up
+            if "super scoop up" in raw_log:
+                scoop_attempts = raw_log.count("super scoop up")
+                coin_flip_stats["Super Scoop Up"]["attempts"] += scoop_attempts
+                successes = raw_log.count("returned to hand")  # Adjust based on actual log text
+                coin_flip_stats["Super Scoop Up"]["successes"] += successes
+
+        # Calculate success rates
+        for card in coin_flip_stats:
+            stats = coin_flip_stats[card]
+            if stats["attempts"] > 0:
+                stats["success_rate"] = (stats["successes"] / stats["attempts"]) * 100
+            else:
+                stats["success_rate"] = 0
+
+        return coin_flip_stats    
     
-                      # Only track if the card was actually used and had impact
-                      for log in logs:
-                          if "Crushing Hammer" in log.raw_log and "discarded" in log.raw_log:
-                              if "Crushing Hammer" not in coin_flip_stats:
-                                  coin_flip_stats["Crushing Hammer"] = {"attempts": 0, "successes": 0}
-                              coin_flip_stats["Crushing Hammer"]["attempts"] += 1
-                              if "discarded an Energy" in log.raw_log:
-                                  coin_flip_stats["Crushing Hammer"]["successes"] += 1
-    
-                      return coin_flip_stats
     def _calculate_win_rate(self, logs):
         """Calculate win rate with statistical confidence"""
         if not logs:
