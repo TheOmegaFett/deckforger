@@ -103,41 +103,41 @@ class DeckAnalysisEngine:
 
    
     def _find_unused_cards(self, card_performance):
-        """Find cards that were rarely or never used"""
         deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
-        used_cards = set(card for card, stats in card_performance['most_used'])
-
-        # Calculate usage threshold based on total games
-        total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
-        usage_threshold = max(2, total_games * 0.15)  # Used in less than 15% of games
-
+        used_cards = set()
+        
+        # Track all cards that appear in battle logs
+        for log in self.deck_logs:  # Need to store deck_logs as class attribute
+            for card in log.most_used_cards:
+                used_cards.add(card)
+                
+        # Calculate usage threshold
+        total_games = len(self.deck_logs)
+        usage_threshold = max(1, total_games * 0.1)  # Lower threshold
+        
         rarely_used = []
-        for card in deck_cards - used_cards:
-            # Only include if usage is below threshold and not a tech card
-            if card_performance.get(card, {}).get('uses', 0) < usage_threshold:
+        for card in deck_cards:
+            if card not in used_cards:
                 rarely_used.append({'card': card})
-
+                
         return rarely_used
 
-    def _identify_weak_performers(self, card_performance, deck, deck_logs):  # Add deck_logs parameter
-        """Identify cards with poor performance metrics"""
-        weak_performers = []
-        total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
 
-        for card_stats in card_performance['most_used']:
-            card_name, stats = card_stats
-            # Consider a card weak if:
-            # 1. Used in at least 25% of games (significant sample)
-            # 2. Win rate below 35% in those games
-            # 3. Not a tech card or key combo piece
-            if (stats['uses'] >= total_games * 0.25 and 
-                (stats['wins'] / stats['uses']) < 0.35 and
+    def _identify_weak_performers(self, card_performance, deck, deck_logs):
+        weak_performers = []
+        total_games = len(deck_logs)
+
+        for card_name, stats in card_performance['most_used']:
+            # Adjust thresholds
+            if (stats['uses'] >= total_games * 0.15 and  # Lower usage threshold
+                (stats['wins'] / stats['uses']) < 0.45 and  # Higher win rate threshold
                 card_name not in [card[0] for card in card_performance.get('key_synergy_cards', [])]):
                 weak_performers.append({
                     'card': card_name,
                     'win_rate': (stats['wins'] / stats['uses']) * 100,
                     'uses': stats['uses']
                 })
+
 
         return {
             'underperforming_cards': weak_performers,
@@ -147,37 +147,39 @@ class DeckAnalysisEngine:
 
     def _analyze_coin_flip_cards(self, logs):
         """Analyze success rates of coin flip dependent cards"""
-        coin_flip_stats = {
-            "Crushing Hammer": {"attempts": 0, "successes": 0},
-            "Super Scoop Up": {"attempts": 0, "successes": 0}
-        }
+        def _analyze_coin_flip_cards(self, logs):
+            coin_flip_stats = {
+                "Crushing Hammer": {"attempts": 0, "successes": 0},
+                "Super Scoop Up": {"attempts": 0, "successes": 0}
+            }
 
-        for log in logs:
-            raw_log = log.raw_log.lower()
-            
-            # Track Crushing Hammer
-            if "crushing hammer" in raw_log:
-                hammer_attempts = raw_log.count("crushing hammer")
-                coin_flip_stats["Crushing Hammer"]["attempts"] += hammer_attempts
-                successes = raw_log.count("discarded an energy")
-                coin_flip_stats["Crushing Hammer"]["successes"] += successes
+            for log in logs:
+                raw_log = log.raw_log.lower()
                 
-            # Track Super Scoop Up
-            if "super scoop up" in raw_log:
-                scoop_attempts = raw_log.count("super scoop up")
-                coin_flip_stats["Super Scoop Up"]["attempts"] += scoop_attempts
-                successes = raw_log.count("returned to hand")  # Adjust based on actual log text
-                coin_flip_stats["Super Scoop Up"]["successes"] += successes
+                # Improve Crushing Hammer detection
+                if "crushing hammer" in raw_log:
+                    hammer_attempts = raw_log.count("played crushing hammer")
+                    coin_flip_stats["Crushing Hammer"]["attempts"] += hammer_attempts
+                    # Look for successful flips
+                    successes = raw_log.count("flipped a coin and it landed on heads")
+                    coin_flip_stats["Crushing Hammer"]["successes"] += successes
 
-        # Calculate success rates
-        for card in coin_flip_stats:
-            stats = coin_flip_stats[card]
-            if stats["attempts"] > 0:
-                stats["success_rate"] = (stats["successes"] / stats["attempts"]) * 100
-            else:
-                stats["success_rate"] = 0
+                # Improve Super Scoop Up detection  
+                if "super scoop up" in raw_log:
+                    scoop_attempts = raw_log.count("played super scoop up")
+                    coin_flip_stats["Super Scoop Up"]["attempts"] += scoop_attempts
+                    successes = raw_log.count("returned to hand")
+                    coin_flip_stats["Super Scoop Up"]["successes"] += successes
 
-        return coin_flip_stats    
+            # Calculate success rates
+            for card in coin_flip_stats:
+                stats = coin_flip_stats[card]
+                if stats["attempts"] > 0:
+                    stats["success_rate"] = (stats["successes"] / stats["attempts"]) * 100
+                else:
+                    stats["success_rate"] = 0
+
+            return coin_flip_stats    
     
     def _calculate_win_rate(self, logs):
         """Calculate win rate with statistical confidence"""
