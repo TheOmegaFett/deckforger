@@ -105,52 +105,63 @@ class DeckAnalysisEngine:
         """Find cards that were rarely used"""
         deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
         used_cards = set(card for card, stats in card_performance['most_used'])
-        
+    def _find_unused_cards(self, card_performance):
+        """Find cards that were rarely or never used"""
+        deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
+        used_cards = set(card for card, stats in card_performance['most_used'])
+
         # Calculate usage threshold based on total games
         total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
-        usage_threshold = max(1, total_games * 0.1)  # At least 10% of games
-        
+        usage_threshold = max(2, total_games * 0.15)  # Used in less than 15% of games
+
         rarely_used = []
         for card in deck_cards - used_cards:
-            # Only include if usage is below threshold
+            # Only include if usage is below threshold and not a tech card
             if card_performance.get(card, {}).get('uses', 0) < usage_threshold:
                 rarely_used.append({'card': card})
-        
+
         return rarely_used
 
     def _identify_weak_performers(self, card_performance, deck):
         """Identify cards with poor performance metrics"""
         weak_performers = []
         total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
-        
+
         for card_stats in card_performance['most_used']:
             card_name, stats = card_stats
             # Consider a card weak if:
-            # 1. Used in at least 5 games
-            # 2. Win rate below 40%
-            # 3. Not a key combo piece
-            if (stats['uses'] >= 5 and 
-                (stats['wins'] / stats['uses']) < 0.4 and
+            # 1. Used in at least 25% of games (significant sample)
+            # 2. Win rate below 35% in those games
+            # 3. Not a tech card or key combo piece
+            if (stats['uses'] >= total_games * 0.25 and 
+                (stats['wins'] / stats['uses']) < 0.35 and
                 card_name not in [card[0] for card in card_performance.get('key_synergy_cards', [])]):
                 weak_performers.append({
                     'card': card_name,
                     'win_rate': (stats['wins'] / stats['uses']) * 100,
                     'uses': stats['uses']
                 })
-    def _find_unused_cards(self, card_performance):  # Remove deck parameter here
-        """Find cards that were rarely or never used"""
-        deck_cards = set(card.name for card in self.deck.cards)
-        used_cards = set(card for card, stats in card_performance['most_used'])
-        
-        rarely_used = []
-        for card in deck_cards - used_cards:
-            rarely_used.append({
-                'card': card,
-                'recommendation': self._get_replacement_suggestion(card)
-            })
-        
-        return rarely_used
 
+        return {
+            'underperforming_cards': weak_performers,
+            'coin_flip_stats': self._analyze_coin_flip_cards(deck_logs),
+            'unused_cards': self._find_unused_cards(card_performance)
+        }
+
+    def _analyze_coin_flip_cards(self, logs):
+                      """Analyze success rates of coin flip dependent cards"""
+                      coin_flip_stats = {}
+    
+                      # Only track if the card was actually used and had impact
+                      for log in logs:
+                          if "Crushing Hammer" in log.raw_log and "discarded" in log.raw_log:
+                              if "Crushing Hammer" not in coin_flip_stats:
+                                  coin_flip_stats["Crushing Hammer"] = {"attempts": 0, "successes": 0}
+                              coin_flip_stats["Crushing Hammer"]["attempts"] += 1
+                              if "discarded an Energy" in log.raw_log:
+                                  coin_flip_stats["Crushing Hammer"]["successes"] += 1
+    
+                      return coin_flip_stats
     def _calculate_win_rate(self, logs):
         """Calculate win rate with statistical confidence"""
         if not logs:
