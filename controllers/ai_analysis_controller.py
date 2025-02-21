@@ -402,34 +402,37 @@ class DeckAnalysisEngine:
                 'first_turn_win_rate': first_turn_wr,
                 'second_turn_win_rate': second_turn_wr
             }
-@ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
-def analyze_deck_performance(deck_id):
-    """
-    Analyze deck performance using battle logs and AI.
-    
-    Parameters:
-        deck_id (int): ID of the deck to analyze
+
+    def analyze_deck_performance(deck_id):
+        """
+        Analyze deck performance using battle logs and AI.
         
-    Returns:
-        200: Analysis results in JSON format
-        404: Deck not found
-        500: Analysis operation failed
-    """
-    try:
-        deck = db.session.get(Deck, deck_id)
-        if not deck:
-            return jsonify({'error': 'Deck not found'}), 404
+        Parameters:
+            deck_id (int): ID of the deck to analyze
+            
+        Returns:
+            200: Analysis results in JSON format
+            404: Deck not found
+            500: Analysis operation failed
+        """
+        try:
+            deck = db.session.get(Deck, deck_id)
+            if not deck:
+                return jsonify({'error': 'Deck not found'}), 404
 
-        analysis_engine = DeckAnalysisEngine()
-        analysis_results = analysis_engine.analyze_deck(deck_id)
+            analysis_engine = DeckAnalysisEngine()
+            analysis_results = analysis_engine.analyze_deck(deck_id)
 
-        return jsonify(analysis_results), 200
+            return jsonify(analysis_results), 200
 
-    except Exception as e:
-        return jsonify({
-            'error': 'Failed to analyze deck performance', 
-            'details': str(e)
-        }), 500
+        except Exception as e:
+            return jsonify({
+                'error': 'Failed to analyze deck performance', 
+                'details': str(e)
+            }), 500
+
+
+@ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 
 @ai_analysis_controller.route('/deck/<int:deck_id>/history', methods=['GET'])
 def get_analysis_history(deck_id):
