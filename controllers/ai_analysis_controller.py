@@ -101,10 +101,7 @@ class DeckAnalysisEngine:
 
         return analysis
 
-    def _find_unused_cards(self, card_performance):
-        """Find cards that were rarely used"""
-        deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
-        used_cards = set(card for card, stats in card_performance['most_used'])
+   
     def _find_unused_cards(self, card_performance):
         """Find cards that were rarely or never used"""
         deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
@@ -280,22 +277,9 @@ class DeckAnalysisEngine:
             'unused_cards': self._find_unused_cards(card_performance)  # Remove deck parameter
         }
 
-    def _find_unused_cards(self, card_performance):
-        """Find cards that were rarely or never used"""
-        # Access card names through the card relationship on DeckCard
-        deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
-        used_cards = set(card for card, stats in card_performance['most_used'])
-        
-        rarely_used = []
-        for card in deck_cards - used_cards:
-            rarely_used.append({
-                'card': card,
-                'recommendation': self._get_replacement_suggestion(card)
-            })
-        
-        return rarely_used
+   
 
-    def _get_replacement_suggestion(self, card):
+   
         """Generate contextual replacement suggestions"""
         # Add card category mapping
         card_categories = {
