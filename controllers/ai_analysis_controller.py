@@ -62,6 +62,7 @@ class DeckAnalysisEngine:
 
     def analyze_deck(self, deck_id):
         deck = Deck.query.get(deck_id)
+        self.deck = deck  # Store deck reference for analysis methods
         deck_logs = Battlelog.query.filter_by(deck_id=deck_id).all()
 
         # Calculate average turns first and ensure it's a float
@@ -73,7 +74,7 @@ class DeckAnalysisEngine:
 
         # Get card performance data
         card_performance = self._identify_key_cards(deck_logs)
-        weak_performers = self._identify_weak_performers(card_performance, deck)  # Pass deck here
+        weak_performers = self._identify_weak_performers(card_performance)
 
         # Prepare analysis with type-safe values
         analysis = {
