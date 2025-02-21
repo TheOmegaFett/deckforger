@@ -74,7 +74,8 @@ class DeckAnalysisEngine:
 
         # Get card performance data
         card_performance = self._identify_key_cards(deck_logs)
-        weak_performers = self._identify_weak_performers(card_performance)
+        # Updated call with deck parameter
+        weak_performers = self._identify_weak_performers(card_performance, deck)
 
         # Prepare analysis with type-safe values
         analysis = {
