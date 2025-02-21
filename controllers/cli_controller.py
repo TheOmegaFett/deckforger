@@ -237,63 +237,38 @@ cli_controller = Blueprint('cli', __name__)
 
 @cli_controller.route('/run/cleanup', methods=['POST'])
 def cleanup_database():
-    """
-    Clean up duplicate entries and update missing battle log attributes.
-    
-    Returns:
-        200: Cleanup completed successfully with count of updated items
-        500: Cleanup operation failed
-    """
     try:
         updates = {
-            'cards_deleted': 0,
-            'sets_deleted': 0,
             'battlelogs_updated': 0
         }
 
-        # Existing cleanup code for cards and sets
-        stmt = (
-            db.select(Card.name, Card.cardset_id, db.func.count('*'))
-            .group_by(Card.name, Card.cardset_id)
-            .having(db.func.count('*') > 1)
-        )
-        duplicate_cards = db.session.execute(stmt).all()
-        
-        for name, cardset_id, count in duplicate_cards:
-            stmt = db.select(Card).filter_by(name=name, set_id=cardset_id).offset(1)
-            duplicates = db.session.scalars(stmt).all()
-            for card in duplicates:
-                db.session.delete(card)
-                updates['cards_deleted'] += 1
-
-        # Add battlelog went_first attribute update
+        # Get all battle logs with null went_first
         battlelogs = Battlelog.query.filter(Battlelog.went_first.is_(None)).all()
         
         for log in battlelogs:
-            # Parse raw log to determine went_first
             lines = [line.strip() for line in log.raw_log.split('\n') if line.strip()]
             
-            # Get player name from deck relationship
-            deck = Deck.query.get(log.deck_id)
-            player_name = deck.player_name if deck else None
+            # Look for specific turn indicators
+            went_first = None
+            for line in lines:
+                if "Turn #1" in line:
+                    # The player taking Turn #1 went first
+                    went_first = "TheOmegaFett" in line  # Replace with actual player name
+                    break
+                elif "decided to go first" in line:
+                    # Player mentioned in "decided to go first" went first
+                    went_first = "TheOmegaFett" in line  # Replace with actual player name
+                    break
             
-            if player_name:
-                for line in lines:
-                    if "decided to go first" in line:
-                        log.went_first = player_name in line
-                        break
-                    elif "Turn #1" in line:
-                        log.went_first = player_name in line
-                        break
-                
+            if went_first is not None:
+                log.went_first = went_first
                 updates['battlelogs_updated'] += 1
+                print(f"Updated log {log.id}: went_first = {went_first}")  # Debug logging
 
         db.session.commit()
 
         return jsonify({
             'message': 'Cleanup completed successfully!',
-            'cards_removed': updates['cards_deleted'],
-            'sets_removed': updates['sets_deleted'],
             'battlelogs_updated': updates['battlelogs_updated']
         }), 200
 
