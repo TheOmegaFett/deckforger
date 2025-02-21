@@ -212,26 +212,26 @@ class DeckAnalysisEngine:
         }
 
     def _identify_opponent_strategy(self, log):
-        """Identify opponent's deck strategy based on card patterns"""
-        # Default strategies based on card combinations
+        """Identify opponent's deck strategy based on card patterns in the raw log"""
+        # Define strategy patterns to look for in the raw log
         strategies = {
-            'aggro': {'ai', 'direct_damage'},
-            'control': {'energy_denial', 'status_effects'},
-            'combo': {'search_cards', 'energy_acceleration'},
-            'stall': {'healing', 'damage_reduction'}
+            'aggro': ['attack', 'damage', 'knockout'],
+            'control': ['discard', 'energy removal', 'hammer'],
+            'combo': ['search', 'draw', 'evolution'],
+            'stall': ['heal', 'switch', 'recovery']
         }
-        
-        opponent_cards = set(log.opponent_cards)
-        
-        # Determine strategy based on most matching card patterns
+    
+        # Parse the raw log for strategy indicators
         strategy_scores = {
-            name: len(pattern & opponent_cards)
-            for name, pattern in strategies.items()
+            name: sum(1 for pattern in patterns if pattern in log.raw_log.lower())
+            for name, patterns in strategies.items()
         }
-        
+    
         # Return the strategy with highest score, default to 'unknown'
-        return max(strategy_scores.items(), 
-                  key=lambda x: x[1])[0] if strategy_scores else 'unknown'
+        if not strategy_scores:
+            return 'unknown'
+    
+        return max(strategy_scores.items(), key=lambda x: x[1])[0]
     def _identify_weak_performers(self, card_performance, deck):  # Added deck parameter
         """Identify cards with poor performance metrics"""
         weak_performers = []
