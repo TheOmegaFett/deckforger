@@ -260,7 +260,7 @@ class DeckAnalysisEngine:
 
     def _find_unused_cards(self, card_performance):
         """Find cards that were rarely or never used"""
-        deck_cards = set(card.name for card in self.deck.cards)
+        deck_cards = set(card.name for card in self.deck.deck_cards)  # Changed from cards to deck_cards
         used_cards = set(card for card, stats in card_performance['most_used'])
         
         rarely_used = []
