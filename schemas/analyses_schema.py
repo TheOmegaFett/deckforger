@@ -1,31 +1,19 @@
+from init import ma
+from models.ai_analysis import AIAnalysis
 
-from marshmallow import Schema, fields
-
-class AnalysesSchema(Schema):
-    """Schema for handling analyses data"""
-    
-    id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
-    created_at = fields.DateTime(dump_only=True)
-    updated_at = fields.DateTime(dump_only=True)
-    
-    # Analysis specific fields
-    data = fields.Dict()
-    status = fields.Str()
-    result = fields.Dict()
-    
+class AnalysesSchema(ma.SQLAlchemySchema):
     class Meta:
-        ordered = True
-
-# You can create additional schemas for specific analysis types
-class DetailedAnalysisSchema(AnalysesSchema):
-    """Schema for detailed analysis data"""
+        model = AIAnalysis
     
-    description = fields.Str()
-    parameters = fields.Dict()
-    metadata = fields.Dict()
+    id = ma.auto_field()
+    deck_id = ma.auto_field()
+    timestamp = ma.auto_field()
+    win_rate = ma.auto_field()
+    total_battles = ma.auto_field()
+    average_turns = ma.auto_field()
+    performance_metrics = ma.auto_field()
+    trend_analysis = ma.auto_field()
 
-# Create instances if needed
-analyses_schema = AnalysesSchema()
-analyses_schema_many = AnalysesSchema(many=True)
-detailed_analysis_schema = DetailedAnalysisSchema()
+# Create schema instances
+analysis_schema = AnalysesSchema()
+analyses_schema = AnalysesSchema(many=True)

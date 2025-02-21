@@ -439,9 +439,7 @@ def get_analysis_history(deck_id):
     """Retrieve historical analysis data for a deck"""
     try:
         analyses = AIAnalysis.query.filter_by(deck_id=deck_id).order_by(AIAnalysis.timestamp.desc()).all()
-        # Use marshmallow's dump method to serialize the data
-        serialized_analyses = analyses_schema.dump(analyses)
-        return jsonify(serialized_analyses), 200
+        return analyses_schema.jsonify(analyses), 200
     except Exception as e:
         return jsonify({'error': 'Failed to retrieve analysis history', 'details': str(e)}), 500
 
