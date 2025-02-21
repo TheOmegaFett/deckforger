@@ -102,23 +102,20 @@ class DeckAnalysisEngine:
 
    
     def _find_unused_cards(self, card_performance):
+        """Find cards that were rarely or never used"""
         deck_cards = set(deck_card.card.name for deck_card in self.deck.deck_cards)
-        used_cards = set()
-        
-        # Track all cards that appear in battle logs
-        for log in self.deck_logs:  # Need to store deck_logs as class attribute
-            for card in log.most_used_cards:
-                used_cards.add(card)
-                
-        # Calculate usage threshold
-        total_games = len(self.deck_logs)
-        usage_threshold = max(1, total_games * 0.1)  # Lower threshold
-        
+        used_cards = set(card for card, stats in card_performance['most_used'])
+
+        # Calculate usage threshold based on total games
+        total_games = sum(stats['uses'] for _, stats in card_performance['most_used'])
+        usage_threshold = max(2, total_games * 0.15)  # Used in less than 15% of games
+
         rarely_used = []
-        for card in deck_cards:
-            if card not in used_cards:
+        for card in deck_cards - used_cards:
+            # Only include if usage is below threshold and not a tech card
+            if card_performance.get(card, {}).get('uses', 0) < usage_threshold:
                 rarely_used.append({'card': card})
-                
+
         return rarely_used
 
 
@@ -336,24 +333,38 @@ class DeckAnalysisEngine:
                 'second_turn_win_rate': 0.0
             }
 
-        # Explicitly check went_first flag
-        first_turn_games = [log for log in logs if log.went_first is True]
-        second_turn_games = [log for log in logs if log.went_first is False]
+        # Explicitly track first turn games and wins
+        first_turn_games = []
+        first_turn_wins = 0
+        second_turn_games = []
+        second_turn_wins = 0
 
+        for log in logs:
+            if log.went_first:
+                first_turn_games.append(log)
+                if log.win_loss:
+                    first_turn_wins += 1
+            else:
+                second_turn_games.append(log)
+                if log.win_loss:
+                    second_turn_wins += 1
+
+        # Calculate win rates with explicit win counting
         first_turn_wr = (
-            sum(1 for g in first_turn_games if g.win_loss) / len(first_turn_games)
+            (first_turn_wins / len(first_turn_games)) * 100
             if first_turn_games else 0.0
-        ) * 100  # Convert to percentage
+        )
 
         second_turn_wr = (
-            sum(1 for g in second_turn_games if g.win_loss) / len(second_turn_games)
+            (second_turn_wins / len(second_turn_games)) * 100
             if second_turn_games else 0.0
-        ) * 100  # Convert to percentage
+        )
 
+        # Calculate other metrics
         recent_games = logs[-3:] if len(logs) >= 3 else logs
         recent_wr = (sum(1 for g in recent_games if g.win_loss) / len(recent_games)) * 100
-
         overall_wr = (sum(1 for g in logs if g.win_loss) / len(logs)) * 100
+
         trend = (
             'improving' if recent_wr > overall_wr
             else 'declining' if recent_wr < overall_wr
@@ -367,6 +378,7 @@ class DeckAnalysisEngine:
             'first_turn_win_rate': first_turn_wr,
             'second_turn_win_rate': second_turn_wr
         }
+        
 @ai_analysis_controller.route('/<int:deck_id>', methods=['GET'])
 def analyze_deck_performance(deck_id):
     # Add logging
