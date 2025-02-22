@@ -21,22 +21,19 @@ from controllers.ai_analysis_controller import ai_analysis_controller
 load_dotenv()
 
 def create_app():
-    """
-    Creates and configures the Flask application.
-    
-    Returns:
-        Flask: Configured Flask application instance
-    """
     app = Flask(__name__)
-    # Get database URI from environment
-    load_dotenv()
     database_uri = os.environ.get('DATABASE_URI')
-    print(f"Main.py DATABASE_URI: {os.environ.get('DATABASE_URI')}")
     
     app.config.update(
         SQLALCHEMY_DATABASE_URI=database_uri,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        
+        # Add the new pool settings here
+        SQLALCHEMY_ENGINE_OPTIONS={
+            'pool_pre_ping': True,
+            'pool_recycle': 3600,
+            'pool_timeout': 30,
+            'max_overflow': 10
+        }
     )
     
     # Initialize extensions

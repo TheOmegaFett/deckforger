@@ -177,19 +177,38 @@ def get_deck_stats(deck_id):
             "error": "Failed to retrieve deck statistics",
             "details": str(e)
         }), 500
-
 import logging
 
 logger = logging.getLogger(__name__)
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, OperationalError
+from time import sleep
+
+def retry_on_connection_error(max_retries=3, delay=0.5):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            retries = 0
+            while retries < max_retries:
+                try:
+                    return func(*args, **kwargs)
+                except OperationalError as e:
+                    if "SSL connection has been closed unexpectedly" in str(e):
+                        retries += 1
+                        if retries == max_retries:
+                            raise
+                        sleep(delay)
+                        continue
+                    raise
+        return wrapper
+    return decorator
 
 @battlelogs.route('/import/<int:deck_id>/<string:player_name>', methods=['POST'])
+@retry_on_connection_error()
 def import_battlelog(deck_id, player_name):
     try:
         with db.session.begin_nested():
             # Validate deck exists
             deck = Deck.query.get_or_404(deck_id)
-        
+    
             # Validate request data
             log_text = request.get_data(as_text=True)
             if not log_text:
@@ -239,7 +258,7 @@ def import_battlelog(deck_id, player_name):
                     "error": "This battle log has already been imported",
                     "existing_log_id": existing_log.id
                 }), 409  # Conflict
-    
+
             # Process log and create battlelog
             deck_cards = {deckcard.card.name for deckcard in deck.deck_cards}
 
@@ -248,7 +267,7 @@ def import_battlelog(deck_id, player_name):
             card_interactions = {}
             current_player = None
             card_usage_count = {}  # Track {card_name: usage_count}
-        
+    
             def is_meaningful_interaction(card1, card2, line):
                 # Define meaningful interactions
                 interactions = [
@@ -274,7 +293,7 @@ def import_battlelog(deck_id, player_name):
                                     pair = tuple(sorted([card1, card2]))
                                     card_interactions[pair] = card_interactions.get(pair, 0) + 1
 
-            
+        
                 if current_player == player_name:
                     # Extract card names from the line
                     for card_name in deck_cards:  # Use deck_cards to check valid cards
@@ -317,17 +336,17 @@ def import_battlelog(deck_id, player_name):
                 'timestamp': datetime.now(timezone.utc),
                 'went_first': went_first  # Add the new field
             }
-        
+    
             battlelog = Battlelog(**battlelog_data)
             db.session.add(battlelog)
-    
+
         db.session.commit()
         return jsonify({
             "message": "Battle log imported successfully",
             "id": battlelog.id,
             "stats": battlelog_data
         }), 201
-    
+
     except ValueError as ve:
         return jsonify({
             "error": "Invalid input",
@@ -345,4 +364,3 @@ def import_battlelog(deck_id, player_name):
             "error": "Database error",
             "details": str(se)
         }), 500
-
